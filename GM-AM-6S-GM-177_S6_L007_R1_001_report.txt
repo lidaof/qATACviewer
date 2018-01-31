@@ -1,0 +1,37 @@
+$Library
+[1] "GM-AM-6S-GM-177_S6_L007_R1_001"
+
+$Pipeline.version
+[1] "V1"
+
+$Genome
+[1] "mm10"
+
+$Data.type
+[1] "Single-end data"
+
+$Library.size
+                                              Sample             ENCODE PE
+Total reads                                 74021539 52070092(SD:10568724)
+Mapped reads                                59035882  42271131(SD:9325680)
+Percentage of uniquely mapped reads in chrM    0.83%       8.02%(SD:4.61%)
+Non-redundant uniquely mapped reads         48821878  36164143(SD:7659937)
+Percentage of reads in chrX                    2.41%       3.28%(SD:1.01%)
+Percentage of reads in chrY                    0.07%       0.05%(SD:0.02%)
+Useful reads                                48865406  35073987(SD:7561671)
+Useful single ends                          48865406 69318399(SD:15019714)
+
+$Library.complexity
+                                               Sample        ENCODE PE
+Before alignment library duplicates percentage 22.19% 23.59%(SD:6.61%)
+After alignment PCR duplicates percentage       14.9% 13.98%(SD:5.19%)
+
+$Enrichment
+                                                  Sample        ENCODE PE
+Useful reads ratio                                   66%       67%(SD:6%)
+Number of peaks                                     1221  60430(SD:15580)
+Reads under peaks ratio                            0.12% 19.01%(SD:6.76%)
+Enrichment ratio in coding promoter regions         1.18    11.5(SD:3.66)
+Normalized enrichment ratio                         9.78  34.14(SD:12.03)
+Percentage of background RPKM smaller than 0.3777 57.45%  88.3%(SD:7.58%)
+
