@@ -34,18 +34,11 @@ class App extends Component {
       this.state = { value: [], data:null };
       this.handleClick = this.handleClick.bind(this);
     }
-    
-    componentWillMount() {
-      axios
-      .get('/report/GM-AM-6S-GM-172_S1_L007_R1_001_report.txt,GM-AM-6S-GM-174_S3_L007_R1_001_report.txt,GM-AM-6S-GM-173_S2_L007_R1_001_report.txt')
-      .then(res => this.setState({ data: res.data }))
-      .catch(err => console.log(err))
-  }
 
-
-
-  handleClick(){
-    console.log(this.mytable);
+  async handleClick() {
+    let req = this.state.value.join();
+    let response = await axios.get(`/report/${req}`);
+    this.setState({data: response.data});
   }
 
    render() {
@@ -98,7 +91,7 @@ class App extends Component {
       <div>
         <h1>Mapping</h1>
         <div>
-          <BarChart width={800} height={400} data={this.state.data.mapping}
+          <BarChart width={1200} height={400} data={this.state.data.mapping}
                         margin={{top: 30, right: 50, left: 30, bottom: 5}}>
               <XAxis dataKey="name"/>
               <YAxis/>
@@ -113,7 +106,7 @@ class App extends Component {
         </div>
         <h1>chrM rate</h1>
         <div>
-          <BarChart width={800} height={400} data={this.state.data['chrM rate']}
+          <BarChart width={1200} height={400} data={this.state.data['chrM rate']}
                         margin={{top: 30, right: 50, left: 30, bottom: 5}}>
               <XAxis dataKey="name"/>
               <YAxis/>
@@ -126,7 +119,7 @@ class App extends Component {
         </div>
         <h1>Library Complexity</h1>
         <div>
-          <BarChart width={800} height={400} data={this.state.data['library complexity']}
+          <BarChart width={1200} height={400} data={this.state.data['library complexity']}
                         margin={{top: 30, right: 50, left: 30, bottom: 5}}>
               <XAxis dataKey="name"/>
               <YAxis/>
@@ -139,7 +132,7 @@ class App extends Component {
         </div>
         <h1>Enrichment</h1>
         <div>
-          <BarChart width={800} height={400} data={this.state.data['enrichment']}
+          <BarChart width={1200} height={400} data={this.state.data['enrichment']}
                         margin={{top: 30, right: 50, left: 30, bottom: 5}}>
               <XAxis dataKey="name"/>
               <YAxis/>
@@ -152,7 +145,7 @@ class App extends Component {
         </div>
         <h1>Peaks</h1>
         <div>
-          <BarChart width={800} height={400} data={this.state.data['peaks']}
+          <BarChart width={1200} height={400} data={this.state.data['peaks']}
                         margin={{top: 30, right: 50, left: 30, bottom: 5}}>
               <XAxis dataKey="name"/>
               <YAxis yAxisId="left" orientation="left" stroke="#8884d8"/>
