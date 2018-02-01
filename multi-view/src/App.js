@@ -16,11 +16,7 @@ const columns = [{
   text: 'Sample'
 }];
 
-const selectRow = {
-  mode: 'checkbox',
-  clickToSelect: true,
-  bgColor: '#00BFFF'
-};
+
 
 
 const products = [
@@ -35,7 +31,7 @@ const products = [
 class App extends Component {
     constructor(props) {
       super(props);
-      this.state = { value: 'aaa', data:null };
+      this.state = { value: [], data:null };
       this.handleClick = this.handleClick.bind(this);
     }
     
@@ -46,20 +42,41 @@ class App extends Component {
       .catch(err => console.log(err))
   }
 
+
+
   handleClick(){
     console.log(this.mytable);
-    React.Children.forEach(this.props.children, function(child){
-      console.log(child)
-  });
   }
 
    render() {
      //console.log(this.state);
-     const rowEvents = {
-      onClick: (e) => {
-        console.log(e.target);
+    //  const rowEvents = {
+    //   onClick: (e) => {
+    //     console.log(e.target);
+    //   }
+    // };
+  const selectRow = {
+    mode: 'checkbox',
+    clickToSelect: true,
+    bgColor: '#00BFFF',
+    onSelect: (row, isSelect, rowIndex) => {
+      //console.log(row);
+      let newValue = [...this.state.value];
+      if(isSelect){
+        if (!newValue.includes(row.file)){
+          newValue.push(row.file)
+        }
+      }else{
+        if (newValue.includes(row.file)){
+          let index = newValue.indexOf(row.file);
+          if (index > -1) {
+            newValue.splice(index, 1);
+          }
+        }
       }
-    };
+      this.setState({value: newValue});
+    } 
+  };
     return (
   <div>
     <div>
@@ -71,12 +88,10 @@ class App extends Component {
         striped
         hover
         condensed
-        rowEvents={ rowEvents }
-        ref={(table)=>{this.mytable=table;}}
       />
     </div>
     <div>
-      Current selected: {this.state.value} 
+      <p className="lead">Current selected: {this.state.value.join()} </p>
       <button type="button" className="btn btn-primary" onClick={this.handleClick}>Update</button>
     </div>
     {this.state.data &&
