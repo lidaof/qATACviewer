@@ -2,25 +2,43 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import './App.css';
 import {BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend} from 'recharts';
+import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
+import BootstrapTable from 'react-bootstrap-table-next';
+
+const columns = [{
+  dataField: 'id',
+  text: 'ID'
+}, {
+  dataField: 'name',
+  text: 'Name'
+}, {
+  dataField: 'sample',
+  text: 'Sample'
+}];
+
+const selectRow = {
+  mode: 'checkbox',
+  clickToSelect: true,
+  bgColor: '#00BFFF'
+};
+
+
+const products = [
+  {id:0,name:'GM-AM-6S-GM-172',sample:'Liver',file:'GM-AM-6S-GM-172_S1_L007_R1_001_report.txt'},
+  {id:1,name:'GM-AM-6S-GM-173',sample:'Liver',file:'GM-AM-6S-GM-173_S2_L007_R1_001_report.txt'},
+  {id:2,name:'GM-AM-6S-GM-174',sample:'Liver',file:'GM-AM-6S-GM-174_S3_L007_R1_001_report.txt'},
+  {id:3,name:'GM-AM-6S-GM-175',sample:'Liver',file:'GM-AM-6S-GM-175_S4_L007_R1_001_report.txt'},
+  {id:4,name:'GM-AM-6S-GM-176',sample:'Lung',file:'GM-AM-6S-GM-176_S5_L007_R1_001_report.txt'},
+  {id:5,name:'GM-AM-6S-GM-177',sample:'Lung',file:'GM-AM-6S-GM-177_S6_L007_R1_001_report.txt'},
+];
 
 class App extends Component {
     constructor(props) {
-        super(props);
-        this.state = { value: '', data:null };
-
-        this.handleChange = this.handleChange.bind(this);
-        this.handleSubmit = this.handleSubmit.bind(this);
+      super(props);
+      this.state = { value: 'aaa', data:null };
+      this.handleClick = this.handleClick.bind(this);
     }
-
-    handleChange(event) {
-        this.setState({ value: event.target.value });
-    }
-
-    handleSubmit(event) {
-        alert('A name was submitted: ' + this.state.value);
-        event.preventDefault();
-    }
-
+    
     componentWillMount() {
       axios
       .get('/report/GM-AM-6S-GM-172_S1_L007_R1_001_report.txt,GM-AM-6S-GM-174_S3_L007_R1_001_report.txt,GM-AM-6S-GM-173_S2_L007_R1_001_report.txt')
@@ -28,23 +46,39 @@ class App extends Component {
       .catch(err => console.log(err))
   }
 
+  handleClick(){
+    console.log(this.mytable);
+    React.Children.forEach(this.props.children, function(child){
+      console.log(child)
+  });
+  }
+
    render() {
      //console.log(this.state);
+     const rowEvents = {
+      onClick: (e) => {
+        console.log(e.target);
+      }
+    };
     return (
-      <div>
-        
-    <form onSubmit={this.handleSubmit}>
-      <label>
-        Choose your samples:
-        <select multiple={true} value={this.state.value} onChange={this.handleChange}>
-            <option value="GM-AM-6S-GM-172_S1_L007_R1_001_report.txt">GM-AM-6S-GM-172</option>
-            <option value="GM-AM-6S-GM-174_S3_L007_R1_001_report.txt">GM-AM-6S-GM-174</option>
-            <option value="GM-AM-6S-GM-173_S2_L007_R1_001_report.txt">GM-AM-6S-GM-173</option>
-          </select>
-      </label>
-      <input type="submit" value="Submit" />
-    </form>
-    
+  <div>
+    <div>
+      <BootstrapTable
+        keyField='id'
+        data={ products }
+        columns={ columns }
+        selectRow={ selectRow }
+        striped
+        hover
+        condensed
+        rowEvents={ rowEvents }
+        ref={(table)=>{this.mytable=table;}}
+      />
+    </div>
+    <div>
+      Current selected: {this.state.value} 
+      <button type="button" className="btn btn-primary" onClick={this.handleClick}>Update</button>
+    </div>
     {this.state.data &&
       <div>
         <h1>Mapping</h1>
@@ -118,7 +152,7 @@ class App extends Component {
       </div>
     }
     
-    </div>
+  </div>
     );
   }
 }
