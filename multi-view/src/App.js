@@ -29,7 +29,6 @@ class App extends Component {
   }
 
    render() {
-     //console.log(ReactD3);
      //console.log(this.state);
     return (
       <div>
