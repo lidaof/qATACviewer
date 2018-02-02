@@ -1,5 +1,5 @@
-import sys,os
-from flask import Flask
+import sys,os,json
+from flask import Flask, request
 from flask import jsonify
 app = Flask(__name__)
 
@@ -75,6 +75,10 @@ def hello_world():
 def report(flist):
     return jsonify(main(flist))
 
+@app.route('/rep', methods=['POST'])
+def rep():
+    fd = request.json
+    return jsonify(main(','.join(fd['flist'])))
 
 if __name__ == "__main__":
     main()
