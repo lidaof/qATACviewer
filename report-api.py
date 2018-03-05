@@ -67,6 +67,38 @@ def main(flist):
                 results[oh].append(td1)            
     return results
 
+section1 = ['total_reads','mapped_reads','non-redundant_mapped_reads','useful_reads']
+section2 = ['percentage_of_uniquely_mapped_reads_in_chrM','percentage_of_non-redundant_uniquely_mapped_reads_in_chrX','percentage_of_non-redundant_uniquely_mapped_reads_in_chrY']
+section3 = ['before_alignment_library_duplicates_percentage','after_alignment_PCR_duplicates_percentage']
+section4 = ['enrichment_ratio_in_coding_promoter_regions','percentage_of_background_RPKM_larger_than_0.3777']
+section5 = ['reads_number_under_peaks','reads_percentage_under_peaks']
+headers = {
+    'mapping_stats':section1,
+    'mapping_distribution':section2,
+    'library_complexity': section3,
+    'enrichment':section4,
+    'peak_analysis':section5
+}
+
+def parse_json_list(flist):
+    d = {} # key: filename, value: parsed json content
+    for f in flist:
+        with open(f,"rU") as fin:
+            d[f] = json.load(fin)
+    return d
+
+def format_result(d):
+    results = {}
+    for h in headers:
+        results[h] = []
+        for f in d:
+            tmp = {}
+            tmp['name'] = f
+            for k in headers[h]:
+                tmp[k] = d[f]['Sample_QC_info'][h][k]
+            results[h].append(tmp)
+    return results
+
 @app.route('/')
 def hello_world():
     return 'Hello, World!'
@@ -79,6 +111,11 @@ def report(flist):
 def rep():
     fd = request.json
     return jsonify(main(','.join(fd['flist'])))
+
+@app.route('/rep1', methods=['POST'])
+def rep1():
+    fd = request.json
+    return jsonify(format_result(parse_json_list(fd['flist'])))
 
 if __name__ == "__main__":
     main()
