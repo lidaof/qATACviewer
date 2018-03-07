@@ -24,7 +24,7 @@ def s2n(s):
     else:
         return int(s)
 
-def main(flist):
+def format_text_report(flist):
     d = {}
     flis = flist.split(',')
     #flis.sort()
@@ -105,17 +105,20 @@ def hello_world():
 
 @app.route('/report/<flist>')
 def report(flist):
-    return jsonify(main(flist))
+    return jsonify(format_text_report(flist))
 
 @app.route('/rep', methods=['POST'])
 def rep():
     fd = request.json
-    return jsonify(main(','.join(fd['flist'])))
+    return jsonify(format_text_report(','.join(fd['flist'])))
 
 @app.route('/rep1', methods=['POST'])
 def rep1():
     fd = request.json
     return jsonify(format_result(parse_json_list(fd['flist'])))
+
+def main():
+    pass
 
 if __name__ == "__main__":
     main()
