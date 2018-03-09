@@ -119,6 +119,7 @@ class App extends Component {
                   <Legend />
                   <Bar dataKey="percentage_of_uniquely_mapped_reads_in_chrM" fill="#a6cee3" />
                   <Bar dataKey="percentage_of_non-redundant_uniquely_mapped_reads_in_chrX" fill="#1f78b4" />
+                  <Bar dataKey="percentage_of_non-redundant_uniquely_mapped_reads_in_chrY" fill="#b2df8a" />
               </BarChart>
             </div>
             <h1>Library Complexity</h1>

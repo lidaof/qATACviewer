@@ -68,7 +68,7 @@ def format_text_report(flist):
     return results
 
 section1 = ['total_reads','mapped_reads','non-redundant_mapped_reads','useful_reads']
-section2 = ['percentage_of_uniquely_mapped_reads_in_chrM','percentage_of_non-redundant_uniquely_mapped_reads_in_chrX','percentage_of_non-redundant_uniquely_mapped_reads_in_chrY']
+section2 = ['percentage_of_uniquely_mapped_reads_in_chrM','percentage_of_non-redundant_uniquely_mapped_reads_in_chrX','percentage_of_non-redundant_uniquely_mapped_reads_in_chrY','Percentage_of_non-redundant_uniquely_mapped_reads_in_autosome']
 section3 = ['before_alignment_library_duplicates_percentage','after_alignment_PCR_duplicates_percentage']
 section4 = ['enrichment_ratio_in_coding_promoter_regions','percentage_of_background_RPKM_larger_than_0.3777']
 section5 = ['reads_number_under_peaks','reads_percentage_under_peaks']
