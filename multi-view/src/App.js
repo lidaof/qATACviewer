@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import './App.css';
-import {BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend} from 'recharts';
+import {BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ScatterChart, Scatter, ZAxis} from 'recharts';
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import BootstrapTable from 'react-bootstrap-table-next';
 
@@ -30,6 +30,7 @@ class App extends Component {
       super(props);
       this.state = { value: [], data:null };
       this.handleClick = this.handleClick.bind(this);
+      this.renderTooltip = this.renderTooltip.bind(this);
     }
 
   async handleClick() {
@@ -40,7 +41,26 @@ class App extends Component {
     this.setState({data: response.data});
   }
 
+  renderTooltip(props) {
+    const { active, payload } = props;
+
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+
+      return (
+        <div style={{ backgroundColor: '#fff', border: '1px solid #999', margin: 0, padding: 10 }}>
+          <p>{data.chromosome}</p>
+          <p><span>value: </span>{data.value}</p>
+        </div>
+      );
+    }
+
+    return null;
+  }
+
    render() {
+    const domain = [0,0.08];
+    const range = [16, 225];
     const selectRow = {
       mode: 'checkbox',
       clickToSelect: true,
@@ -108,7 +128,7 @@ class App extends Component {
                   <Bar dataKey="useful_reads" fill="#33a02c" />
               </BarChart>
             </div>
-            <h1>chrM rate</h1>
+            <h1>Mapping distribution</h1>
             <div>
               <BarChart width={1200} height={400} data={this.state.data['mapping_distribution']}
                             margin={{top: 30, right: 50, left: 30, bottom: 5}}>
@@ -122,6 +142,24 @@ class App extends Component {
                   <Bar dataKey="percentage_of_non-redundant_uniquely_mapped_reads_in_chrY" fill="#b2df8a" />
               </BarChart>
             </div>
+          <h3>Autosome mapping distribution</h3>
+          <div>
+          
+          {
+            
+            Object.entries(this.state.data['autosome_distribution']).map((entry, entryIdx) =>{
+            const fontSize = entryIdx === Object.entries(this.state.data['autosome_distribution']).length - 1 ? 14 : 0;
+            return <ScatterChart width={1000} height={60} margin={{ top: 10, right: 0, bottom: 0, left: 100 }} key={entryIdx}>
+              <XAxis type="category" dataKey="chromosome" interval={0} tick={{ fontSize: fontSize }} tickLine={{ transform: 'translate(0, -6)' }} />
+              <YAxis type="number" dataKey="index" name={entry[0]} height={10} width={80} tick={false} tickLine={false} axisLine={false} label={{ value: entry[0], position: 'insideRight' }} />
+              <ZAxis type="number" dataKey="value" domain={domain} range={range} />
+              <Tooltip cursor={{ strokeDasharray: '3 3' }} wrapperStyle={{ zIndex: 100 }} content={this.renderTooltip} />
+              <Scatter data={entry[1]} fill='#8884d8' />
+            </ScatterChart>
+          })
+          } 
+          </div>
+
             <h1>Library Complexity</h1>
             <div>
               <BarChart width={1200} height={400} data={this.state.data['library_complexity']}

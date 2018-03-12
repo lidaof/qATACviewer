@@ -97,6 +97,17 @@ def format_result(d):
             for k in headers[h]:
                 tmp[k] = d[f]['Sample_QC_info'][h][k]
             results[h].append(tmp)
+    #print results['mapping_distribution']
+    # add encode
+    results['ENCODE_PE_reference'] = d[f]['ENCODE_PE_reference']
+    # re-format chromosome/autosome distribution
+    auto_distro = {} #key: file name, value: [{chromosome: '', index:1, value: xxx},...]
+    for k in results['mapping_distribution']:
+        tmp = []
+        for j,jv in k['Percentage_of_non-redundant_uniquely_mapped_reads_in_autosome'].items():
+            tmp.append({'chromosome': j, 'index': 1, 'value': jv})
+        auto_distro[k['name']] = tmp
+    results['autosome_distribution'] =  auto_distro
     return results
 
 @app.route('/')
