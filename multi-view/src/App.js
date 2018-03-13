@@ -4,6 +4,7 @@ import './App.css';
 import {BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ScatterChart, Scatter, ZAxis} from 'recharts';
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import BootstrapTable from 'react-bootstrap-table-next';
+import _ from 'lodash';
 
 const columns = [{
   dataField: 'id',
@@ -59,7 +60,7 @@ class App extends Component {
   }
 
    render() {
-    const domain = [0,0.08];
+    let domain = [0,0.08];
     const range = [16, 225];
     const selectRow = {
       mode: 'checkbox',
@@ -143,24 +144,26 @@ class App extends Component {
               </BarChart>
             </div>
           <h3>Autosome mapping distribution</h3>
-          <div>
-          
-          {
+            <div>
+            {
+              domain = [0, _.max(_.map( _.map(this.state.data["autosome_distribution"], function(n) { return _.maxBy(n, 'value') } ), 'value' ))]
+            }
             
-            Object.entries(this.state.data['autosome_distribution']).map((entry, entryIdx) =>{
-            const fontSize = entryIdx === Object.entries(this.state.data['autosome_distribution']).length - 1 ? 14 : 0;
-            return <ScatterChart width={1000} height={60} margin={{ top: 10, right: 0, bottom: 0, left: 100 }} key={entryIdx}>
-              <XAxis type="category" dataKey="chromosome" interval={0} tick={{ fontSize: fontSize }} tickLine={{ transform: 'translate(0, -6)' }} />
-              <YAxis type="number" dataKey="index" name={entry[0]} height={10} width={80} tick={false} tickLine={false} axisLine={false} label={{ value: entry[0], position: 'insideRight' }} />
-              <ZAxis type="number" dataKey="value" domain={domain} range={range} />
-              <Tooltip cursor={{ strokeDasharray: '3 3' }} wrapperStyle={{ zIndex: 100 }} content={this.renderTooltip} />
-              <Scatter data={entry[1]} fill='#8884d8' />
-            </ScatterChart>
-          })
-          } 
-          </div>
-
-            <h1>Library Complexity</h1>
+            {
+              
+              Object.entries(this.state.data['autosome_distribution']).map((entry, entryIdx) =>{
+              const fontSize = entryIdx === Object.entries(this.state.data['autosome_distribution']).length - 1 ? 14 : 0;
+              return <ScatterChart width={1000} height={60} margin={{ top: 10, right: 0, bottom: 0, left: 100 }} key={entryIdx}>
+                <XAxis type="category" dataKey="chromosome" interval={0} tick={{ fontSize: fontSize }} tickLine={{ transform: 'translate(0, -6)' }} />
+                <YAxis type="number" dataKey="index" name={entry[0]} height={10} width={80} tick={false} tickLine={false} axisLine={false} label={{ value: entry[0], position: 'insideRight' }} />
+                <ZAxis type="number" dataKey="value" domain={domain} range={range} />
+                <Tooltip cursor={{ strokeDasharray: '3 3' }} wrapperStyle={{ zIndex: 100 }} content={this.renderTooltip} />
+                <Scatter data={entry[1]} fill='#8884d8' />
+              </ScatterChart>
+            })
+            } 
+            </div>
+          <h1>Library Complexity</h1>
             <div>
               <BarChart width={1200} height={400} data={this.state.data['library_complexity']}
                             margin={{top: 30, right: 50, left: 30, bottom: 5}}>
