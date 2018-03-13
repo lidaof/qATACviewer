@@ -72,12 +72,21 @@ section2 = ['percentage_of_uniquely_mapped_reads_in_chrM','percentage_of_non-red
 section3 = ['before_alignment_library_duplicates_percentage','after_alignment_PCR_duplicates_percentage']
 section4 = ['enrichment_ratio_in_coding_promoter_regions','percentage_of_background_RPKM_larger_than_0.3777']
 section5 = ['reads_number_under_peaks','reads_percentage_under_peaks']
+section6 = ['insertion_size','frequency']
+section7 = ['peak_length','frequency']
+section8 = ['total_reads','expected_distinction','lower_0.95_confidnece_interval','upper_0.95_confidnece_interval']
+section9 = ['sequence_depth','peaks_number','percentage_of_peaks_recaptured']
+
 headers = {
     'mapping_stats':section1,
     'mapping_distribution':section2,
     'library_complexity': section3,
     'enrichment':section4,
-    'peak_analysis':section5
+    'peak_analysis':section5,
+    'insertion_size_distribution':section6,
+    'peak_length_distribution': section7,
+    'yield_distribution': section8,
+    'saturation': section9
 }
 
 def parse_json_list(flist):
@@ -86,6 +95,28 @@ def parse_json_list(flist):
         with open(f,"rU") as fin:
             d[f] = json.load(fin)
     return d
+
+def reformat_array(lst, key1, key2):
+    '''
+    reformat the array for used by recharts directly, lst is the data, key1 is x-axis, and key2 is y-axis
+    '''
+    results = [] # each elmemnt is {name: insert_size, file1: frequency1, file2: freq2, ...}
+    results_keys = {} # key: insert size, value: {filenames: frequencys}
+    for k in lst:
+        for idx,j in enumerate(k[key1]):
+            if j not in results_keys:
+                results_keys[j] = {k['name']: k[key2][idx]}
+            else:
+                results_keys[j][k['name']] = k[key2][idx]
+    for k in sorted(results_keys.keys()):
+        tmp = {'name': k}
+        for j in lst:
+            if j['name'] in results_keys[k]:
+                tmp[j['name']] = results_keys[k][j['name']]
+            else:
+                tmp[j['name']] = 0
+        results.append(tmp)
+    return results
 
 def format_result(d):
     results = {}
@@ -108,6 +139,17 @@ def format_result(d):
             tmp.append({'chromosome': j, 'index': 1, 'value': jv})
         auto_distro[k['name']] = tmp
     results['autosome_distribution'] =  auto_distro
+    #insert size
+    results['insert_distribution'] = reformat_array(results['insertion_size_distribution'],'insertion_size','frequency')
+    #peak size
+    results['peak_distribution'] = reformat_array(results['peak_length_distribution'], 'peak_length','frequency')
+    #yield
+    results['yield_distro'] = reformat_array(results['yield_distribution'], 'total_reads', 'expected_distinction')
+    results['yield_distro_lower'] = reformat_array(results['yield_distribution'], 'total_reads', 'lower_0.95_confidnece_interval')
+    results['yield_distro_upper'] = reformat_array(results['yield_distribution'], 'total_reads', 'upper_0.95_confidnece_interval')
+    # saturation
+    results['saturation_peaks'] = reformat_array(results['saturation'],'sequence_depth','peaks_number')
+    results['saturation_peaks_pct'] = reformat_array(results['saturation'],'sequence_depth','percentage_of_peaks_recaptured')
     return results
 
 @app.route('/')
