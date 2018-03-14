@@ -1,0 +1,41 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN"> 
+<html>
+  <head> 
+    <TITLE>WashU Epigenome Browser</TITLE>
+    <link rel="stylesheet" type="text/css" href="http://epgg-test.wustl.edu/browser/css/style.css" />
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="http://epgg-test.wustl.edu/browser/js/jscolor.min.js"></script>
+    <script type="text/javascript" src="http://epgg-test.wustl.edu/browser/js/base.js"></script>
+    <script type="text/javascript" src="http://epgg-test.wustl.edu/browser/js/session.js"></script>
+    <script type="text/javascript" src="http://epgg-test.wustl.edu/browser/js/bev.js"></script>
+    <script type="text/javascript" src="http://epgg-test.wustl.edu/browser/js/gsm.js"></script>
+    <script type="text/javascript" src="http://epgg-test.wustl.edu/browser/js/session.js"></script>
+    <script type="text/javascript" src="http://epgg-test.wustl.edu/browser/js/fileload.js"></script>
+    <script type="text/javascript" src="http://epgg-test.wustl.edu/browser/js/scp.js"></script>
+    <script type="text/javascript" src="http://epgg-test.wustl.edu/browser/js/geneplot.js"></script>
+    <script type="text/javascript" src="http://epgg-test.wustl.edu/browser/js/validhub.js"></script>
+    <script type="text/javascript" src="http://epgg-test.wustl.edu/browser/js/circlet.js"></script>
+    <script type="text/javascript" src="http://epgg-test.wustl.edu/browser/js/sukn.js"></script>
+    <script type="text/javascript" src="http://epgg-test.wustl.edu/browser/js/personality.js"></script>
+    <script type="text/javascript" src="http://epgg-test.wustl.edu/browser/js/embed.js"></script>
+    <script type="text/javascript" src="http://epgg-test.wustl.edu/browser/js/DataProvider.js"></script>
+  </head>
+<body>
+  <h1>Embded browser view</h1>
+  <div id="thediv"></div>
+  <script type='text/javascript'>
+    window.drawBrowser = function(hubContent) {
+      window.embed_washugb({
+        host: 'http://epgg-test.wustl.edu',
+        container: document.getElementById('thediv'),
+        genome: hubContent.genome,
+        noDefaultTrack: true,
+        noDeleteButton: true,
+        coordinate: 'chr17:46599697-46614500',
+        showContent: hubContent.content
+      });
+    }
+  </script>
+</body>
+</html>

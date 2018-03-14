@@ -18,13 +18,14 @@ const columns = [{
 }];
 
 const products = [
-  {id:0,name:'GM-AM-6S-GM-172',sample:'Liver',file:'GM-AM-6S-GM-172_S1_L007_R1_001.json',assay:'ATAC-seq'},
-  {id:1,name:'GM-AM-6S-GM-173',sample:'Liver',file:'GM-AM-6S-GM-173_S2_L007_R1_001.json',assay:'ATAC-seq'},
-  {id:2,name:'GM-AM-6S-GM-174',sample:'Liver',file:'GM-AM-6S-GM-174_S3_L007_R1_001.json',assay:'ATAC-seq'},
-  {id:3,name:'GM-AM-6S-GM-175',sample:'Liver',file:'GM-AM-6S-GM-175_S4_L007_R1_001.json',assay:'ATAC-seq'},
-  {id:4,name:'GM-AM-6S-GM-176',sample:'Lung', file:'GM-AM-6S-GM-176_S5_L007_R1_001.json',assay:'ATAC-seq'},
-  {id:5,name:'GM-AM-6S-GM-177',sample:'Lung', file:'GM-AM-6S-GM-177_S6_L007_R1_001.json',assay:'ATAC-seq'},
+  {id:0,name:'GM-AM-6S-GM-172',sample:'Liver',file:'GM-AM-6S-GM-172_S1_L007_R1_001.json',assay:'ATAC-seq',url:'http://wangftp.wustl.edu/~dli/mutlu/step3.2_Normalized_per_10M_GM-AM-6S-GM-172_S1_L007_R1_001.bigWig'},
+  {id:1,name:'GM-AM-6S-GM-173',sample:'Liver',file:'GM-AM-6S-GM-173_S2_L007_R1_001.json',assay:'ATAC-seq',url:'http://wangftp.wustl.edu/~dli/mutlu/step3.2_Normalized_per_10M_GM-AM-6S-GM-173_S2_L007_R1_001.bigWig'},
+  {id:2,name:'GM-AM-6S-GM-174',sample:'Liver',file:'GM-AM-6S-GM-174_S3_L007_R1_001.json',assay:'ATAC-seq',url:'http://wangftp.wustl.edu/~dli/mutlu/step3.2_Normalized_per_10M_GM-AM-6S-GM-174_S3_L007_R1_001.bigWig'},
+  {id:3,name:'GM-AM-6S-GM-175',sample:'Liver',file:'GM-AM-6S-GM-175_S4_L007_R1_001.json',assay:'ATAC-seq',url:'http://wangftp.wustl.edu/~dli/mutlu/step3.2_Normalized_per_10M_GM-AM-6S-GM-175_S4_L007_R1_001.bigWig'},
+  {id:4,name:'GM-AM-6S-GM-176',sample:'Lung', file:'GM-AM-6S-GM-176_S5_L007_R1_001.json',assay:'ATAC-seq',url:'http://wangftp.wustl.edu/~dli/mutlu/step3.2_Normalized_per_10M_GM-AM-6S-GM-176_S5_L007_R1_001.bigWig'},
+  {id:5,name:'GM-AM-6S-GM-177',sample:'Lung', file:'GM-AM-6S-GM-177_S6_L007_R1_001.json',assay:'ATAC-seq',url:'http://wangftp.wustl.edu/~dli/mutlu/step3.2_Normalized_per_10M_GM-AM-6S-GM-177_S6_L007_R1_001.bigWig'},
 ];
+
 
 const fileColors = {
 'GM-AM-6S-GM-172_S1_L007_R1_001.json':'#b2182b',
@@ -41,6 +42,7 @@ class App extends Component {
       this.state = { value: [], data:null };
       this.handleClick = this.handleClick.bind(this);
       this.renderTooltip = this.renderTooltip.bind(this);
+      this.hubGenerator = this.hubGenerator.bind(this);
     }
 
   async handleClick() {
@@ -49,6 +51,8 @@ class App extends Component {
     //let response = await axios.post('/rep',{flist: this.state.value});
     let response = await axios.post('/rep1',{flist: this.state.value});
     this.setState({data: response.data});
+    const frame = document.getElementById('frame');
+    frame.contentWindow.drawBrowser(this.hubGenerator(products, this.state.value));
   }
 
   renderTooltip(props) {
@@ -66,6 +70,40 @@ class App extends Component {
     }
 
     return null;
+  }
+
+  hubGenerator(products, filterlist){
+    let hub = {};
+    hub.genome='mm10';
+    let content = [];
+    let samples = [];
+    let assays = [];
+    products.map(product => {
+      if (filterlist.includes(product.file)){
+        content.push({
+        type:'bigWig',
+        mode:'show',
+        url: product.url,
+        height:40,
+        name: product.name,
+        metadata: [product.sample, product.assay]
+        });
+        samples.push(product.sample);
+        assays.push(product.assay);
+      }
+    });
+    content.push({"type":"native_track","list":[{"name":"refGene","mode":"full"}]});
+    content.push({
+      type:'metadata',
+      vocabulary: {
+        sample: {samples: _.uniq(samples)},
+        assay: {assays: _.uniq(assays)}
+      },
+      show: ['sample','assay']
+    });
+    hub.content = content;
+    console.log(hub);
+    return hub
   }
 
   /**
