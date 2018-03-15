@@ -1,4 +1,4 @@
-import sys,os,json
+import sys,os,json,math
 from flask import Flask, request
 from flask import jsonify
 app = Flask(__name__)
@@ -23,6 +23,14 @@ def s2n(s):
         return float(s)
     else:
         return int(s)
+
+def average(values):
+    return sum(values, 0.0) / len(values)
+
+def sd(values):
+    ave = average(values)
+    var = [(i - ave) ** 2 for i in values]
+    return math.sqrt(average(var))
 
 def format_text_report(flist):
     d = {}
@@ -70,7 +78,7 @@ def format_text_report(flist):
 section1 = ['total_reads','mapped_reads','non-redundant_mapped_reads','useful_reads']
 section2 = ['percentage_of_uniquely_mapped_reads_in_chrM','percentage_of_non-redundant_uniquely_mapped_reads_in_chrX','percentage_of_non-redundant_uniquely_mapped_reads_in_chrY','Percentage_of_non-redundant_uniquely_mapped_reads_in_autosome']
 section3 = ['before_alignment_library_duplicates_percentage','after_alignment_PCR_duplicates_percentage']
-section4 = ['enrichment_ratio_in_coding_promoter_regions','percentage_of_background_RPKM_larger_than_0.3777']
+section4 = ['enrichment_ratio_in_coding_promoter_regions', 'subsampled_10M_enrichment_ratio', 'percentage_of_background_RPKM_larger_than_0.3777']
 section5 = ['reads_number_under_peaks','reads_percentage_under_peaks']
 section6 = ['insertion_size','frequency']
 section7 = ['peak_length','frequency']
@@ -130,7 +138,7 @@ def format_result(d):
             results[h].append(tmp)
     #print results['mapping_distribution']
     # add encode
-    results['ENCODE_PE_reference'] = d[f]['ENCODE_PE_reference']
+    #results['ENCODE_PE_reference'] = d[f]['ENCODE_PE_reference']
     # re-format chromosome/autosome distribution
     auto_distro = {} #key: file name, value: [{chromosome: '', index:1, value: xxx},...]
     for k in results['mapping_distribution']:
@@ -150,6 +158,49 @@ def format_result(d):
     # saturation
     results['saturation_peaks'] = reformat_array(results['saturation'],'sequence_depth','peaks_number')
     results['saturation_peaks_pct'] = reformat_array(results['saturation'],'sequence_depth','percentage_of_peaks_recaptured')
+    # encode ref standard
+    ref = {}
+    ref['mapping'] = {}
+    ref['mapping']['total'] = {}
+    ref['mapping']['total']['mean'] = average(d[f]['ENCODE_PE_reference']['mapping_stats']['total_reads'])
+    ref['mapping']['total']['sd'] = sd(d[f]['ENCODE_PE_reference']['mapping_stats']['total_reads'])
+    ref['mapping']['mapped'] = {}
+    ref['mapping']['mapped']['mean'] = average(d[f]['ENCODE_PE_reference']['mapping_stats']['mapped_reads'])
+    ref['mapping']['mapped']['sd'] = sd(d[f]['ENCODE_PE_reference']['mapping_stats']['mapped_reads'])
+    ref['mapping']['nonredant'] = {}
+    ref['mapping']['nonredant']['mean'] = average(d[f]['ENCODE_PE_reference']['mapping_stats']['non-redundant_mapped_reads'])
+    ref['mapping']['nonredant']['sd'] = sd(d[f]['ENCODE_PE_reference']['mapping_stats']['non-redundant_mapped_reads'])
+    ref['mapping']['useful'] = {}
+    ref['mapping']['useful']['mean'] = average(d[f]['ENCODE_PE_reference']['mapping_stats']['useful_reads'])
+    ref['mapping']['useful']['sd'] = sd(d[f]['ENCODE_PE_reference']['mapping_stats']['useful_reads'])
+    ref['library_complexity'] = {}
+    ref['library_complexity']['after'] = {}
+    ref['library_complexity']['after']['mean'] = average(d[f]['ENCODE_PE_reference']['library_complexity']['after_alignment_PCR_duplicates_percentage'])
+    ref['library_complexity']['after']['sd'] = sd(d[f]['ENCODE_PE_reference']['library_complexity']['after_alignment_PCR_duplicates_percentage'])
+    ref['peak_analysis'] = {}
+    ref['peak_analysis']['reads_percentage_under_peaks'] = {}
+    ref['peak_analysis']['reads_percentage_under_peaks']['mean'] = average(d[f]['ENCODE_PE_reference']['peak_analysis']['reads_percentage_under_peaks'])
+    ref['peak_analysis']['reads_percentage_under_peaks']['sd'] = sd(d[f]['ENCODE_PE_reference']['peak_analysis']['reads_percentage_under_peaks'])
+    ref['peak_analysis']['reads_number_under_peaks'] = {}
+    ref['peak_analysis']['reads_number_under_peaks']['mean'] = average(d[f]['ENCODE_PE_reference']['peak_analysis']['reads_number_under_peaks'])
+    ref['peak_analysis']['reads_number_under_peaks']['sd'] = sd(d[f]['ENCODE_PE_reference']['peak_analysis']['reads_number_under_peaks'])
+    ref['peak_analysis']['peaks_number_in_promoter_regions'] = {}
+    ref['peak_analysis']['peaks_number_in_promoter_regions']['mean'] = average(d[f]['ENCODE_PE_reference']['peak_analysis']['peaks_number_in_promoter_regions'])
+    ref['peak_analysis']['peaks_number_in_promoter_regions']['sd'] = sd(d[f]['ENCODE_PE_reference']['peak_analysis']['peaks_number_in_promoter_regions'])
+    ref['peak_analysis']['peaks_number_in_non-promoter_regions'] = {}
+    ref['peak_analysis']['peaks_number_in_non-promoter_regions']['mean'] = average(d[f]['ENCODE_PE_reference']['peak_analysis']['peaks_number_in_non-promoter_regions'])
+    ref['peak_analysis']['peaks_number_in_non-promoter_regions']['sd'] = sd(d[f]['ENCODE_PE_reference']['peak_analysis']['peaks_number_in_non-promoter_regions'])
+    ref['enrichment'] = {}
+    ref['enrichment']['enrichment_ratio_in_coding_promoter_regions'] = {}
+    ref['enrichment']['enrichment_ratio_in_coding_promoter_regions']['mean'] = average(d[f]['ENCODE_PE_reference']['enrichment']['enrichment_ratio_in_coding_promoter_regions'])
+    ref['enrichment']['enrichment_ratio_in_coding_promoter_regions']['sd'] = sd(d[f]['ENCODE_PE_reference']['enrichment']['enrichment_ratio_in_coding_promoter_regions'])
+    ref['enrichment']['subsampled_10M_enrichment_ratio'] = {}
+    ref['enrichment']['subsampled_10M_enrichment_ratio']['mean'] = average(d[f]['ENCODE_PE_reference']['enrichment']['subsampled_10M_enrichment_ratio'])
+    ref['enrichment']['subsampled_10M_enrichment_ratio']['sd'] = sd(d[f]['ENCODE_PE_reference']['enrichment']['subsampled_10M_enrichment_ratio'])
+    ref['enrichment']['percentage_of_background_RPKM_larger_than_0.3777'] = {}
+    ref['enrichment']['percentage_of_background_RPKM_larger_than_0.3777']['mean'] = average(d[f]['ENCODE_PE_reference']['enrichment']['percentage_of_background_RPKM_larger_than_0.3777'])
+    ref['enrichment']['percentage_of_background_RPKM_larger_than_0.3777']['sd'] = sd(d[f]['ENCODE_PE_reference']['enrichment']['percentage_of_background_RPKM_larger_than_0.3777'])
+    results['ref'] = ref
     return results
 
 @app.route('/')

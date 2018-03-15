@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import './App.css';
-import {BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ScatterChart, Scatter, ZAxis, AreaChart, Area, LineChart, Line} from 'recharts';
+import {BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ScatterChart, Scatter, ZAxis, ReferenceLine, LineChart, Line} from 'recharts';
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import BootstrapTable from 'react-bootstrap-table-next';
 import _ from 'lodash';
@@ -39,7 +39,26 @@ const fileColors = {
 class App extends Component {
     constructor(props) {
       super(props);
-      this.state = { value: [], data:null };
+      this.state = { 
+        value: [], 
+        data:null,
+        ref : {
+          mapping: {
+            total: {
+              selected: false,
+            },
+            mapped: {
+              selected: false,
+            },
+            nonredant: {
+              selected: false,
+            },
+            useful: {
+              selected: true,
+            }
+          }
+        }
+      };
       this.handleClick = this.handleClick.bind(this);
       this.renderTooltip = this.renderTooltip.bind(this);
       this.hubGenerator = this.hubGenerator.bind(this);
@@ -51,6 +70,32 @@ class App extends Component {
     //let response = await axios.post('/rep',{flist: this.state.value});
     let response = await axios.post('/rep1',{flist: this.state.value});
     this.setState({data: response.data});
+    //file the encode standards
+    let ref = {
+      mapping: {
+        total: {
+          selected: false,
+          good: this.state.data.ref.mapping.total.mean,
+          ok: this.state.data.ref.mapping.total.mean - this.state.ref.mapping.total.sd
+        },
+        mapped: {
+          selected: false,
+          good: this.state.data.ref.mapping.mapped.mean,
+          ok: this.state.data.ref.mapping.mapped.mean - this.state.ref.mapping.mapped.sd
+        },
+        nonredant: {
+          selected: false,
+          good: this.state.data.ref.mapping.nonredant.mean,
+          ok: this.state.data.ref.mapping.nonredant.mean - this.state.ref.mapping.nonredant.sd
+        },
+        useful: {
+          selected: true,
+          good: this.state.data.ref.mapping.useful.mean,
+          ok: this.state.data.ref.mapping.useful.mean - this.state.ref.mapping.useful.sd
+        }
+      }
+    }
+    this.setState({ref: ref});
     const frame = document.getElementById('frame');
     frame.contentWindow.drawBrowser(this.hubGenerator(products, this.state.value));
   }
@@ -78,15 +123,15 @@ class App extends Component {
     let content = [];
     let samples = [];
     let assays = [];
-    products.map(product => {
-      if (filterlist.includes(product.file)){
+    products.forEach(product => {
+      if(filterlist.includes(product.file)){
         content.push({
-        type:'bigWig',
-        mode:'show',
-        url: product.url,
-        height:40,
-        name: product.name,
-        metadata: [product.sample, product.assay]
+          type:'bigWig',
+          mode:'show',
+          url: product.url,
+          height:40,
+          name: product.name,
+          metadata: [product.sample, product.assay]
         });
         samples.push(product.sample);
         assays.push(product.assay);
@@ -102,7 +147,7 @@ class App extends Component {
       show: ['sample','assay']
     });
     hub.content = content;
-    console.log(hub);
+    //console.log(hub);
     return hub
   }
 
@@ -119,6 +164,17 @@ class App extends Component {
     let domain = [0,0.08];
     if (this.state.data) {
       domain = [0, _.max(_.map( _.map(this.state.data["autosome_distribution"], function(n) { return _.maxBy(n, 'value') } ), 'value' ))];
+    }
+    let mapping_good = 0, mapping_ok=0;
+    if(this.state.ref && this.state.ref.mapping){
+      for (let entry of Object.keys(this.state.ref.mapping)){
+        const item = this.state.ref.mapping[entry];
+        if (item.selected){
+          mapping_good = item.good;
+          mapping_ok = item.ok;
+          break;
+        }
+      }
     }
     const range = [16, 225];
     const selectRow = {
@@ -174,6 +230,33 @@ class App extends Component {
         {this.state.data &&
           <div>
             <h1>Mapping</h1>
+            <div className="row">
+              <div className="lead col-md-2">Set ENCODE standards based on: </div>
+            <div className="col-md-2">
+            <label>
+              Total reads
+              <input type="radio" name="mappingOption" selected={this.state.ref.mapping.total.selected}/>
+            </label>
+            </div>
+            <div className="col-md-2">
+            <label>
+              Mapped reads
+              <input type="radio" name="mappingOption" selected={this.state.ref.mapping.mapped.selected}/>
+            </label>
+            </div>
+            <div className="col-md-2">
+            <label>
+            Non-redundant Mapped_reads 
+              <input type="radio" name="mappingOption" selected={this.state.ref.mapping.nonredant.selected}/>
+            </label>
+            </div>
+            <div className="col-md-2">
+            <label>
+              Useful reads
+              <input type="radio" name="mappingOption" selected={this.state.ref.mapping.useful.selected}/>
+            </label>
+            </div>
+          </div>
             <div>
               <BarChart width={1200} height={400} data={this.state.data['mapping_stats']}
                             margin={{top: 30, right: 50, left: 30, bottom: 5}}>
@@ -182,6 +265,8 @@ class App extends Component {
                   <CartesianGrid strokeDasharray="3 3"/>
                   <Tooltip/>
                   <Legend />
+                  <ReferenceLine y={mapping_good} label="Good" stroke="darkgreen" />
+                  <ReferenceLine y={mapping_ok} label="Acceptable" stroke="red" />
                   <Bar dataKey="total_reads" fill="#a6cee3" />
                   <Bar dataKey="mapped_reads" fill="#1f78b4" />
                   <Bar dataKey="non-redundant_mapped_reads" fill="#b2df8a" />
@@ -231,7 +316,7 @@ class App extends Component {
               </BarChart>
             </div>
             <h1>Insert size distribution</h1>
-            <AreaChart width={800} height={400} data={this.state.data['insert_distribution']}
+            <LineChart width={800} height={400} data={this.state.data['insert_distribution']}
               margin={{ top: 10, right: 30, left: 50, bottom: 0 }}>
               <XAxis dataKey="name" />
               <YAxis />
@@ -239,21 +324,23 @@ class App extends Component {
               <Tooltip />
               {
                 _.without(Object.keys(this.state.data['insert_distribution'][0]), 'name').map(entry => {
-                  return <Area type='monotone' dataKey={entry} stroke={fileColors[entry]} fill={fileColors[entry]} key={entry} />
+                  return <Line type='monotone' dot={false} dataKey={entry} stroke={fileColors[entry]} fill={fileColors[entry]} key={entry} />
                 })
               }
-            </AreaChart>
+            </LineChart>
             <h1>Enrichment</h1>
             <div>
               <BarChart width={1200} height={400} data={this.state.data['enrichment']}
                             margin={{top: 30, right: 50, left: 30, bottom: 5}}>
                   <XAxis dataKey="name"/>
-                  <YAxis/>
+                  <YAxis yAxisId="left" orientation="left" stroke="#8884d8"/>
+                  <YAxis yAxisId="right" orientation="right" stroke="#82ca9d"/>
                   <CartesianGrid strokeDasharray="3 3"/>
                   <Tooltip/>
                   <Legend />
-                  <Bar dataKey="enrichment_ratio_in_coding_promoter_regions" fill="#a6cee3" />
-                  <Bar dataKey="percentage_of_background_RPKM_larger_than_0.3777" fill="#1f78b4" />
+                  <Bar yAxisId="left" dataKey="enrichment_ratio_in_coding_promoter_regions" fill="#a6cee3" />
+                  <Bar yAxisId="left" dataKey="subsampled_10M_enrichment_ratio" fill="#666" />
+                  <Bar yAxisId="right" dataKey="percentage_of_background_RPKM_larger_than_0.3777" fill="#1f78b4" />
               </BarChart>
             </div>
             <h1>Yield distribution</h1>
@@ -320,7 +407,7 @@ class App extends Component {
               </BarChart>
             </div>
             <h2>Peak size distribution</h2>
-            <AreaChart width={800} height={400} data={this.state.data['peak_distribution']}
+            <LineChart width={800} height={400} data={this.state.data['peak_distribution']}
               margin={{ top: 10, right: 30, left: 50, bottom: 0 }}>
               <XAxis dataKey="name" />
               <YAxis />
@@ -328,10 +415,10 @@ class App extends Component {
               <Tooltip />
               {
                 _.without(Object.keys(this.state.data['peak_distribution'][0]), 'name').map(entry => {
-                  return <Area type='monotone' dataKey={entry} stroke={fileColors[entry]} fill={fileColors[entry]} key={entry} />
+                  return <Line type='monotone' dot={false} dataKey={entry} stroke={fileColors[entry]} fill={fileColors[entry]} key={entry} />
                 })
               }
-            </AreaChart>
+            </LineChart>
             <h1>Saturation</h1>
             <h2>saturation by peaks number</h2>
             <div>
