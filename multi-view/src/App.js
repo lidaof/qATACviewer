@@ -43,12 +43,14 @@ class App extends Component {
         value: [], 
         data:null,
         radioChecked: {
-          mapping: 'useful'
+          mapping: 'useful',
+          enrich: 'enrichment_ratio_in_coding_promoter_regions'
         }
       };
       this.handleClick = this.handleClick.bind(this);
       this.renderTooltip = this.renderTooltip.bind(this);
       this.hubGenerator = this.hubGenerator.bind(this);
+      this.handleRadioChange = this.handleRadioChange.bind(this);
     }
 
   async handleClick() {
@@ -58,28 +60,28 @@ class App extends Component {
     let response = await axios.post('/rep1',{flist: this.state.value});
     this.setState({data: response.data});
     //file the encode standards
-    let ref = {
-      mapping: {
-        total: {
-          good: this.state.data.ref.mapping.total.mean,
-          ok: this.state.data.ref.mapping.total.mean - this.state.ref.mapping.total.sd
-        },
-        mapped: {
-          good: this.state.data.ref.mapping.mapped.mean,
-          ok: this.state.data.ref.mapping.mapped.mean - this.state.ref.mapping.mapped.sd
-        },
-        nonredant: {
-          selected: false,
-          good: this.state.data.ref.mapping.nonredant.mean,
-          ok: this.state.data.ref.mapping.nonredant.mean - this.state.ref.mapping.nonredant.sd
-        },
-        useful: {
-          good: this.state.data.ref.mapping.useful.mean,
-          ok: this.state.data.ref.mapping.useful.mean - this.state.ref.mapping.useful.sd
-        }
-      }
-    }
-    this.setState({ref: ref});
+    // let ref = {
+    //   mapping: {
+    //     total: {
+    //       good: this.state.data.ref.mapping.total.mean,
+    //       ok: this.state.data.ref.mapping.total.mean - this.state.ref.mapping.total.sd
+    //     },
+    //     mapped: {
+    //       good: this.state.data.ref.mapping.mapped.mean,
+    //       ok: this.state.data.ref.mapping.mapped.mean - this.state.ref.mapping.mapped.sd
+    //     },
+    //     nonredant: {
+    //       selected: false,
+    //       good: this.state.data.ref.mapping.nonredant.mean,
+    //       ok: this.state.data.ref.mapping.nonredant.mean - this.state.ref.mapping.nonredant.sd
+    //     },
+    //     useful: {
+    //       good: this.state.data.ref.mapping.useful.mean,
+    //       ok: this.state.data.ref.mapping.useful.mean - this.state.ref.mapping.useful.sd
+    //     }
+    //   }
+    // }
+    // this.setState({ref: ref});
     const frame = document.getElementById('frame');
     frame.contentWindow.drawBrowser(this.hubGenerator(products, this.state.value));
   }
@@ -144,10 +146,10 @@ class App extends Component {
     return Number.parseInt(a.chromosome.replace('chr',''), 10) - Number.parseInt(b.chromosome.replace('chr',''), 10);
   }
 
-  handleMappingChange(e) {
+  handleRadioChange(e) {
     const checked = {...this.state.radioChecked};
     const {name, value} = e.target;
-    check[name] = value;
+    checked[name] = value;
     this.setState({radioChecked: checked});
   }
 
@@ -156,10 +158,24 @@ class App extends Component {
     if (this.state.data) {
       domain = [0, _.max(_.map( _.map(this.state.data["autosome_distribution"], function(n) { return _.maxBy(n, 'value') } ), 'value' ))];
     }
-    let mapping_good = 0, mapping_ok=0;
-    if(this.state.ref && this.state.ref.mapping){
-      mapping_good = this.state.ref.mapping[this.state.radioChecked].good;
-      mapping_ok = this.state.ref.mapping[this.state.radioChecked].ok;
+    let mapping_good = 0, mapping_ok=0; // mapping
+    let after_good = 0, after_ok = 0; //after_alignment_PCR_duplicates_percentage
+    let peakpct_good = 0, peakpct_ok = 0; //reads_percentage_under_peaks
+    let bk_good = 0, bk_ok = 0; //percentage_of_background_RPKM_larger_than_0.3777
+    let enrich_good = 0, enrich_ok = 0; // enrichment
+    let peakpct_domain = [0,0.5];
+    if(this.state.data){
+      mapping_good = this.state.data.ref.mapping[this.state.radioChecked.mapping].mean;
+      mapping_ok = this.state.data.ref.mapping[this.state.radioChecked.mapping].mean - this.state.data.ref.mapping[this.state.radioChecked.mapping].sd;
+      after_good = this.state.data.ref['library_complexity']['after'].mean;
+      after_ok = this.state.data.ref['library_complexity']['after'].mean + this.state.data.ref['library_complexity']['after'].sd
+      peakpct_good = this.state.data.ref['peak_analysis']['reads_percentage_under_peaks'].mean;
+      peakpct_ok = this.state.data.ref['peak_analysis']['reads_percentage_under_peaks'].mean - this.state.data.ref['peak_analysis']['reads_percentage_under_peaks'].sd;
+      bk_good = this.state.data.ref['enrichment']['percentage_of_background_RPKM_larger_than_0.3777'].mean;
+      bk_ok = this.state.data.ref['enrichment']['percentage_of_background_RPKM_larger_than_0.3777'].mean + this.state.data.ref['enrichment']['percentage_of_background_RPKM_larger_than_0.3777'].sd;
+      enrich_good = this.state.data.ref.enrichment[this.state.radioChecked.enrich].mean;
+      enrich_ok = this.state.data.ref.enrichment[this.state.radioChecked.enrich].mean - this.state.data.ref.enrichment[this.state.radioChecked.enrich].sd;
+      peakpct_domain = [0, _.max(_.flatten([this.state.data['peak_analysis']['reads_percentage_under_peaks'],peakpct_good]))];
     }
     const range = [16, 225];
     const selectRow = {
@@ -219,29 +235,30 @@ class App extends Component {
               <div className="lead col-md-2">Set ENCODE standards based on: </div>
             <div className="col-md-2">
             <label>
-              Total reads
-              <input type="radio" name="mapping"  value="total" checked={this.state.radioChecked.mapping === 'total'} onChange={this.handleMappingChange} />
+              Total reads: 
+              <input type="radio" name="mapping"  value="total" checked={this.state.radioChecked.mapping === 'total'} onChange={this.handleRadioChange} />
             </label>
             </div>
             <div className="col-md-2">
             <label>
-              Mapped reads
-              <input type="radio" name="mapping" value="mapped" checked={this.state.radioChecked.mapping === 'mapped'} onChange={this.handleMappingChange} />
+              Mapped reads: 
+              <input type="radio" name="mapping" value="mapped" checked={this.state.radioChecked.mapping === 'mapped'} onChange={this.handleRadioChange} />
             </label>
             </div>
             <div className="col-md-2">
             <label>
-            Non-redundant Mapped_reads 
-              <input type="radio" name="mapping" value="nonredant" checked={this.state.radioChecked.mapping === 'nonredant'} onChange={this.handleMappingChange} />
+            Non-redundant Mapped_reads: 
+              <input type="radio" name="mapping" value="nonredant" checked={this.state.radioChecked.mapping === 'nonredant'} onChange={this.handleRadioChange} />
             </label>
             </div>
             <div className="col-md-2">
             <label>
-              Useful reads
-              <input type="radio" name="mapping" value="useful" checked={this.state.radioChecked.mapping === 'useful'} onChange={this.handleMappingChange} />
+              Useful reads: 
+              <input type="radio" name="mapping" value="useful" checked={this.state.radioChecked.mapping === 'useful'} onChange={this.handleRadioChange} />
             </label>
             </div>
           </div>
+          <div className="lead">Good: {mapping_good}, Acceptable: {mapping_ok}</div>
             <div>
               <BarChart width={1200} height={400} data={this.state.data['mapping_stats']}
                             margin={{top: 30, right: 50, left: 30, bottom: 5}}>
@@ -250,15 +267,15 @@ class App extends Component {
                   <CartesianGrid strokeDasharray="3 3"/>
                   <Tooltip/>
                   <Legend />
-                  <ReferenceLine y={mapping_good} label="Good" stroke="darkgreen" />
-                  <ReferenceLine y={mapping_ok} label="Acceptable" stroke="red" />
                   <Bar dataKey="total_reads" fill="#a6cee3" />
                   <Bar dataKey="mapped_reads" fill="#1f78b4" />
                   <Bar dataKey="non-redundant_mapped_reads" fill="#b2df8a" />
                   <Bar dataKey="useful_reads" fill="#33a02c" />
+                  <ReferenceLine y={mapping_good} label="Good" stroke="darkgreen" />
+                  <ReferenceLine y={mapping_ok} label="Acceptable" stroke="red" />
               </BarChart>
             </div>
-            <h1>Mapping distribution</h1>
+            <h1>chrM rate</h1>
             <div>
               <BarChart width={1200} height={400} data={this.state.data['mapping_distribution']}
                             margin={{top: 30, right: 50, left: 30, bottom: 5}}>
@@ -288,6 +305,7 @@ class App extends Component {
             } 
             </div>
           <h1>Library Complexity</h1>
+          <div className="lead">Encode standards for after_alignment_PCR_duplicates_percentage: Good: {enrich_good}, Acceptable: {enrich_ok}</div>
             <div>
               <BarChart width={1200} height={400} data={this.state.data['library_complexity']}
                             margin={{top: 30, right: 50, left: 30, bottom: 5}}>
@@ -298,6 +316,8 @@ class App extends Component {
                   <Legend />
                   <Bar dataKey="before_alignment_library_duplicates_percentage" fill="#a6cee3" />
                   <Bar dataKey="after_alignment_PCR_duplicates_percentage" fill="#1f78b4" />
+                  <ReferenceLine y={after_good} label="Good" stroke="darkgreen" />
+                  <ReferenceLine y={after_ok} label="Acceptable" stroke="red" />
               </BarChart>
             </div>
             <h1>Insert size distribution</h1>
@@ -314,18 +334,50 @@ class App extends Component {
               }
             </LineChart>
             <h1>Enrichment</h1>
+            <div className="row">
+              <div className="lead col-md-2">Set ENCODE standards based on: </div>
+            <div className="col-md-3">
+            <label>
+            enrichment_ratio_in_coding_promoter_regions: 
+              <input type="radio" name="enrich"  value="enrichment_ratio_in_coding_promoter_regions" checked={this.state.radioChecked.enrich === 'enrichment_ratio_in_coding_promoter_regions'} onChange={this.handleRadioChange} />
+            </label>
+            </div>
+            <div className="col-md-3">
+            <label>
+            subsampled_10M_enrichment_ratio: 
+              <input type="radio" name="enrich" value="subsampled_10M_enrichment_ratio" checked={this.state.radioChecked.mapping === 'subsampled_10M_enrichment_ratio'} onChange={this.handleRadioChange} />
+            </label>
+            </div>
+            
+          </div>
+          <div className="lead">Good: {enrich_good}, Acceptable: {enrich_ok}</div>
             <div>
               <BarChart width={1200} height={400} data={this.state.data['enrichment']}
                             margin={{top: 30, right: 50, left: 30, bottom: 5}}>
                   <XAxis dataKey="name"/>
-                  <YAxis yAxisId="left" orientation="left" stroke="#8884d8"/>
-                  <YAxis yAxisId="right" orientation="right" stroke="#82ca9d"/>
+                  <YAxis />
                   <CartesianGrid strokeDasharray="3 3"/>
                   <Tooltip/>
                   <Legend />
-                  <Bar yAxisId="left" dataKey="enrichment_ratio_in_coding_promoter_regions" fill="#a6cee3" />
-                  <Bar yAxisId="left" dataKey="subsampled_10M_enrichment_ratio" fill="#666" />
-                  <Bar yAxisId="right" dataKey="percentage_of_background_RPKM_larger_than_0.3777" fill="#1f78b4" />
+                  <Bar dataKey="enrichment_ratio_in_coding_promoter_regions" fill="#a6cee3" />
+                  <Bar dataKey="subsampled_10M_enrichment_ratio" fill="#666" />
+                  <ReferenceLine y={enrich_good} label="Good" stroke="darkgreen" />
+                  <ReferenceLine y={enrich_ok} label="Acceptable" stroke="red" />
+              </BarChart>
+            </div>
+            <h1>Background</h1>
+            <div className="lead">Encode standards for percentage_of_background_RPKM_larger_than_0.3777: Good: {bk_good}, Acceptable: {bk_ok}</div>
+            <div>
+              <BarChart width={1200} height={400} data={this.state.data['enrichment']}
+                            margin={{top: 30, right: 50, left: 30, bottom: 5}}>
+                  <XAxis dataKey="name"/>
+                  <YAxis />
+                  <CartesianGrid strokeDasharray="3 3"/>
+                  <Tooltip/>
+                  <Legend />
+                  <Bar dataKey="percentage_of_background_RPKM_larger_than_0.3777" fill="#1f78b4" />
+                  <ReferenceLine y={bk_good} label="Good" stroke="darkgreen" />
+                  <ReferenceLine y={bk_ok} label="Acceptable" stroke="red" />
               </BarChart>
             </div>
             <h1>Yield distribution</h1>
@@ -378,6 +430,7 @@ class App extends Component {
             </LineChart>
             </div>
             <h1>Peaks</h1>
+            <h2>Peak numbers</h2>
             <div>
               <BarChart width={1200} height={400} data={this.state.data['peak_analysis']}
                             margin={{top: 30, right: 50, left: 30, bottom: 5}}>
@@ -388,7 +441,23 @@ class App extends Component {
                   <Tooltip/>
                   <Legend />
                   <Bar yAxisId="left" dataKey="reads_number_under_peaks" fill="#8884d8" />
-                  <Bar yAxisId="right" dataKey="reads_percentage_under_peaks" fill="#82ca9d" />
+                  <Bar yAxisId="right" dataKey="peaks_number_in_promoter_regions" fill="#d73027" />
+                  <Bar yAxisId="right" dataKey="peaks_number_in_non-promoter_regions" fill="#fee090" />
+              </BarChart>
+            </div>
+            <h2>Reads percentage under peaks</h2>
+            <div className="lead">Encode standards for reads_percentage_under_peaks: Good: {peakpct_good}, Acceptable: {peakpct_ok}</div>
+             <div>
+              <BarChart width={1200} height={400} data={this.state.data['peak_analysis']}
+                            margin={{top: 30, right: 50, left: 30, bottom: 5}}>
+                  <XAxis dataKey="name"/>
+                  <YAxis domain={peakpct_domain} />
+                  <CartesianGrid strokeDasharray="3 3"/>
+                  <Tooltip/>
+                  <Legend />
+                  <Bar dataKey="reads_percentage_under_peaks" fill="#82ca9d" />
+                  <ReferenceLine y={peakpct_good} label="Good" stroke="darkgreen" />
+                  <ReferenceLine y={peakpct_ok} label="Acceptable" stroke="red" />
               </BarChart>
             </div>
             <h2>Peak size distribution</h2>
