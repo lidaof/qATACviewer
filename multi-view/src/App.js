@@ -42,21 +42,8 @@ class App extends Component {
       this.state = { 
         value: [], 
         data:null,
-        ref : {
-          mapping: {
-            total: {
-              selected: false,
-            },
-            mapped: {
-              selected: false,
-            },
-            nonredant: {
-              selected: false,
-            },
-            useful: {
-              selected: true,
-            }
-          }
+        radioChecked: {
+          mapping: 'useful'
         }
       };
       this.handleClick = this.handleClick.bind(this);
@@ -74,12 +61,10 @@ class App extends Component {
     let ref = {
       mapping: {
         total: {
-          selected: false,
           good: this.state.data.ref.mapping.total.mean,
           ok: this.state.data.ref.mapping.total.mean - this.state.ref.mapping.total.sd
         },
         mapped: {
-          selected: false,
           good: this.state.data.ref.mapping.mapped.mean,
           ok: this.state.data.ref.mapping.mapped.mean - this.state.ref.mapping.mapped.sd
         },
@@ -89,7 +74,6 @@ class App extends Component {
           ok: this.state.data.ref.mapping.nonredant.mean - this.state.ref.mapping.nonredant.sd
         },
         useful: {
-          selected: true,
           good: this.state.data.ref.mapping.useful.mean,
           ok: this.state.data.ref.mapping.useful.mean - this.state.ref.mapping.useful.sd
         }
@@ -160,6 +144,13 @@ class App extends Component {
     return Number.parseInt(a.chromosome.replace('chr',''), 10) - Number.parseInt(b.chromosome.replace('chr',''), 10);
   }
 
+  handleMappingChange(e) {
+    const checked = {...this.state.radioChecked};
+    const {name, value} = e.target;
+    check[name] = value;
+    this.setState({radioChecked: checked});
+  }
+
    render() {
     let domain = [0,0.08];
     if (this.state.data) {
@@ -167,14 +158,8 @@ class App extends Component {
     }
     let mapping_good = 0, mapping_ok=0;
     if(this.state.ref && this.state.ref.mapping){
-      for (let entry of Object.keys(this.state.ref.mapping)){
-        const item = this.state.ref.mapping[entry];
-        if (item.selected){
-          mapping_good = item.good;
-          mapping_ok = item.ok;
-          break;
-        }
-      }
+      mapping_good = this.state.ref.mapping[this.state.radioChecked].good;
+      mapping_ok = this.state.ref.mapping[this.state.radioChecked].ok;
     }
     const range = [16, 225];
     const selectRow = {
@@ -235,25 +220,25 @@ class App extends Component {
             <div className="col-md-2">
             <label>
               Total reads
-              <input type="radio" name="mappingOption" selected={this.state.ref.mapping.total.selected}/>
+              <input type="radio" name="mapping"  value="total" checked={this.state.radioChecked.mapping === 'total'} onChange={this.handleMappingChange} />
             </label>
             </div>
             <div className="col-md-2">
             <label>
               Mapped reads
-              <input type="radio" name="mappingOption" selected={this.state.ref.mapping.mapped.selected}/>
+              <input type="radio" name="mapping" value="mapped" checked={this.state.radioChecked.mapping === 'mapped'} onChange={this.handleMappingChange} />
             </label>
             </div>
             <div className="col-md-2">
             <label>
             Non-redundant Mapped_reads 
-              <input type="radio" name="mappingOption" selected={this.state.ref.mapping.nonredant.selected}/>
+              <input type="radio" name="mapping" value="nonredant" checked={this.state.radioChecked.mapping === 'nonredant'} onChange={this.handleMappingChange} />
             </label>
             </div>
             <div className="col-md-2">
             <label>
               Useful reads
-              <input type="radio" name="mappingOption" selected={this.state.ref.mapping.useful.selected}/>
+              <input type="radio" name="mapping" value="useful" checked={this.state.radioChecked.mapping === 'useful'} onChange={this.handleMappingChange} />
             </label>
             </div>
           </div>
