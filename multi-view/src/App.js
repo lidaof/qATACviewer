@@ -17,15 +17,22 @@ const columns = [{
   text: 'Sample'
 }];
 
-const products = [
-  {id:0,name:'GM-AM-6S-GM-172',sample:'Liver',file:'GM-AM-6S-GM-172_S1_L007_R1_001.json',assay:'ATAC-seq',url:'http://wangftp.wustl.edu/~dli/mutlu/step3.2_Normalized_per_10M_GM-AM-6S-GM-172_S1_L007_R1_001.bigWig'},
-  {id:1,name:'GM-AM-6S-GM-173',sample:'Liver',file:'GM-AM-6S-GM-173_S2_L007_R1_001.json',assay:'ATAC-seq',url:'http://wangftp.wustl.edu/~dli/mutlu/step3.2_Normalized_per_10M_GM-AM-6S-GM-173_S2_L007_R1_001.bigWig'},
-  {id:2,name:'GM-AM-6S-GM-174',sample:'Liver',file:'GM-AM-6S-GM-174_S3_L007_R1_001.json',assay:'ATAC-seq',url:'http://wangftp.wustl.edu/~dli/mutlu/step3.2_Normalized_per_10M_GM-AM-6S-GM-174_S3_L007_R1_001.bigWig'},
-  {id:3,name:'GM-AM-6S-GM-175',sample:'Liver',file:'GM-AM-6S-GM-175_S4_L007_R1_001.json',assay:'ATAC-seq',url:'http://wangftp.wustl.edu/~dli/mutlu/step3.2_Normalized_per_10M_GM-AM-6S-GM-175_S4_L007_R1_001.bigWig'},
-  {id:4,name:'GM-AM-6S-GM-176',sample:'Lung', file:'GM-AM-6S-GM-176_S5_L007_R1_001.json',assay:'ATAC-seq',url:'http://wangftp.wustl.edu/~dli/mutlu/step3.2_Normalized_per_10M_GM-AM-6S-GM-176_S5_L007_R1_001.bigWig'},
-  {id:5,name:'GM-AM-6S-GM-177',sample:'Lung', file:'GM-AM-6S-GM-177_S6_L007_R1_001.json',assay:'ATAC-seq',url:'http://wangftp.wustl.edu/~dli/mutlu/step3.2_Normalized_per_10M_GM-AM-6S-GM-177_S6_L007_R1_001.bigWig'},
-];
+// const products = [
+//   {id:0,name:'GM-AM-6S-GM-172',sample:'Liver',file:'GM-AM-6S-GM-172_S1_L007_R1_001.json',assay:'ATAC-seq',url:'http://wangftp.wustl.edu/~dli/mutlu/step3.2_Normalized_per_10M_GM-AM-6S-GM-172_S1_L007_R1_001.bigWig'},
+//   {id:1,name:'GM-AM-6S-GM-173',sample:'Liver',file:'GM-AM-6S-GM-173_S2_L007_R1_001.json',assay:'ATAC-seq',url:'http://wangftp.wustl.edu/~dli/mutlu/step3.2_Normalized_per_10M_GM-AM-6S-GM-173_S2_L007_R1_001.bigWig'},
+//   {id:2,name:'GM-AM-6S-GM-174',sample:'Liver',file:'GM-AM-6S-GM-174_S3_L007_R1_001.json',assay:'ATAC-seq',url:'http://wangftp.wustl.edu/~dli/mutlu/step3.2_Normalized_per_10M_GM-AM-6S-GM-174_S3_L007_R1_001.bigWig'},
+//   {id:3,name:'GM-AM-6S-GM-175',sample:'Liver',file:'GM-AM-6S-GM-175_S4_L007_R1_001.json',assay:'ATAC-seq',url:'http://wangftp.wustl.edu/~dli/mutlu/step3.2_Normalized_per_10M_GM-AM-6S-GM-175_S4_L007_R1_001.bigWig'},
+//   {id:4,name:'GM-AM-6S-GM-176',sample:'Lung', file:'GM-AM-6S-GM-176_S5_L007_R1_001.json',assay:'ATAC-seq',url:'http://wangftp.wustl.edu/~dli/mutlu/step3.2_Normalized_per_10M_GM-AM-6S-GM-176_S5_L007_R1_001.bigWig'},
+//   {id:5,name:'GM-AM-6S-GM-177',sample:'Lung', file:'GM-AM-6S-GM-177_S6_L007_R1_001.json',assay:'ATAC-seq',url:'http://wangftp.wustl.edu/~dli/mutlu/step3.2_Normalized_per_10M_GM-AM-6S-GM-177_S6_L007_R1_001.bigWig'},
+// ];
 
+const products = [
+{id:0, name:'K1-mock', sample: 'K1-mock', file:'TW984_K1-mock_ATAC.R1.json', assay: 'ATAC-seq', url:'http://wangftp.wustl.edu/~dli/hub/kate/step3.2_Normalized_per_10M_TW984_K1-mock_ATAC.R1.bigWig'},
+{id:1, name:'K2-ITF', sample: 'K2-ITF', file:'TW985_K2-ITF_ATAC.R1.json', assay: 'ATAC-seq', url:'http://wangftp.wustl.edu/~dli/hub/kate/step3.2_Normalized_per_10M_TW985_K2-ITF_ATAC.R1.bigWig'},
+{id:2, name:'K3-Aza', sample: 'K3-Aza', file:'TW986_K3-Aza_ATAC.R1.json', assay: 'ATAC-seq', url:'http://wangftp.wustl.edu/~dli/hub/kate/step3.2_Normalized_per_10M_TW986_K3-Aza_ATAC.R1.bigWig'},
+{id:3, name:'K4-AzaITF', sample: 'K4-AzaITF', file:'TW987_K4-AzaITF_ATAC.R1.json', assay: 'ATAC-seq', url:'http://wangftp.wustl.edu/~dli/hub/kate/step3.2_Normalized_per_10M_TW987_K4-AzaITF_ATAC.R1.bigWig'},
+{id:4, name:'A2780-mock', sample: 'A2780-mock', file:'WangT_A2780-mock-atac_N703_AGGCAGAAAT_S13_R1_001.json', assay: 'ATAC-seq', url:'http://wangftp.wustl.edu/~dli/hub/kate/step3.2_Normalized_per_10M_WangT_A2780-mock-atac_N703_AGGCAGAAAT_S13_R1_001.bigWig'}
+];
 
 const fileColors = {
 'GM-AM-6S-GM-172_S1_L007_R1_001.json':'#b2182b',
@@ -294,7 +301,7 @@ class App extends Component {
             {
               Object.entries(this.state.data['autosome_distribution']).map((entry, entryIdx) =>{
               const fontSize = entryIdx === Object.entries(this.state.data['autosome_distribution']).length - 1 ? 14 : 0;
-              return <ScatterChart width={1000} height={60} margin={{ top: 10, right: 0, bottom: 0, left: 100 }} key={entryIdx}>
+              return <ScatterChart width={1200} height={60} margin={{ top: 10, right: 0, bottom: 0, left: 100 }} key={entryIdx} >
                 <XAxis type="category" dataKey="chromosome" interval={0} tick={{ fontSize: fontSize }} tickLine={{ transform: 'translate(0, -6)' }} />
                 <YAxis type="number" dataKey="index" name={entry[0]} height={10} width={80} tick={false} tickLine={false} axisLine={false} label={{ value: entry[0], position: 'insideRight' }} />
                 <ZAxis type="number" dataKey="value" domain={domain} range={range} />
@@ -305,7 +312,7 @@ class App extends Component {
             } 
             </div>
           <h1>Library Complexity</h1>
-          <div className="lead">Encode standards for after_alignment_PCR_duplicates_percentage: Good: {enrich_good}, Acceptable: {enrich_ok}</div>
+          <div className="lead">Encode standards for after_alignment_PCR_duplicates_percentage: Good: {after_good}, Acceptable: {after_ok}</div>
             <div>
               <BarChart width={1200} height={400} data={this.state.data['library_complexity']}
                             margin={{top: 30, right: 50, left: 30, bottom: 5}}>
@@ -345,7 +352,7 @@ class App extends Component {
             <div className="col-md-3">
             <label>
             subsampled_10M_enrichment_ratio: 
-              <input type="radio" name="enrich" value="subsampled_10M_enrichment_ratio" checked={this.state.radioChecked.mapping === 'subsampled_10M_enrichment_ratio'} onChange={this.handleRadioChange} />
+              <input type="radio" name="enrich" value="subsampled_10M_enrichment_ratio" checked={this.state.radioChecked.enrich === 'subsampled_10M_enrichment_ratio'} onChange={this.handleRadioChange} />
             </label>
             </div>
             

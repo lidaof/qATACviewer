@@ -101,7 +101,7 @@ def parse_json_list(flist):
     d = {} # key: filename, value: parsed json content
     for f in flist:
         with open(f,"rU") as fin:
-            d[f] = json.load(fin)
+            d[f.split('_')[1]] = json.load(fin)
     return d
 
 def reformat_array(lst, key1, key2):
@@ -144,7 +144,8 @@ def format_result(d):
     for k in results['mapping_distribution']:
         tmp = []
         for j,jv in k['Percentage_of_non-redundant_uniquely_mapped_reads_in_autosome'].items():
-            tmp.append({'chromosome': j, 'index': 1, 'value': jv})
+            if '_' not in j:
+                tmp.append({'chromosome': j, 'index': 1, 'value': jv})
         auto_distro[k['name']] = tmp
     results['autosome_distribution'] =  auto_distro
     #insert size
