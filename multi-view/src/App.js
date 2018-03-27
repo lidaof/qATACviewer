@@ -10,8 +10,8 @@ const columns = [{
   dataField: 'id',
   text: 'ID'
 }, {
-  dataField: 'name',
-  text: 'Name'
+  dataField: 'assay',
+  text: 'Assay'
 }, {
   dataField: 'sample',
   text: 'Sample'
@@ -26,12 +26,27 @@ const columns = [{
 //   {id:5,name:'GM-AM-6S-GM-177',sample:'Lung', file:'GM-AM-6S-GM-177_S6_L007_R1_001.json',assay:'ATAC-seq',url:'http://wangftp.wustl.edu/~dli/mutlu/step3.2_Normalized_per_10M_GM-AM-6S-GM-177_S6_L007_R1_001.bigWig'},
 // ];
 
+// const products = [
+// {id:0, name:'K1-mock', sample: 'K1-mock', file:'TW984_K1-mock_ATAC.R1.json', assay: 'ATAC-seq', url:'http://wangftp.wustl.edu/~dli/hub/kate/step3.2_Normalized_per_10M_TW984_K1-mock_ATAC.R1.bigWig'},
+// {id:1, name:'K2-ITF', sample: 'K2-ITF', file:'TW985_K2-ITF_ATAC.R1.json', assay: 'ATAC-seq', url:'http://wangftp.wustl.edu/~dli/hub/kate/step3.2_Normalized_per_10M_TW985_K2-ITF_ATAC.R1.bigWig'},
+// {id:2, name:'K3-Aza', sample: 'K3-Aza', file:'TW986_K3-Aza_ATAC.R1.json', assay: 'ATAC-seq', url:'http://wangftp.wustl.edu/~dli/hub/kate/step3.2_Normalized_per_10M_TW986_K3-Aza_ATAC.R1.bigWig'},
+// {id:3, name:'K4-AzaITF', sample: 'K4-AzaITF', file:'TW987_K4-AzaITF_ATAC.R1.json', assay: 'ATAC-seq', url:'http://wangftp.wustl.edu/~dli/hub/kate/step3.2_Normalized_per_10M_TW987_K4-AzaITF_ATAC.R1.bigWig'},
+// {id:4, name:'A2780-mock', sample: 'A2780-mock', file:'WangT_A2780-mock-atac_N703_AGGCAGAAAT_S13_R1_001.json', assay: 'ATAC-seq', url:'http://wangftp.wustl.edu/~dli/hub/kate/step3.2_Normalized_per_10M_WangT_A2780-mock-atac_N703_AGGCAGAAAT_S13_R1_001.bigWig'}
+// ];
+
 const products = [
-{id:0, name:'K1-mock', sample: 'K1-mock', file:'TW984_K1-mock_ATAC.R1.json', assay: 'ATAC-seq', url:'http://wangftp.wustl.edu/~dli/hub/kate/step3.2_Normalized_per_10M_TW984_K1-mock_ATAC.R1.bigWig'},
-{id:1, name:'K2-ITF', sample: 'K2-ITF', file:'TW985_K2-ITF_ATAC.R1.json', assay: 'ATAC-seq', url:'http://wangftp.wustl.edu/~dli/hub/kate/step3.2_Normalized_per_10M_TW985_K2-ITF_ATAC.R1.bigWig'},
-{id:2, name:'K3-Aza', sample: 'K3-Aza', file:'TW986_K3-Aza_ATAC.R1.json', assay: 'ATAC-seq', url:'http://wangftp.wustl.edu/~dli/hub/kate/step3.2_Normalized_per_10M_TW986_K3-Aza_ATAC.R1.bigWig'},
-{id:3, name:'K4-AzaITF', sample: 'K4-AzaITF', file:'TW987_K4-AzaITF_ATAC.R1.json', assay: 'ATAC-seq', url:'http://wangftp.wustl.edu/~dli/hub/kate/step3.2_Normalized_per_10M_TW987_K4-AzaITF_ATAC.R1.bigWig'},
-{id:4, name:'A2780-mock', sample: 'A2780-mock', file:'WangT_A2780-mock-atac_N703_AGGCAGAAAT_S13_R1_001.json', assay: 'ATAC-seq', url:'http://wangftp.wustl.edu/~dli/hub/kate/step3.2_Normalized_per_10M_WangT_A2780-mock-atac_N703_AGGCAGAAAT_S13_R1_001.bigWig'}
+  {id:0, file:'http://wangftp.wustl.edu/~dli/hub/kate/WangT_A2780-mock-atac_N703_AGGCAGAAAT_S13_R1_001.json', sample:'A2780-mock', assay:'ATAC-seq',url:'http://wangftp.wustl.edu/~dli/hub/kate/step3.2_Normalized_per_10M_WangT_A2780-mock-atac_N703_AGGCAGAAAT_S13_R1_001.bigWig'},
+  {id:1, file:'https://htcf.wustl.edu/files/NeAv89X2/WangT_A27802-ITF_i7N703_i5N503_AGGCAGAA_AGAGGATA_S3_R1_001.json', sample:'A27802-ITF', assay:'ATAC-seq',url:'https://htcf.wustl.edu/files/NeAv89X2/step3.2_Normalized_per_10M_WangT_A27802-ITF_i7N703_i5N503_AGGCAGAA_AGAGGATA_S3_R1_001.bigWig'},
+  {id:2, file:'https://htcf.wustl.edu/files/NeAv89X2/WangT_A27803-Aza_i7N703_i5N504_AGGCAGAA_TCTACTCT_S4_R1_001.json', sample:'A27803-Aza', assay:'ATAC-seq',url:'https://htcf.wustl.edu/files/NeAv89X2/step3.2_Normalized_per_10M_WangT_A27803-Aza_i7N703_i5N504_AGGCAGAA_TCTACTCT_S4_R1_001.bigWig'},
+  {id:3, file:'https://htcf.wustl.edu/files/NeAv89X2/WangT_A27804-Aza-ITF_i7N703_i5N517_AGGCAGAA_TCTTACGC_S5_R1_001.json', sample:'A27804-Aza-ITF', assay:'ATAC-seq',url:'json https://htcf.wustl.edu/files/NeAv89X2/step3.2_Normalized_per_10M_WangT_A27804-Aza-ITF_i7N703_i5N517_AGGCAGAA_TCTTACGC_S5_R1_001.bigWig'},
+  {id:4, file:'https://htcf.wustl.edu/files/NeAv89X2/WangT_Hey1-Mock_i7N701_i5N502_TAAGGCGA_ATAGAGAG_S10_R1_001.json', sample:'Hey1-Mock', assay:'ATAC-seq',url:'https://htcf.wustl.edu/files/NeAv89X2/step3.2_Normalized_per_10M_WangT_Hey1-Mock_i7N701_i5N502_TAAGGCGA_ATAGAGAG_S10_R1_001.bigWig'},
+  {id:5, file:'https://htcf.wustl.edu/files/NeAv89X2/WangT_Hey2-ITF_i7N701_i5N503_TAAGGCGA_AGAGGATA_S11_R1_001.json', sample:'Hey2-ITF', assay:'ATAC-seq',url:'https://htcf.wustl.edu/files/NeAv89X2/step3.2_Normalized_per_10M_WangT_Hey2-ITF_i7N701_i5N503_TAAGGCGA_AGAGGATA_S11_R1_001.bigWig'},
+  {id:6, file:'https://htcf.wustl.edu/files/NeAv89X2/WangT_Hey3-Aza_i7N701_i5N504_TAAGGCGA_TCTACTCT_S12_R1_001.json', sample:'Hey3-Aza', assay:'ATAC-seq',url:'https://htcf.wustl.edu/files/NeAv89X2/step3.2_Normalized_per_10M_WangT_Hey3-Aza_i7N701_i5N504_TAAGGCGA_TCTACTCT_S12_R1_001.bigWig'},
+  {id:7, file:'https://htcf.wustl.edu/files/NeAv89X2/WangT_Hey4-Aza-ITF_i7N701_i5N517_TAAGGCGA_TCTTACGC_S13_R1_001.json', sample:'Hey4-Aza-ITF', assay:'ATAC-seq',url:'https://htcf.wustl.edu/files/NeAv89X2/step3.2_Normalized_per_10M_WangT_Hey4-Aza-ITF_i7N701_i5N517_TAAGGCGA_TCTTACGC_S13_R1_001.bigWig'},
+  {id:8, file:'https://htcf.wustl.edu/files/NeAv89X2/WangT_TykNu1-Mock_i7N702_i5N502_CGTACTAG_ATAGAGAG_S6_R1_001.json', sample:'TykNu1-Mock', assay:'ATAC-seq',url:'https://htcf.wustl.edu/files/NeAv89X2/step3.2_Normalized_per_10M_WangT_TykNu1-Mock_i7N702_i5N502_CGTACTAG_ATAGAGAG_S6_R1_001.bigWig'},
+  {id:9, file:'https://htcf.wustl.edu/files/NeAv89X2/WangT_TykNu2-ITF_i7N702_i5N503_CGTACTAG_AGAGGATA_S7_R1_001.json', sample:'TykNu1-Mock', assay:'ATAC-seq',url:'https://htcf.wustl.edu/files/NeAv89X2/step3.2_Normalized_per_10M_WangT_TykNu2-ITF_i7N702_i5N503_CGTACTAG_AGAGGATA_S7_R1_001.bigWig'},
+  {id:10, file:'https://htcf.wustl.edu/files/NeAv89X2/WangT_TykNu3-Aza_i7N702_i5N504_CGTACTAG_TCTACTCT_S8_R1_001.json', sample:'TykNu3-Aza', assay:'ATAC-seq',url:'https://htcf.wustl.edu/files/NeAv89X2/step3.2_Normalized_per_10M_WangT_TykNu3-Aza_i7N702_i5N504_CGTACTAG_TCTACTCT_S8_R1_001.bigWig'},
+  {id:11, file:'https://htcf.wustl.edu/files/NeAv89X2/WangT_TykNu4-Aza-ITF_i7N702_i5N517_CGTACTAG_TCTTACGC_S9_R1_001.json', sample:'TykNu4-Aza-ITF', assay:'ATAC-seq',url:'https://htcf.wustl.edu/files/NeAv89X2/step3.2_Normalized_per_10M_WangT_TykNu4-Aza-ITF_i7N702_i5N517_CGTACTAG_TCTTACGC_S9_R1_001.bigWig'},  
 ];
 
 const fileColors = {
@@ -123,7 +138,7 @@ class App extends Component {
           mode:'show',
           url: product.url,
           height:40,
-          name: product.name,
+          name: product.sample, //use name should
           metadata: [product.sample, product.assay]
         });
         samples.push(product.sample);
@@ -171,6 +186,7 @@ class App extends Component {
     let bk_good = 0, bk_ok = 0; //percentage_of_background_RPKM_larger_than_0.3777
     let enrich_good = 0, enrich_ok = 0; // enrichment
     let peakpct_domain = [0,0.5];
+    let bk_domain = [0,0.5];
     if(this.state.data){
       mapping_good = this.state.data.ref.mapping[this.state.radioChecked.mapping].mean;
       mapping_ok = this.state.data.ref.mapping[this.state.radioChecked.mapping].mean - this.state.data.ref.mapping[this.state.radioChecked.mapping].sd;
@@ -183,6 +199,7 @@ class App extends Component {
       enrich_good = this.state.data.ref.enrichment[this.state.radioChecked.enrich].mean;
       enrich_ok = this.state.data.ref.enrichment[this.state.radioChecked.enrich].mean - this.state.data.ref.enrichment[this.state.radioChecked.enrich].sd;
       peakpct_domain = [0, _.max(_.flatten([this.state.data['peak_analysis']['reads_percentage_under_peaks'],peakpct_good]))];
+      bk_domain = [0, _.max(_.flatten([this.state.data['enrichment']['percentage_of_background_RPKM_larger_than_0.3777'],bk_ok]))];
     }
     const range = [16, 225];
     const selectRow = {
@@ -378,7 +395,7 @@ class App extends Component {
               <BarChart width={1200} height={400} data={this.state.data['enrichment']}
                             margin={{top: 30, right: 50, left: 30, bottom: 5}}>
                   <XAxis dataKey="name"/>
-                  <YAxis />
+                  <YAxis domain={bk_domain} />
                   <CartesianGrid strokeDasharray="3 3"/>
                   <Tooltip/>
                   <Legend />

@@ -1,4 +1,4 @@
-import sys,os,json,math
+import sys,os,json,math,urllib2
 from flask import Flask, request
 from flask import jsonify
 app = Flask(__name__)
@@ -100,8 +100,12 @@ headers = {
 def parse_json_list(flist):
     d = {} # key: filename, value: parsed json content
     for f in flist:
-        with open(f,"rU") as fin:
-            d[f.split('_')[1]] = json.load(fin)
+        print f
+        if f.startswith('http'):
+            d[f.split('/')[-1].split('_')[1]] = json.load(urllib2.urlopen(f))
+        else:
+            with open(f,"rU") as fin:
+                d[f.split('_')[1]] = json.load(fin)
     return d
 
 def reformat_array(lst, key1, key2):
