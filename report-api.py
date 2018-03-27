@@ -25,12 +25,12 @@ def s2n(s):
         return int(s)
 
 def average(values):
-    return sum(values, 0.0) / len(values)
+    return float(format(sum(values, 0.0) / len(values), '.3f'))
 
 def sd(values):
     ave = average(values)
     var = [(i - ave) ** 2 for i in values]
-    return math.sqrt(average(var))
+    return float(format(math.sqrt(average(var)), '.3f'))
 
 def format_text_report(flist):
     d = {}
@@ -75,7 +75,7 @@ def format_text_report(flist):
                 results[oh].append(td1)            
     return results
 
-section1 = ['total_reads','mapped_reads','non-redundant_mapped_reads','useful_reads']
+section1 = ['total_reads','mapped_reads','uniquely_mapped_reads','non-redundant_mapped_reads','useful_reads']
 section2 = ['percentage_of_uniquely_mapped_reads_in_chrM','percentage_of_non-redundant_uniquely_mapped_reads_in_chrX','percentage_of_non-redundant_uniquely_mapped_reads_in_chrY','Percentage_of_non-redundant_uniquely_mapped_reads_in_autosome']
 section3 = ['before_alignment_library_duplicates_percentage','after_alignment_PCR_duplicates_percentage']
 section4 = ['enrichment_ratio_in_coding_promoter_regions', 'subsampled_10M_enrichment_ratio', 'percentage_of_background_RPKM_larger_than_0.3777']
@@ -172,6 +172,9 @@ def format_result(d):
     ref['mapping']['mapped'] = {}
     ref['mapping']['mapped']['mean'] = average(d[f]['ENCODE_PE_reference']['mapping_stats']['mapped_reads'])
     ref['mapping']['mapped']['sd'] = sd(d[f]['ENCODE_PE_reference']['mapping_stats']['mapped_reads'])
+    ref['mapping']['unimap'] = {}
+    ref['mapping']['unimap']['mean'] = average(d[f]['ENCODE_PE_reference']['mapping_stats']['uniquely_mapped_reads'])
+    ref['mapping']['unimap']['sd'] = sd(d[f]['ENCODE_PE_reference']['mapping_stats']['uniquely_mapped_reads'])
     ref['mapping']['nonredant'] = {}
     ref['mapping']['nonredant']['mean'] = average(d[f]['ENCODE_PE_reference']['mapping_stats']['non-redundant_mapped_reads'])
     ref['mapping']['nonredant']['sd'] = sd(d[f]['ENCODE_PE_reference']['mapping_stats']['non-redundant_mapped_reads'])

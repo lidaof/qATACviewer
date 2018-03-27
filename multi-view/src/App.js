@@ -38,7 +38,7 @@ const products = [
   {id:0, file:'http://wangftp.wustl.edu/~dli/hub/kate/WangT_A2780-mock-atac_N703_AGGCAGAAAT_S13_R1_001.json', sample:'A2780-mock', assay:'ATAC-seq',url:'http://wangftp.wustl.edu/~dli/hub/kate/step3.2_Normalized_per_10M_WangT_A2780-mock-atac_N703_AGGCAGAAAT_S13_R1_001.bigWig'},
   {id:1, file:'https://htcf.wustl.edu/files/NeAv89X2/WangT_A27802-ITF_i7N703_i5N503_AGGCAGAA_AGAGGATA_S3_R1_001.json', sample:'A27802-ITF', assay:'ATAC-seq',url:'https://htcf.wustl.edu/files/NeAv89X2/step3.2_Normalized_per_10M_WangT_A27802-ITF_i7N703_i5N503_AGGCAGAA_AGAGGATA_S3_R1_001.bigWig'},
   {id:2, file:'https://htcf.wustl.edu/files/NeAv89X2/WangT_A27803-Aza_i7N703_i5N504_AGGCAGAA_TCTACTCT_S4_R1_001.json', sample:'A27803-Aza', assay:'ATAC-seq',url:'https://htcf.wustl.edu/files/NeAv89X2/step3.2_Normalized_per_10M_WangT_A27803-Aza_i7N703_i5N504_AGGCAGAA_TCTACTCT_S4_R1_001.bigWig'},
-  {id:3, file:'https://htcf.wustl.edu/files/NeAv89X2/WangT_A27804-Aza-ITF_i7N703_i5N517_AGGCAGAA_TCTTACGC_S5_R1_001.json', sample:'A27804-Aza-ITF', assay:'ATAC-seq',url:'json https://htcf.wustl.edu/files/NeAv89X2/step3.2_Normalized_per_10M_WangT_A27804-Aza-ITF_i7N703_i5N517_AGGCAGAA_TCTTACGC_S5_R1_001.bigWig'},
+  {id:3, file:'https://htcf.wustl.edu/files/NeAv89X2/WangT_A27804-Aza-ITF_i7N703_i5N517_AGGCAGAA_TCTTACGC_S5_R1_001.json', sample:'A27804-Aza-ITF', assay:'ATAC-seq',url:'https://htcf.wustl.edu/files/NeAv89X2/step3.2_Normalized_per_10M_WangT_A27804-Aza-ITF_i7N703_i5N517_AGGCAGAA_TCTTACGC_S5_R1_001.bigWig'},
   {id:4, file:'https://htcf.wustl.edu/files/NeAv89X2/WangT_Hey1-Mock_i7N701_i5N502_TAAGGCGA_ATAGAGAG_S10_R1_001.json', sample:'Hey1-Mock', assay:'ATAC-seq',url:'https://htcf.wustl.edu/files/NeAv89X2/step3.2_Normalized_per_10M_WangT_Hey1-Mock_i7N701_i5N502_TAAGGCGA_ATAGAGAG_S10_R1_001.bigWig'},
   {id:5, file:'https://htcf.wustl.edu/files/NeAv89X2/WangT_Hey2-ITF_i7N701_i5N503_TAAGGCGA_AGAGGATA_S11_R1_001.json', sample:'Hey2-ITF', assay:'ATAC-seq',url:'https://htcf.wustl.edu/files/NeAv89X2/step3.2_Normalized_per_10M_WangT_Hey2-ITF_i7N701_i5N503_TAAGGCGA_AGAGGATA_S11_R1_001.bigWig'},
   {id:6, file:'https://htcf.wustl.edu/files/NeAv89X2/WangT_Hey3-Aza_i7N701_i5N504_TAAGGCGA_TCTACTCT_S12_R1_001.json', sample:'Hey3-Aza', assay:'ATAC-seq',url:'https://htcf.wustl.edu/files/NeAv89X2/step3.2_Normalized_per_10M_WangT_Hey3-Aza_i7N701_i5N504_TAAGGCGA_TCTACTCT_S12_R1_001.bigWig'},
@@ -63,16 +63,20 @@ class App extends Component {
       super(props);
       this.state = { 
         value: [], 
-        data:null,
+        data: null,
         radioChecked: {
           mapping: 'useful',
           enrich: 'enrichment_ratio_in_coding_promoter_regions'
-        }
+        },
+        chartHeight: 400,
+        chartWidth: 1000
       };
       this.handleClick = this.handleClick.bind(this);
       this.renderTooltip = this.renderTooltip.bind(this);
       this.hubGenerator = this.hubGenerator.bind(this);
       this.handleRadioChange = this.handleRadioChange.bind(this);
+      this.handleWidthChange = this.handleWidthChange.bind(this);
+      this.handleHeightChange = this.handleHeightChange.bind(this);
     }
 
   async handleClick() {
@@ -175,6 +179,14 @@ class App extends Component {
     this.setState({radioChecked: checked});
   }
 
+  handleWidthChange = (event) => {
+    this.setState({ chartWidth: Number.parseInt(event.target.value) });
+  };
+
+  handleHeightChange = (event) => {
+    this.setState({ chartHeight: Number.parseInt(event.target.value) });
+  };
+
    render() {
     let domain = [0,0.08];
     if (this.state.data) {
@@ -188,8 +200,8 @@ class App extends Component {
     let peakpct_domain = [0,0.5];
     let bk_domain = [0,0.5];
     if(this.state.data){
-      mapping_good = this.state.data.ref.mapping[this.state.radioChecked.mapping].mean;
-      mapping_ok = this.state.data.ref.mapping[this.state.radioChecked.mapping].mean - this.state.data.ref.mapping[this.state.radioChecked.mapping].sd;
+      mapping_good = Math.round(this.state.data.ref.mapping[this.state.radioChecked.mapping].mean);
+      mapping_ok = Math.round(this.state.data.ref.mapping[this.state.radioChecked.mapping].mean - this.state.data.ref.mapping[this.state.radioChecked.mapping].sd);
       after_good = this.state.data.ref['library_complexity']['after'].mean;
       after_ok = this.state.data.ref['library_complexity']['after'].mean + this.state.data.ref['library_complexity']['after'].sd
       peakpct_good = this.state.data.ref['peak_analysis']['reads_percentage_under_peaks'].mean;
@@ -252,6 +264,18 @@ class App extends Component {
           <p className="lead">Current selected: {this.state.value.join()} </p>
           <button type="button" className="btn btn-primary" onClick={this.handleClick}>Update</button>
         </div>
+        <div>
+        <form>
+        <label>
+          Chart width:
+          <input type="text" name="chartwidth" value={this.state.chartWidth} onChange = {this.handleWidthChange} />px
+        </label> <br/>
+        <label>
+          Chart height:
+          <input type="text" name="chartheight" value={this.state.chartHeight} onChange = {this.handleHeightChange} />px
+        </label>
+      </form>
+        </div>
         {this.state.data &&
           <div>
             <h1>Mapping</h1>
@@ -271,6 +295,12 @@ class App extends Component {
             </div>
             <div className="col-md-2">
             <label>
+              Uniquely mapped reads: 
+              <input type="radio" name="mapping" value="unimap" checked={this.state.radioChecked.mapping === 'unimap'} onChange={this.handleRadioChange} />
+            </label>
+            </div>
+            <div className="col-md-2">
+            <label>
             Non-redundant Mapped_reads: 
               <input type="radio" name="mapping" value="nonredant" checked={this.state.radioChecked.mapping === 'nonredant'} onChange={this.handleRadioChange} />
             </label>
@@ -284,7 +314,7 @@ class App extends Component {
           </div>
           <div className="lead">Good: {mapping_good}, Acceptable: {mapping_ok}</div>
             <div>
-              <BarChart width={1200} height={400} data={this.state.data['mapping_stats']}
+              <BarChart width={this.state.chartWidth} height={this.state.chartHeight} data={this.state.data['mapping_stats']}
                             margin={{top: 30, right: 50, left: 30, bottom: 5}}>
                   <XAxis dataKey="name"/>
                   <YAxis/>
@@ -293,6 +323,7 @@ class App extends Component {
                   <Legend />
                   <Bar dataKey="total_reads" fill="#a6cee3" />
                   <Bar dataKey="mapped_reads" fill="#1f78b4" />
+                  <Bar dataKey="uniquely_mapped_reads" fill="#a8ddb5" />
                   <Bar dataKey="non-redundant_mapped_reads" fill="#b2df8a" />
                   <Bar dataKey="useful_reads" fill="#33a02c" />
                   <ReferenceLine y={mapping_good} label="Good" stroke="darkgreen" />
@@ -301,7 +332,7 @@ class App extends Component {
             </div>
             <h1>chrM rate</h1>
             <div>
-              <BarChart width={1200} height={400} data={this.state.data['mapping_distribution']}
+              <BarChart width={this.state.chartWidth} height={this.state.chartHeight} data={this.state.data['mapping_distribution']}
                             margin={{top: 30, right: 50, left: 30, bottom: 5}}>
                   <XAxis dataKey="name"/>
                   <YAxis/>
@@ -318,7 +349,7 @@ class App extends Component {
             {
               Object.entries(this.state.data['autosome_distribution']).map((entry, entryIdx) =>{
               const fontSize = entryIdx === Object.entries(this.state.data['autosome_distribution']).length - 1 ? 14 : 0;
-              return <ScatterChart width={1200} height={60} margin={{ top: 10, right: 0, bottom: 0, left: 100 }} key={entryIdx} >
+              return <ScatterChart width={this.state.chartWidth} height={60} margin={{ top: 10, right: 0, bottom: 0, left: 100 }} key={entryIdx} >
                 <XAxis type="category" dataKey="chromosome" interval={0} tick={{ fontSize: fontSize }} tickLine={{ transform: 'translate(0, -6)' }} />
                 <YAxis type="number" dataKey="index" name={entry[0]} height={10} width={80} tick={false} tickLine={false} axisLine={false} label={{ value: entry[0], position: 'insideRight' }} />
                 <ZAxis type="number" dataKey="value" domain={domain} range={range} />
@@ -331,7 +362,7 @@ class App extends Component {
           <h1>Library Complexity</h1>
           <div className="lead">Encode standards for after_alignment_PCR_duplicates_percentage: Good: {after_good}, Acceptable: {after_ok}</div>
             <div>
-              <BarChart width={1200} height={400} data={this.state.data['library_complexity']}
+              <BarChart width={this.state.chartWidth} height={this.state.chartHeight} data={this.state.data['library_complexity']}
                             margin={{top: 30, right: 50, left: 30, bottom: 5}}>
                   <XAxis dataKey="name"/>
                   <YAxis/>
@@ -345,7 +376,7 @@ class App extends Component {
               </BarChart>
             </div>
             <h1>Insert size distribution</h1>
-            <LineChart width={800} height={400} data={this.state.data['insert_distribution']}
+            <LineChart width={this.state.chartWidth} height={this.state.chartHeight} data={this.state.data['insert_distribution']}
               margin={{ top: 10, right: 30, left: 50, bottom: 0 }}>
               <XAxis dataKey="name" />
               <YAxis />
@@ -376,7 +407,7 @@ class App extends Component {
           </div>
           <div className="lead">Good: {enrich_good}, Acceptable: {enrich_ok}</div>
             <div>
-              <BarChart width={1200} height={400} data={this.state.data['enrichment']}
+              <BarChart width={this.state.chartWidth} height={this.state.chartHeight} data={this.state.data['enrichment']}
                             margin={{top: 30, right: 50, left: 30, bottom: 5}}>
                   <XAxis dataKey="name"/>
                   <YAxis />
@@ -392,7 +423,7 @@ class App extends Component {
             <h1>Background</h1>
             <div className="lead">Encode standards for percentage_of_background_RPKM_larger_than_0.3777: Good: {bk_good}, Acceptable: {bk_ok}</div>
             <div>
-              <BarChart width={1200} height={400} data={this.state.data['enrichment']}
+              <BarChart width={this.state.chartWidth} height={this.state.chartHeight} data={this.state.data['enrichment']}
                             margin={{top: 30, right: 50, left: 30, bottom: 5}}>
                   <XAxis dataKey="name"/>
                   <YAxis domain={bk_domain} />
@@ -407,7 +438,7 @@ class App extends Component {
             <h1>Yield distribution</h1>
             <h2>expected distinction</h2>
             <div>
-            <LineChart width={800} height={400} data={this.state.data['yield_distro']}
+            <LineChart width={this.state.chartWidth} height={this.state.chartHeight} data={this.state.data['yield_distro']}
               margin={{ top: 5, right: 30, left: 50, bottom: 5 }}>
               <XAxis dataKey="name" />
               <YAxis />
@@ -423,7 +454,7 @@ class App extends Component {
             </div>
             <h2>lower 0.95 confidnece interval</h2>
             <div>
-            <LineChart width={800} height={400} data={this.state.data['yield_distro_lower']}
+            <LineChart width={this.state.chartWidth} height={this.state.chartHeight} data={this.state.data['yield_distro_lower']}
               margin={{ top: 5, right: 30, left: 50, bottom: 5 }}>
               <XAxis dataKey="name" />
               <YAxis />
@@ -439,7 +470,7 @@ class App extends Component {
             </div>
             <h2>upper 0.95 confidnece interval</h2>
             <div>
-            <LineChart width={800} height={400} data={this.state.data['yield_distro_upper']}
+            <LineChart width={this.state.chartWidth} height={this.state.chartHeight} data={this.state.data['yield_distro_upper']}
               margin={{ top: 5, right: 30, left: 50, bottom: 5 }}>
               <XAxis dataKey="name" />
               <YAxis />
@@ -456,7 +487,7 @@ class App extends Component {
             <h1>Peaks</h1>
             <h2>Peak numbers</h2>
             <div>
-              <BarChart width={1200} height={400} data={this.state.data['peak_analysis']}
+              <BarChart width={this.state.chartWidth} height={this.state.chartHeight} data={this.state.data['peak_analysis']}
                             margin={{top: 30, right: 50, left: 30, bottom: 5}}>
                   <XAxis dataKey="name"/>
                   <YAxis yAxisId="left" orientation="left" stroke="#8884d8"/>
@@ -472,7 +503,7 @@ class App extends Component {
             <h2>Reads percentage under peaks</h2>
             <div className="lead">Encode standards for reads_percentage_under_peaks: Good: {peakpct_good}, Acceptable: {peakpct_ok}</div>
              <div>
-              <BarChart width={1200} height={400} data={this.state.data['peak_analysis']}
+              <BarChart width={this.state.chartWidth} height={this.state.chartHeight} data={this.state.data['peak_analysis']}
                             margin={{top: 30, right: 50, left: 30, bottom: 5}}>
                   <XAxis dataKey="name"/>
                   <YAxis domain={peakpct_domain} />
@@ -485,7 +516,7 @@ class App extends Component {
               </BarChart>
             </div>
             <h2>Peak size distribution</h2>
-            <LineChart width={800} height={400} data={this.state.data['peak_distribution']}
+            <LineChart width={this.state.chartWidth} height={this.state.chartHeight} data={this.state.data['peak_distribution']}
               margin={{ top: 10, right: 30, left: 50, bottom: 0 }}>
               <XAxis dataKey="name" />
               <YAxis />
@@ -500,7 +531,7 @@ class App extends Component {
             <h1>Saturation</h1>
             <h2>saturation by peaks number</h2>
             <div>
-            <LineChart width={800} height={400} data={this.state.data['saturation_peaks']}
+            <LineChart width={this.state.chartWidth} height={this.state.chartHeight} data={this.state.data['saturation_peaks']}
               margin={{ top: 5, right: 30, left: 50, bottom: 5 }}>
               <XAxis dataKey="name" />
               <YAxis />
@@ -516,7 +547,7 @@ class App extends Component {
             </div>
             <h2>saturation by percentage of peaks recaptured</h2>
             <div>
-            <LineChart width={800} height={400} data={this.state.data['saturation_peaks_pct']}
+            <LineChart width={this.state.chartWidth} height={this.state.chartHeight} data={this.state.data['saturation_peaks_pct']}
               margin={{ top: 5, right: 30, left: 50, bottom: 5 }}>
               <XAxis dataKey="name" />
               <YAxis />
