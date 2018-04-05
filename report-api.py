@@ -98,14 +98,27 @@ headers = {
 }
 
 def parse_json_list(flist):
-    d = {} # key: filename, value: parsed json content
+    d = {} # key: filename, value: parsed json content, put key error if there is something wrong loading json content, value would a list of file or URLs failed loading json
+    d['error'] = []
     for f in flist:
-        print f
+        #print f
+        label = f
+        #label = f.split('/')[-1].split('_')[1]
+        #label = f.split('_')[1]
         if f.startswith('http'):
-            d[f.split('/')[-1].split('_')[1]] = json.load(urllib2.urlopen(f))
+            try:
+                d[label] = json.load(urllib2.urlopen(f))
+            except:
+                d['error'].append(f)
         else:
-            with open(f,"rU") as fin:
-                d[f.split('_')[1]] = json.load(fin)
+            try: #file open error
+                with open(f,"rU") as fin:
+                    try: # json load error
+                        d[label] = json.load(fin)
+                    except:
+                        d['error'].append(f)
+            except:
+                d['error'].append(f)
     return d
 
 def reformat_array(lst, key1, key2):
@@ -132,9 +145,13 @@ def reformat_array(lst, key1, key2):
 
 def format_result(d):
     results = {}
+    results['error'] = []
     for h in headers:
         results[h] = []
         for f in d:
+            if f == 'error': 
+                results['error'].extend(d[f])
+                continue
             tmp = {}
             tmp['name'] = f
             for k in headers[h]:
