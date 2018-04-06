@@ -119,6 +119,7 @@ def parse_json_list(flist):
                         d['error'].append(f)
             except:
                 d['error'].append(f)
+    #print d
     return d
 
 def reformat_array(lst, key1, key2):
@@ -145,18 +146,20 @@ def reformat_array(lst, key1, key2):
 
 def format_result(d):
     results = {}
-    results['error'] = []
+    results['error'] = d['error']
+    ef = '' # encode f, make sure encode ref came from correct json
     for h in headers:
         results[h] = []
         for f in d:
             if f == 'error': 
-                results['error'].extend(d[f])
+                #results['error'].extend(d[f])
                 continue
             tmp = {}
             tmp['name'] = f
             for k in headers[h]:
                 tmp[k] = d[f]['Sample_QC_info'][h][k]
             results[h].append(tmp)
+            ef = f
     #print results['mapping_distribution']
     # add encode
     #results['ENCODE_PE_reference'] = d[f]['ENCODE_PE_reference']
@@ -181,50 +184,51 @@ def format_result(d):
     results['saturation_peaks'] = reformat_array(results['saturation'],'sequence_depth','peaks_number')
     results['saturation_peaks_pct'] = reformat_array(results['saturation'],'sequence_depth','percentage_of_peaks_recaptured')
     # encode ref standard
+    if not ef: return results # encode ref cannot be read
     ref = {}
     ref['mapping'] = {}
     ref['mapping']['total'] = {}
-    ref['mapping']['total']['mean'] = average(d[f]['ENCODE_PE_reference']['mapping_stats']['total_reads'])
-    ref['mapping']['total']['sd'] = sd(d[f]['ENCODE_PE_reference']['mapping_stats']['total_reads'])
+    ref['mapping']['total']['mean'] = average(d[ef]['ENCODE_PE_reference']['mapping_stats']['total_reads'])
+    ref['mapping']['total']['sd'] = sd(d[ef]['ENCODE_PE_reference']['mapping_stats']['total_reads'])
     ref['mapping']['mapped'] = {}
-    ref['mapping']['mapped']['mean'] = average(d[f]['ENCODE_PE_reference']['mapping_stats']['mapped_reads'])
-    ref['mapping']['mapped']['sd'] = sd(d[f]['ENCODE_PE_reference']['mapping_stats']['mapped_reads'])
+    ref['mapping']['mapped']['mean'] = average(d[ef]['ENCODE_PE_reference']['mapping_stats']['mapped_reads'])
+    ref['mapping']['mapped']['sd'] = sd(d[ef]['ENCODE_PE_reference']['mapping_stats']['mapped_reads'])
     ref['mapping']['unimap'] = {}
-    ref['mapping']['unimap']['mean'] = average(d[f]['ENCODE_PE_reference']['mapping_stats']['uniquely_mapped_reads'])
-    ref['mapping']['unimap']['sd'] = sd(d[f]['ENCODE_PE_reference']['mapping_stats']['uniquely_mapped_reads'])
+    ref['mapping']['unimap']['mean'] = average(d[ef]['ENCODE_PE_reference']['mapping_stats']['uniquely_mapped_reads'])
+    ref['mapping']['unimap']['sd'] = sd(d[ef]['ENCODE_PE_reference']['mapping_stats']['uniquely_mapped_reads'])
     ref['mapping']['nonredant'] = {}
-    ref['mapping']['nonredant']['mean'] = average(d[f]['ENCODE_PE_reference']['mapping_stats']['non-redundant_mapped_reads'])
-    ref['mapping']['nonredant']['sd'] = sd(d[f]['ENCODE_PE_reference']['mapping_stats']['non-redundant_mapped_reads'])
+    ref['mapping']['nonredant']['mean'] = average(d[ef]['ENCODE_PE_reference']['mapping_stats']['non-redundant_mapped_reads'])
+    ref['mapping']['nonredant']['sd'] = sd(d[ef]['ENCODE_PE_reference']['mapping_stats']['non-redundant_mapped_reads'])
     ref['mapping']['useful'] = {}
-    ref['mapping']['useful']['mean'] = average(d[f]['ENCODE_PE_reference']['mapping_stats']['useful_reads'])
-    ref['mapping']['useful']['sd'] = sd(d[f]['ENCODE_PE_reference']['mapping_stats']['useful_reads'])
+    ref['mapping']['useful']['mean'] = average(d[ef]['ENCODE_PE_reference']['mapping_stats']['useful_reads'])
+    ref['mapping']['useful']['sd'] = sd(d[ef]['ENCODE_PE_reference']['mapping_stats']['useful_reads'])
     ref['library_complexity'] = {}
     ref['library_complexity']['after'] = {}
-    ref['library_complexity']['after']['mean'] = average(d[f]['ENCODE_PE_reference']['library_complexity']['after_alignment_PCR_duplicates_percentage'])
-    ref['library_complexity']['after']['sd'] = sd(d[f]['ENCODE_PE_reference']['library_complexity']['after_alignment_PCR_duplicates_percentage'])
+    ref['library_complexity']['after']['mean'] = average(d[ef]['ENCODE_PE_reference']['library_complexity']['after_alignment_PCR_duplicates_percentage'])
+    ref['library_complexity']['after']['sd'] = sd(d[ef]['ENCODE_PE_reference']['library_complexity']['after_alignment_PCR_duplicates_percentage'])
     ref['peak_analysis'] = {}
     ref['peak_analysis']['reads_percentage_under_peaks'] = {}
-    ref['peak_analysis']['reads_percentage_under_peaks']['mean'] = average(d[f]['ENCODE_PE_reference']['peak_analysis']['reads_percentage_under_peaks'])
-    ref['peak_analysis']['reads_percentage_under_peaks']['sd'] = sd(d[f]['ENCODE_PE_reference']['peak_analysis']['reads_percentage_under_peaks'])
+    ref['peak_analysis']['reads_percentage_under_peaks']['mean'] = average(d[ef]['ENCODE_PE_reference']['peak_analysis']['reads_percentage_under_peaks'])
+    ref['peak_analysis']['reads_percentage_under_peaks']['sd'] = sd(d[ef]['ENCODE_PE_reference']['peak_analysis']['reads_percentage_under_peaks'])
     ref['peak_analysis']['reads_number_under_peaks'] = {}
-    ref['peak_analysis']['reads_number_under_peaks']['mean'] = average(d[f]['ENCODE_PE_reference']['peak_analysis']['reads_number_under_peaks'])
-    ref['peak_analysis']['reads_number_under_peaks']['sd'] = sd(d[f]['ENCODE_PE_reference']['peak_analysis']['reads_number_under_peaks'])
+    ref['peak_analysis']['reads_number_under_peaks']['mean'] = average(d[ef]['ENCODE_PE_reference']['peak_analysis']['reads_number_under_peaks'])
+    ref['peak_analysis']['reads_number_under_peaks']['sd'] = sd(d[ef]['ENCODE_PE_reference']['peak_analysis']['reads_number_under_peaks'])
     ref['peak_analysis']['peaks_number_in_promoter_regions'] = {}
-    ref['peak_analysis']['peaks_number_in_promoter_regions']['mean'] = average(d[f]['ENCODE_PE_reference']['peak_analysis']['peaks_number_in_promoter_regions'])
-    ref['peak_analysis']['peaks_number_in_promoter_regions']['sd'] = sd(d[f]['ENCODE_PE_reference']['peak_analysis']['peaks_number_in_promoter_regions'])
+    ref['peak_analysis']['peaks_number_in_promoter_regions']['mean'] = average(d[ef]['ENCODE_PE_reference']['peak_analysis']['peaks_number_in_promoter_regions'])
+    ref['peak_analysis']['peaks_number_in_promoter_regions']['sd'] = sd(d[ef]['ENCODE_PE_reference']['peak_analysis']['peaks_number_in_promoter_regions'])
     ref['peak_analysis']['peaks_number_in_non-promoter_regions'] = {}
-    ref['peak_analysis']['peaks_number_in_non-promoter_regions']['mean'] = average(d[f]['ENCODE_PE_reference']['peak_analysis']['peaks_number_in_non-promoter_regions'])
-    ref['peak_analysis']['peaks_number_in_non-promoter_regions']['sd'] = sd(d[f]['ENCODE_PE_reference']['peak_analysis']['peaks_number_in_non-promoter_regions'])
+    ref['peak_analysis']['peaks_number_in_non-promoter_regions']['mean'] = average(d[ef]['ENCODE_PE_reference']['peak_analysis']['peaks_number_in_non-promoter_regions'])
+    ref['peak_analysis']['peaks_number_in_non-promoter_regions']['sd'] = sd(d[ef]['ENCODE_PE_reference']['peak_analysis']['peaks_number_in_non-promoter_regions'])
     ref['enrichment'] = {}
     ref['enrichment']['enrichment_ratio_in_coding_promoter_regions'] = {}
-    ref['enrichment']['enrichment_ratio_in_coding_promoter_regions']['mean'] = average(d[f]['ENCODE_PE_reference']['enrichment']['enrichment_ratio_in_coding_promoter_regions'])
-    ref['enrichment']['enrichment_ratio_in_coding_promoter_regions']['sd'] = sd(d[f]['ENCODE_PE_reference']['enrichment']['enrichment_ratio_in_coding_promoter_regions'])
+    ref['enrichment']['enrichment_ratio_in_coding_promoter_regions']['mean'] = average(d[ef]['ENCODE_PE_reference']['enrichment']['enrichment_ratio_in_coding_promoter_regions'])
+    ref['enrichment']['enrichment_ratio_in_coding_promoter_regions']['sd'] = sd(d[ef]['ENCODE_PE_reference']['enrichment']['enrichment_ratio_in_coding_promoter_regions'])
     ref['enrichment']['subsampled_10M_enrichment_ratio'] = {}
-    ref['enrichment']['subsampled_10M_enrichment_ratio']['mean'] = average(d[f]['ENCODE_PE_reference']['enrichment']['subsampled_10M_enrichment_ratio'])
-    ref['enrichment']['subsampled_10M_enrichment_ratio']['sd'] = sd(d[f]['ENCODE_PE_reference']['enrichment']['subsampled_10M_enrichment_ratio'])
+    ref['enrichment']['subsampled_10M_enrichment_ratio']['mean'] = average(d[ef]['ENCODE_PE_reference']['enrichment']['subsampled_10M_enrichment_ratio'])
+    ref['enrichment']['subsampled_10M_enrichment_ratio']['sd'] = sd(d[ef]['ENCODE_PE_reference']['enrichment']['subsampled_10M_enrichment_ratio'])
     ref['enrichment']['percentage_of_background_RPKM_larger_than_0.3777'] = {}
-    ref['enrichment']['percentage_of_background_RPKM_larger_than_0.3777']['mean'] = average(d[f]['ENCODE_PE_reference']['enrichment']['percentage_of_background_RPKM_larger_than_0.3777'])
-    ref['enrichment']['percentage_of_background_RPKM_larger_than_0.3777']['sd'] = sd(d[f]['ENCODE_PE_reference']['enrichment']['percentage_of_background_RPKM_larger_than_0.3777'])
+    ref['enrichment']['percentage_of_background_RPKM_larger_than_0.3777']['mean'] = average(d[ef]['ENCODE_PE_reference']['enrichment']['percentage_of_background_RPKM_larger_than_0.3777'])
+    ref['enrichment']['percentage_of_background_RPKM_larger_than_0.3777']['sd'] = sd(d[ef]['ENCODE_PE_reference']['enrichment']['percentage_of_background_RPKM_larger_than_0.3777'])
     results['ref'] = ref
     return results
 

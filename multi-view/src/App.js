@@ -46,7 +46,9 @@ class App extends Component {
         chartHeight: 400,
         chartWidth: 1000,
         selectedOption: '',
-        products: null
+        products: null,
+        error: [],
+        noDataFromAPI: false
       };
       this.handleClick = this.handleClick.bind(this);
       this.renderTooltip = this.renderTooltip.bind(this);
@@ -61,7 +63,16 @@ class App extends Component {
     //let response = await axios.get(`/report/${req}`);
     //let response = await axios.post('/rep',{flist: this.state.value});
     let response = await axios.post('/rep1',{flist: this.state.value});
+    if (response.data.error){
+      if(response.data.error.length === this.state.value.length){
+        this.setState({noDataFromAPI: true});
+      }
+      let fvalue = [...this.state.value];
+      this.setState({value: _.without(fvalue, ...response.data.error), error: response.data.error});
+      
+    }
     this.setState({data: response.data});
+    
     //file the encode standards
     // let ref = {
     //   mapping: {
@@ -157,11 +168,11 @@ class App extends Component {
   }
 
   handleWidthChange = (event) => {
-    this.setState({ chartWidth: Number.parseInt(event.target.value) });
+    this.setState({ chartWidth: Number.parseInt(event.target.value, 10) });
   };
 
   handleHeightChange = (event) => {
-    this.setState({ chartHeight: Number.parseInt(event.target.value) });
+    this.setState({ chartHeight: Number.parseInt(event.target.value, 10) });
   };
 
   handleChange = (selectedOption) => {
@@ -172,6 +183,9 @@ class App extends Component {
   }
 
    render() {
+    if(this.state.noDataFromAPI){
+      return <div className="lead alert alert-danger">Error! No report could be loaded from the selected datasets!</div>
+    }
     let domain = [0,0.08];
     if (this.state.data) {
       domain = [0, _.max(_.map( _.map(this.state.data["autosome_distribution"], function(n) { return _.maxBy(n, 'value') } ), 'value' ))];
@@ -183,7 +197,7 @@ class App extends Component {
     let enrich_good = 0, enrich_ok = 0; // enrichment
     let peakpct_domain = [0,0.5];
     let bk_domain = [0,0.5];
-    if(this.state.data){
+    if(this.state.data && this.state.data.ref){
       mapping_good = Math.round(this.state.data.ref.mapping[this.state.radioChecked.mapping].mean);
       mapping_ok = Math.round(this.state.data.ref.mapping[this.state.radioChecked.mapping].mean - this.state.data.ref.mapping[this.state.radioChecked.mapping].sd);
       after_good = this.state.data.ref['library_complexity']['after'].mean;
@@ -277,6 +291,11 @@ class App extends Component {
           <input type="text" name="chartheight" value={this.state.chartHeight} onChange = {this.handleHeightChange} />px
         </label>
       </form>
+        </div>
+        <div>
+          {this.state.error &&
+            this.state.error.map((item)=> <div className="lead alert alert-danger">Report {item} is not loaded properly, please check your path and report format.</div>)
+          }
         </div>
         {this.state.data &&
           <div>
