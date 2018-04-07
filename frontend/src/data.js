@@ -31,14 +31,23 @@ const kateNewData = [
     {id:12, file:'https://target.wustl.edu/processed/fromHTCF/5aa236a64f037480c3c6dc30/5aa236a64f037480c3c6dc30.SE.json', sample:'test', assay:'ATAC-seq',url:'https://target.wustl.edu/processed/fromHTCF/5aa236a64f037480c3c6dc30/step3.2_Normalized_per_10M_5aa236a64f037480c3c6dc30.SE.bigWig'},
 ];
 
-  
+
+const upennData = [
+    {id:0,sample:'B6-1', assay:'ATAC-seq',file:'http://wangftp.wustl.edu/~dli/targetdcc/upenn/B6-1.R1.json', url:'http://wangftp.wustl.edu/~dli/targetdcc/upenn/step3.2_Normalized_per_10M_B6-1.R1.bigWig'},
+    {id:1,sample:'B6-2', assay:'ATAC-seq',file:'http://wangftp.wustl.edu/~dli/targetdcc/upenn/B6-2.R1.json', url:'http://wangftp.wustl.edu/~dli/targetdcc/upenn/step3.2_Normalized_per_10M_B6-2.R1.bigWig'},
+    {id:2,sample:'C7-1', assay:'ATAC-seq',file:'http://wangftp.wustl.edu/~dli/targetdcc/upenn/C7-1.R1.json', url:'http://wangftp.wustl.edu/~dli/targetdcc/upenn/step3.2_Normalized_per_10M_C7-1.R1.bigWig'},
+    {id:3,sample:'C7-2', assay:'ATAC-seq',file:'http://wangftp.wustl.edu/~dli/targetdcc/upenn/WangT_C7-2_SIC0808_CTCCAGGGT_S11_R1_001.json', url:'http://wangftp.wustl.edu/~dli/targetdcc/upenn/step3.2_Normalized_per_10M_WangT_C7-2_SIC0808_CTCCAGGGT_S11_R1_001.bigWig'},
+];
+
 export const allProducts = {
     'kateNewData': kateNewData,
     'kateOldData': kateOldData,
-    'mutluData': mutluData
+    'mutluData': mutluData,
+    'upennData': upennData
 };
 
 export const allOptions = [
+    { value: 'upennData', label: 'Upenn Data',  clearableValue: false },
     { value: 'mutluData', label: 'Mutlu Data',  clearableValue: false },
     { value: 'kateNewData', label: 'Kate New Date',  clearableValue: false  },
     { value: 'kateOldData', label: 'Kate Old Date',  clearableValue: false  },

@@ -130,7 +130,7 @@ class App extends Component {
           mode:'show',
           url: product.url,
           height:40,
-          name: product.sample, //use name should
+          name: product.name || `${product.assay} of ${product.sample}`, //use name should
           metadata: [product.sample, product.assay]
         });
         samples.push(product.sample);
@@ -197,6 +197,8 @@ class App extends Component {
     let enrich_good = 0, enrich_ok = 0; // enrichment
     let peakpct_domain = [0,0.5];
     let bk_domain = [0,0.5];
+    let map_domain = [0,55000000];
+    let after_domain = [0,0.3];
     if(this.state.data && this.state.data.ref){
       mapping_good = Math.round(this.state.data.ref.mapping[this.state.radioChecked.mapping].mean);
       mapping_ok = Math.round(this.state.data.ref.mapping[this.state.radioChecked.mapping].mean - this.state.data.ref.mapping[this.state.radioChecked.mapping].sd);
@@ -210,6 +212,9 @@ class App extends Component {
       enrich_ok = this.state.data.ref.enrichment[this.state.radioChecked.enrich].mean - this.state.data.ref.enrichment[this.state.radioChecked.enrich].sd;
       peakpct_domain = [0, _.max(_.flatten([this.state.data['peak_analysis']['reads_percentage_under_peaks'],peakpct_good]))];
       bk_domain = [0, _.max(_.flatten([this.state.data['enrichment']['percentage_of_background_RPKM_larger_than_0.3777'],bk_ok]))];
+      map_domain = [0, _.max(_.flatten([this.state.data['mapping_stats']['total_reads'], mapping_good]))];
+      after_domain = [0, _.max(_.flatten([this.state.data['library_complexity']['after_alignment_PCR_duplicates_percentage'], after_ok]))];
+
     }
     const range = [16, 225];
     const selectRow = {
@@ -338,7 +343,7 @@ class App extends Component {
               <BarChart width={this.state.chartWidth} height={this.state.chartHeight} data={this.state.data['mapping_stats']}
                             margin={{top: 30, right: 50, left: 30, bottom: 5}}>
                   <XAxis dataKey="name"/>
-                  <YAxis/>
+                  <YAxis domain={map_domain} />
                   <CartesianGrid strokeDasharray="3 3"/>
                   <Tooltip/>
                   <Legend />
@@ -386,7 +391,7 @@ class App extends Component {
               <BarChart width={this.state.chartWidth} height={this.state.chartHeight} data={this.state.data['library_complexity']}
                             margin={{top: 30, right: 50, left: 30, bottom: 5}}>
                   <XAxis dataKey="name"/>
-                  <YAxis/>
+                  <YAxis domain={after_domain}/>
                   <CartesianGrid strokeDasharray="3 3"/>
                   <Tooltip/>
                   <Legend />

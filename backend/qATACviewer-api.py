@@ -75,13 +75,21 @@ def format_text_report(flist):
                 results[oh].append(td1)            
     return results
 
+def remove_spaces(obj):
+    for key in obj.keys():
+        new_key = key.replace(" ","_")
+        if new_key != key:
+            obj[new_key] = obj[key]
+            del obj[key]
+    return obj
+
 section1 = ['total_reads','mapped_reads','uniquely_mapped_reads','non-redundant_mapped_reads','useful_reads']
 section2 = ['percentage_of_uniquely_mapped_reads_in_chrM','percentage_of_non-redundant_uniquely_mapped_reads_in_chrX','percentage_of_non-redundant_uniquely_mapped_reads_in_chrY','Percentage_of_non-redundant_uniquely_mapped_reads_in_autosome']
 section3 = ['before_alignment_library_duplicates_percentage','after_alignment_PCR_duplicates_percentage']
 section4 = ['enrichment_ratio_in_coding_promoter_regions', 'subsampled_10M_enrichment_ratio', 'percentage_of_background_RPKM_larger_than_0.3777']
 section5 = ['reads_number_under_peaks', 'peaks_number_in_promoter_regions','peaks_number_in_non-promoter_regions', 'reads_percentage_under_peaks']
-section6 = ['insertion_size','frequency']
-section7 = ['peak_length','frequency']
+section6 = ['insertion_size','density']
+section7 = ['peak_length','density']
 section8 = ['total_reads','expected_distinction','lower_0.95_confidnece_interval','upper_0.95_confidnece_interval']
 section9 = ['sequence_depth','peaks_number','percentage_of_peaks_recaptured']
 
@@ -102,24 +110,29 @@ def parse_json_list(flist):
     d['error'] = []
     for f in flist:
         #print f
-        label = f
-        #label = f.split('/')[-1].split('_')[1]
+        #label = f
+        label = f.split('/')[-1].split('_')[0]
         #label = f.split('_')[1]
+        content = ''
         if f.startswith('http'):
             try:
-                d[label] = json.load(urllib2.urlopen(f))
+                content = json.load(urllib2.urlopen(f))
             except:
                 d['error'].append(f)
         else:
             try: #file open error
                 with open(f,"rU") as fin:
                     try: # json load error
-                        d[label] = json.load(fin)
+                        content = json.load(fin)
                     except:
                         d['error'].append(f)
             except:
                 d['error'].append(f)
-    #print d
+        if len(d['error']) == 0: # means json loaded correctly
+            new_content = json.loads(json.dumps(content), object_hook=remove_spaces)
+            d[label] = new_content
+            #print content
+            #print new_content
     return d
 
 def reformat_array(lst, key1, key2):
@@ -162,7 +175,7 @@ def format_result(d):
             ef = f
     #print results['mapping_distribution']
     # add encode
-    #results['ENCODE_PE_reference'] = d[f]['ENCODE_PE_reference']
+    #results['ENCODE_PE_refernce'] = d[f]['ENCODE_PE_refernce']
     # re-format chromosome/autosome distribution
     auto_distro = {} #key: file name, value: [{chromosome: '', index:1, value: xxx},...]
     for k in results['mapping_distribution']:
@@ -173,9 +186,9 @@ def format_result(d):
         auto_distro[k['name']] = tmp
     results['autosome_distribution'] =  auto_distro
     #insert size
-    results['insert_distribution'] = reformat_array(results['insertion_size_distribution'],'insertion_size','frequency')
+    results['insert_distribution'] = reformat_array(results['insertion_size_distribution'],'insertion_size','density')
     #peak size
-    results['peak_distribution'] = reformat_array(results['peak_length_distribution'], 'peak_length','frequency')
+    results['peak_distribution'] = reformat_array(results['peak_length_distribution'], 'peak_length','density')
     #yield
     results['yield_distro'] = reformat_array(results['yield_distribution'], 'total_reads', 'expected_distinction')
     results['yield_distro_lower'] = reformat_array(results['yield_distribution'], 'total_reads', 'lower_0.95_confidnece_interval')
@@ -186,49 +199,50 @@ def format_result(d):
     # encode ref standard
     if not ef: return results # encode ref cannot be read
     ref = {}
+    #refernce...what's the f...
     ref['mapping'] = {}
     ref['mapping']['total'] = {}
-    ref['mapping']['total']['mean'] = average(d[ef]['ENCODE_PE_reference']['mapping_stats']['total_reads'])
-    ref['mapping']['total']['sd'] = sd(d[ef]['ENCODE_PE_reference']['mapping_stats']['total_reads'])
+    ref['mapping']['total']['mean'] = average(d[ef]['ENCODE_PE_refernce']['mapping_stats']['total_reads'])
+    ref['mapping']['total']['sd'] = sd(d[ef]['ENCODE_PE_refernce']['mapping_stats']['total_reads'])
     ref['mapping']['mapped'] = {}
-    ref['mapping']['mapped']['mean'] = average(d[ef]['ENCODE_PE_reference']['mapping_stats']['mapped_reads'])
-    ref['mapping']['mapped']['sd'] = sd(d[ef]['ENCODE_PE_reference']['mapping_stats']['mapped_reads'])
+    ref['mapping']['mapped']['mean'] = average(d[ef]['ENCODE_PE_refernce']['mapping_stats']['mapped_reads'])
+    ref['mapping']['mapped']['sd'] = sd(d[ef]['ENCODE_PE_refernce']['mapping_stats']['mapped_reads'])
     ref['mapping']['unimap'] = {}
-    ref['mapping']['unimap']['mean'] = average(d[ef]['ENCODE_PE_reference']['mapping_stats']['uniquely_mapped_reads'])
-    ref['mapping']['unimap']['sd'] = sd(d[ef]['ENCODE_PE_reference']['mapping_stats']['uniquely_mapped_reads'])
+    ref['mapping']['unimap']['mean'] = average(d[ef]['ENCODE_PE_refernce']['mapping_stats']['uniquely_mapped_reads'])
+    ref['mapping']['unimap']['sd'] = sd(d[ef]['ENCODE_PE_refernce']['mapping_stats']['uniquely_mapped_reads'])
     ref['mapping']['nonredant'] = {}
-    ref['mapping']['nonredant']['mean'] = average(d[ef]['ENCODE_PE_reference']['mapping_stats']['non-redundant_mapped_reads'])
-    ref['mapping']['nonredant']['sd'] = sd(d[ef]['ENCODE_PE_reference']['mapping_stats']['non-redundant_mapped_reads'])
+    ref['mapping']['nonredant']['mean'] = average(d[ef]['ENCODE_PE_refernce']['mapping_stats']['non-redundant_mapped_reads'])
+    ref['mapping']['nonredant']['sd'] = sd(d[ef]['ENCODE_PE_refernce']['mapping_stats']['non-redundant_mapped_reads'])
     ref['mapping']['useful'] = {}
-    ref['mapping']['useful']['mean'] = average(d[ef]['ENCODE_PE_reference']['mapping_stats']['useful_reads'])
-    ref['mapping']['useful']['sd'] = sd(d[ef]['ENCODE_PE_reference']['mapping_stats']['useful_reads'])
+    ref['mapping']['useful']['mean'] = average(d[ef]['ENCODE_PE_refernce']['mapping_stats']['useful_reads'])
+    ref['mapping']['useful']['sd'] = sd(d[ef]['ENCODE_PE_refernce']['mapping_stats']['useful_reads'])
     ref['library_complexity'] = {}
     ref['library_complexity']['after'] = {}
-    ref['library_complexity']['after']['mean'] = average(d[ef]['ENCODE_PE_reference']['library_complexity']['after_alignment_PCR_duplicates_percentage'])
-    ref['library_complexity']['after']['sd'] = sd(d[ef]['ENCODE_PE_reference']['library_complexity']['after_alignment_PCR_duplicates_percentage'])
+    ref['library_complexity']['after']['mean'] = average(d[ef]['ENCODE_PE_refernce']['library_complexity']['after_alignment_PCR_duplicates_percentage'])
+    ref['library_complexity']['after']['sd'] = sd(d[ef]['ENCODE_PE_refernce']['library_complexity']['after_alignment_PCR_duplicates_percentage'])
     ref['peak_analysis'] = {}
     ref['peak_analysis']['reads_percentage_under_peaks'] = {}
-    ref['peak_analysis']['reads_percentage_under_peaks']['mean'] = average(d[ef]['ENCODE_PE_reference']['peak_analysis']['reads_percentage_under_peaks'])
-    ref['peak_analysis']['reads_percentage_under_peaks']['sd'] = sd(d[ef]['ENCODE_PE_reference']['peak_analysis']['reads_percentage_under_peaks'])
+    ref['peak_analysis']['reads_percentage_under_peaks']['mean'] = average(d[ef]['ENCODE_PE_refernce']['peak_analysis']['reads_percentage_under_peaks'])
+    ref['peak_analysis']['reads_percentage_under_peaks']['sd'] = sd(d[ef]['ENCODE_PE_refernce']['peak_analysis']['reads_percentage_under_peaks'])
     ref['peak_analysis']['reads_number_under_peaks'] = {}
-    ref['peak_analysis']['reads_number_under_peaks']['mean'] = average(d[ef]['ENCODE_PE_reference']['peak_analysis']['reads_number_under_peaks'])
-    ref['peak_analysis']['reads_number_under_peaks']['sd'] = sd(d[ef]['ENCODE_PE_reference']['peak_analysis']['reads_number_under_peaks'])
+    ref['peak_analysis']['reads_number_under_peaks']['mean'] = average(d[ef]['ENCODE_PE_refernce']['peak_analysis']['reads_number_under_peaks'])
+    ref['peak_analysis']['reads_number_under_peaks']['sd'] = sd(d[ef]['ENCODE_PE_refernce']['peak_analysis']['reads_number_under_peaks'])
     ref['peak_analysis']['peaks_number_in_promoter_regions'] = {}
-    ref['peak_analysis']['peaks_number_in_promoter_regions']['mean'] = average(d[ef]['ENCODE_PE_reference']['peak_analysis']['peaks_number_in_promoter_regions'])
-    ref['peak_analysis']['peaks_number_in_promoter_regions']['sd'] = sd(d[ef]['ENCODE_PE_reference']['peak_analysis']['peaks_number_in_promoter_regions'])
+    ref['peak_analysis']['peaks_number_in_promoter_regions']['mean'] = average(d[ef]['ENCODE_PE_refernce']['peak_analysis']['peaks_number_in_promoter_regions'])
+    ref['peak_analysis']['peaks_number_in_promoter_regions']['sd'] = sd(d[ef]['ENCODE_PE_refernce']['peak_analysis']['peaks_number_in_promoter_regions'])
     ref['peak_analysis']['peaks_number_in_non-promoter_regions'] = {}
-    ref['peak_analysis']['peaks_number_in_non-promoter_regions']['mean'] = average(d[ef]['ENCODE_PE_reference']['peak_analysis']['peaks_number_in_non-promoter_regions'])
-    ref['peak_analysis']['peaks_number_in_non-promoter_regions']['sd'] = sd(d[ef]['ENCODE_PE_reference']['peak_analysis']['peaks_number_in_non-promoter_regions'])
+    ref['peak_analysis']['peaks_number_in_non-promoter_regions']['mean'] = average(d[ef]['ENCODE_PE_refernce']['peak_analysis']['peaks_number_in_non-promoter_regions'])
+    ref['peak_analysis']['peaks_number_in_non-promoter_regions']['sd'] = sd(d[ef]['ENCODE_PE_refernce']['peak_analysis']['peaks_number_in_non-promoter_regions'])
     ref['enrichment'] = {}
     ref['enrichment']['enrichment_ratio_in_coding_promoter_regions'] = {}
-    ref['enrichment']['enrichment_ratio_in_coding_promoter_regions']['mean'] = average(d[ef]['ENCODE_PE_reference']['enrichment']['enrichment_ratio_in_coding_promoter_regions'])
-    ref['enrichment']['enrichment_ratio_in_coding_promoter_regions']['sd'] = sd(d[ef]['ENCODE_PE_reference']['enrichment']['enrichment_ratio_in_coding_promoter_regions'])
+    ref['enrichment']['enrichment_ratio_in_coding_promoter_regions']['mean'] = average(d[ef]['ENCODE_PE_refernce']['enrichment']['enrichment_ratio_in_coding_promoter_regions'])
+    ref['enrichment']['enrichment_ratio_in_coding_promoter_regions']['sd'] = sd(d[ef]['ENCODE_PE_refernce']['enrichment']['enrichment_ratio_in_coding_promoter_regions'])
     ref['enrichment']['subsampled_10M_enrichment_ratio'] = {}
-    ref['enrichment']['subsampled_10M_enrichment_ratio']['mean'] = average(d[ef]['ENCODE_PE_reference']['enrichment']['subsampled_10M_enrichment_ratio'])
-    ref['enrichment']['subsampled_10M_enrichment_ratio']['sd'] = sd(d[ef]['ENCODE_PE_reference']['enrichment']['subsampled_10M_enrichment_ratio'])
+    ref['enrichment']['subsampled_10M_enrichment_ratio']['mean'] = average(d[ef]['ENCODE_PE_refernce']['enrichment']['subsampled_10M_enrichment_ratio'])
+    ref['enrichment']['subsampled_10M_enrichment_ratio']['sd'] = sd(d[ef]['ENCODE_PE_refernce']['enrichment']['subsampled_10M_enrichment_ratio'])
     ref['enrichment']['percentage_of_background_RPKM_larger_than_0.3777'] = {}
-    ref['enrichment']['percentage_of_background_RPKM_larger_than_0.3777']['mean'] = average(d[ef]['ENCODE_PE_reference']['enrichment']['percentage_of_background_RPKM_larger_than_0.3777'])
-    ref['enrichment']['percentage_of_background_RPKM_larger_than_0.3777']['sd'] = sd(d[ef]['ENCODE_PE_reference']['enrichment']['percentage_of_background_RPKM_larger_than_0.3777'])
+    ref['enrichment']['percentage_of_background_RPKM_larger_than_0.3777']['mean'] = average(d[ef]['ENCODE_PE_refernce']['enrichment']['percentage_of_background_RPKM_larger_than_0.3777'])
+    ref['enrichment']['percentage_of_background_RPKM_larger_than_0.3777']['sd'] = sd(d[ef]['ENCODE_PE_refernce']['enrichment']['percentage_of_background_RPKM_larger_than_0.3777'])
     results['ref'] = ref
     return results
 
