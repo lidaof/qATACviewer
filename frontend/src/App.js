@@ -38,6 +38,7 @@ class App extends Component {
       super(props);
       this.state = { 
         value: [], 
+        labels: [],
         data: null,
         radioChecked: {
           mapping: 'useful',
@@ -48,7 +49,8 @@ class App extends Component {
         selectedOption: '',
         products: null,
         error: [],
-        noDataFromAPI: false
+        noDataFromAPI: false,
+        selected: [] // table selection ids
       };
       this.handleClick = this.handleClick.bind(this);
       this.renderTooltip = this.renderTooltip.bind(this);
@@ -62,7 +64,13 @@ class App extends Component {
     //let req = this.state.value.join();
     //let response = await axios.get(`/report/${req}`);
     //let response = await axios.post('/rep',{flist: this.state.value});
-    let response = await axios.post('/rep1',{flist: this.state.value});
+    // this.setState({lables: []});
+    // this.state.products.forEach((ele) => {
+    //   if(this.state.value.includes(ele.file)){
+    //     this.state.labels.push(ele.name||`${ele.sample} ${ele.assay}`)
+    //   }
+    // });
+    let response = await axios.post('/rep1',{flist: this.state.value, labels: this.state.labels});
     if (response.data.error){
       if(response.data.error.length === this.state.value.length){
         this.setState({noDataFromAPI: true});
@@ -176,7 +184,7 @@ class App extends Component {
   };
 
   handleChange = (selectedOption) => {
-    this.setState({ selectedOption: selectedOption, products: allProducts[selectedOption.value] });
+    this.setState({ selectedOption: selectedOption, products: allProducts[selectedOption.value], value:[], labels:[], selected: [] });
     // console.log(`Selected: ${selectedOption.label}`);
     // console.log(allProducts[selectedOption.value]);
     // console.log(this.state.selectedOption);
@@ -220,33 +228,42 @@ class App extends Component {
     const selectRow = {
       mode: 'checkbox',
       clickToSelect: true,
+      selected: this.state.selected,
       bgColor: '#00BFFF',
-      onSelect: (row, isSelect, rowIndex) => {
+      onSelect: (row, isSelect) => {
         //console.log(row);
         let newValue = [...this.state.value];
+        let newLables = [...this.state.labels];
+        let newSelected = [...this.state.selected];
         if(isSelect){
           if (!newValue.includes(row.file)){
-            newValue.push(row.file)
+            newValue.push(row.file);
+            newLables.push(row.name||`${row.sample} ${row.assay}`);
+            newSelected.push(row.id);
           }
         }else{
           if (newValue.includes(row.file)){
             let index = newValue.indexOf(row.file);
             if (index > -1) {
               newValue.splice(index, 1);
+              newLables.splice(index, 1);
             }
           }
+          newSelected = newSelected.filter(x => x !== row.id);
         }
-        this.setState({value: newValue});
+        this.setState({value: newValue, labels: newLables, selected: newSelected});
       },
       onSelectAll: (isSelect, results) => {
+        const ids = results.map(r => r.id);
         if(isSelect){
-          let newValue = [];
+          let newValue = [], newLables = [];
           for(let row of results){
             newValue.push(row.file);
+            newLables.push(row.name||`${row.sample} ${row.assay}`)
           }
-          this.setState({value: newValue});
+          this.setState({value: newValue, labels: newLables, selected: ids});
         }else{
-          this.setState({value:[]});
+          this.setState({value:[], labels: [], selected: []});
         }
       }
     };
@@ -256,6 +273,7 @@ class App extends Component {
     // const products = allProducts[datValue];
     return (
       <div>
+        {/* <button onClick={() => this.setState({selected: [0]})} >KILL THE SELECTION!!  KILL IT ALL!!!</button> */}
         <div>
           <h2>Choose data source:</h2>
           <Select
@@ -269,7 +287,7 @@ class App extends Component {
         <div>
           {
             this.state.products &&
-            <BootstrapTable
+            <BootstrapTable ref='table'
               keyField='id'
               data={ this.state.products }
               columns={ columns }
@@ -282,8 +300,8 @@ class App extends Component {
           
         </div>
         <div>
-          <p className="lead">Current selected: {this.state.value.join()} </p>
           <button type="button" className="btn btn-primary" onClick={this.handleClick}>Update</button>
+          <p>Current selected: {this.state.labels.join()} </p>
         </div>
         <div>
         <form>

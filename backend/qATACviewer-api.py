@@ -88,8 +88,8 @@ section2 = ['percentage_of_uniquely_mapped_reads_in_chrM','percentage_of_non-red
 section3 = ['before_alignment_library_duplicates_percentage','after_alignment_PCR_duplicates_percentage']
 section4 = ['enrichment_ratio_in_coding_promoter_regions', 'subsampled_10M_enrichment_ratio', 'percentage_of_background_RPKM_larger_than_0.3777']
 section5 = ['reads_number_under_peaks', 'peaks_number_in_promoter_regions','peaks_number_in_non-promoter_regions', 'reads_percentage_under_peaks']
-section6 = ['insertion_size','density']
-section7 = ['peak_length','density']
+section6 = ['insertion_size',['density','frequency']]
+section7 = ['peak_length',['density','frequency']]
 section8 = ['total_reads','expected_distinction','lower_0.95_confidnece_interval','upper_0.95_confidnece_interval']
 section9 = ['sequence_depth','peaks_number','percentage_of_peaks_recaptured']
 
@@ -105,14 +105,15 @@ headers = {
     'saturation': section9
 }
 
-def parse_json_list(flist):
+def parse_json_list(flist, labels):
     d = {} # key: filename, value: parsed json content, put key error if there is something wrong loading json content, value would a list of file or URLs failed loading json
     d['error'] = []
-    for f in flist:
+    for fi,f in enumerate(flist):
         #print f
         #label = f
-        label = f.split('/')[-1].split('_')[0]
-        #label = f.split('_')[1]
+        #label = f.split('/')[-1].split('_')[0]
+        #label = f.split('/')[-1]
+        label = labels[fi]
         content = ''
         if f.startswith('http'):
             try:
@@ -143,10 +144,16 @@ def reformat_array(lst, key1, key2):
     results_keys = {} # key: insert size, value: {filenames: frequencys}
     for k in lst:
         for idx,j in enumerate(k[key1]):
-            if j not in results_keys:
-                results_keys[j] = {k['name']: k[key2][idx]}
+            if isinstance(key2, list):
+                for kkey2 in key2:
+                    if kkey2 in k:
+                        rkey2 = kkey2
             else:
-                results_keys[j][k['name']] = k[key2][idx]
+                rkey2 = key2 
+            if j not in results_keys:
+                results_keys[j] = {k['name']: k[rkey2][idx]}
+            else:
+                results_keys[j][k['name']] = k[rkey2][idx]
     for k in sorted(results_keys.keys()):
         tmp = {'name': k}
         for j in lst:
@@ -170,7 +177,12 @@ def format_result(d):
             tmp = {}
             tmp['name'] = f
             for k in headers[h]:
-                tmp[k] = d[f]['Sample_QC_info'][h][k]
+                if isinstance(k, list): #some reports return frequency and some returns density....
+                    for kk in k:
+                        if kk in d[f]['Sample_QC_info'][h]:
+                            tmp[kk] = d[f]['Sample_QC_info'][h][kk]
+                else:
+                    tmp[k] = d[f]['Sample_QC_info'][h][k]
             results[h].append(tmp)
             ef = f
     #print results['mapping_distribution']
@@ -186,9 +198,9 @@ def format_result(d):
         auto_distro[k['name']] = tmp
     results['autosome_distribution'] =  auto_distro
     #insert size
-    results['insert_distribution'] = reformat_array(results['insertion_size_distribution'],'insertion_size','density')
+    results['insert_distribution'] = reformat_array(results['insertion_size_distribution'],'insertion_size',['density', 'frequency'])
     #peak size
-    results['peak_distribution'] = reformat_array(results['peak_length_distribution'], 'peak_length','density')
+    results['peak_distribution'] = reformat_array(results['peak_length_distribution'], 'peak_length',['density', 'frequency'])
     #yield
     results['yield_distro'] = reformat_array(results['yield_distribution'], 'total_reads', 'expected_distinction')
     results['yield_distro_lower'] = reformat_array(results['yield_distribution'], 'total_reads', 'lower_0.95_confidnece_interval')
@@ -200,49 +212,52 @@ def format_result(d):
     if not ef: return results # encode ref cannot be read
     ref = {}
     #refernce...what's the f...
+    eckey = 'ENCODE_PE_reference'
+    if eckey not in d[ef]: # deal with key typo
+        eckey = 'ENCODE_PE_refernce'
     ref['mapping'] = {}
     ref['mapping']['total'] = {}
-    ref['mapping']['total']['mean'] = average(d[ef]['ENCODE_PE_refernce']['mapping_stats']['total_reads'])
-    ref['mapping']['total']['sd'] = sd(d[ef]['ENCODE_PE_refernce']['mapping_stats']['total_reads'])
+    ref['mapping']['total']['mean'] = average(d[ef][eckey]['mapping_stats']['total_reads'])
+    ref['mapping']['total']['sd'] = sd(d[ef][eckey]['mapping_stats']['total_reads'])
     ref['mapping']['mapped'] = {}
-    ref['mapping']['mapped']['mean'] = average(d[ef]['ENCODE_PE_refernce']['mapping_stats']['mapped_reads'])
-    ref['mapping']['mapped']['sd'] = sd(d[ef]['ENCODE_PE_refernce']['mapping_stats']['mapped_reads'])
+    ref['mapping']['mapped']['mean'] = average(d[ef][eckey]['mapping_stats']['mapped_reads'])
+    ref['mapping']['mapped']['sd'] = sd(d[ef][eckey]['mapping_stats']['mapped_reads'])
     ref['mapping']['unimap'] = {}
-    ref['mapping']['unimap']['mean'] = average(d[ef]['ENCODE_PE_refernce']['mapping_stats']['uniquely_mapped_reads'])
-    ref['mapping']['unimap']['sd'] = sd(d[ef]['ENCODE_PE_refernce']['mapping_stats']['uniquely_mapped_reads'])
+    ref['mapping']['unimap']['mean'] = average(d[ef][eckey]['mapping_stats']['uniquely_mapped_reads'])
+    ref['mapping']['unimap']['sd'] = sd(d[ef][eckey]['mapping_stats']['uniquely_mapped_reads'])
     ref['mapping']['nonredant'] = {}
-    ref['mapping']['nonredant']['mean'] = average(d[ef]['ENCODE_PE_refernce']['mapping_stats']['non-redundant_mapped_reads'])
-    ref['mapping']['nonredant']['sd'] = sd(d[ef]['ENCODE_PE_refernce']['mapping_stats']['non-redundant_mapped_reads'])
+    ref['mapping']['nonredant']['mean'] = average(d[ef][eckey]['mapping_stats']['non-redundant_mapped_reads'])
+    ref['mapping']['nonredant']['sd'] = sd(d[ef][eckey]['mapping_stats']['non-redundant_mapped_reads'])
     ref['mapping']['useful'] = {}
-    ref['mapping']['useful']['mean'] = average(d[ef]['ENCODE_PE_refernce']['mapping_stats']['useful_reads'])
-    ref['mapping']['useful']['sd'] = sd(d[ef]['ENCODE_PE_refernce']['mapping_stats']['useful_reads'])
+    ref['mapping']['useful']['mean'] = average(d[ef][eckey]['mapping_stats']['useful_reads'])
+    ref['mapping']['useful']['sd'] = sd(d[ef][eckey]['mapping_stats']['useful_reads'])
     ref['library_complexity'] = {}
     ref['library_complexity']['after'] = {}
-    ref['library_complexity']['after']['mean'] = average(d[ef]['ENCODE_PE_refernce']['library_complexity']['after_alignment_PCR_duplicates_percentage'])
-    ref['library_complexity']['after']['sd'] = sd(d[ef]['ENCODE_PE_refernce']['library_complexity']['after_alignment_PCR_duplicates_percentage'])
+    ref['library_complexity']['after']['mean'] = average(d[ef][eckey]['library_complexity']['after_alignment_PCR_duplicates_percentage'])
+    ref['library_complexity']['after']['sd'] = sd(d[ef][eckey]['library_complexity']['after_alignment_PCR_duplicates_percentage'])
     ref['peak_analysis'] = {}
     ref['peak_analysis']['reads_percentage_under_peaks'] = {}
-    ref['peak_analysis']['reads_percentage_under_peaks']['mean'] = average(d[ef]['ENCODE_PE_refernce']['peak_analysis']['reads_percentage_under_peaks'])
-    ref['peak_analysis']['reads_percentage_under_peaks']['sd'] = sd(d[ef]['ENCODE_PE_refernce']['peak_analysis']['reads_percentage_under_peaks'])
+    ref['peak_analysis']['reads_percentage_under_peaks']['mean'] = average(d[ef][eckey]['peak_analysis']['reads_percentage_under_peaks'])
+    ref['peak_analysis']['reads_percentage_under_peaks']['sd'] = sd(d[ef][eckey]['peak_analysis']['reads_percentage_under_peaks'])
     ref['peak_analysis']['reads_number_under_peaks'] = {}
-    ref['peak_analysis']['reads_number_under_peaks']['mean'] = average(d[ef]['ENCODE_PE_refernce']['peak_analysis']['reads_number_under_peaks'])
-    ref['peak_analysis']['reads_number_under_peaks']['sd'] = sd(d[ef]['ENCODE_PE_refernce']['peak_analysis']['reads_number_under_peaks'])
+    ref['peak_analysis']['reads_number_under_peaks']['mean'] = average(d[ef][eckey]['peak_analysis']['reads_number_under_peaks'])
+    ref['peak_analysis']['reads_number_under_peaks']['sd'] = sd(d[ef][eckey]['peak_analysis']['reads_number_under_peaks'])
     ref['peak_analysis']['peaks_number_in_promoter_regions'] = {}
-    ref['peak_analysis']['peaks_number_in_promoter_regions']['mean'] = average(d[ef]['ENCODE_PE_refernce']['peak_analysis']['peaks_number_in_promoter_regions'])
-    ref['peak_analysis']['peaks_number_in_promoter_regions']['sd'] = sd(d[ef]['ENCODE_PE_refernce']['peak_analysis']['peaks_number_in_promoter_regions'])
+    ref['peak_analysis']['peaks_number_in_promoter_regions']['mean'] = average(d[ef][eckey]['peak_analysis']['peaks_number_in_promoter_regions'])
+    ref['peak_analysis']['peaks_number_in_promoter_regions']['sd'] = sd(d[ef][eckey]['peak_analysis']['peaks_number_in_promoter_regions'])
     ref['peak_analysis']['peaks_number_in_non-promoter_regions'] = {}
-    ref['peak_analysis']['peaks_number_in_non-promoter_regions']['mean'] = average(d[ef]['ENCODE_PE_refernce']['peak_analysis']['peaks_number_in_non-promoter_regions'])
-    ref['peak_analysis']['peaks_number_in_non-promoter_regions']['sd'] = sd(d[ef]['ENCODE_PE_refernce']['peak_analysis']['peaks_number_in_non-promoter_regions'])
+    ref['peak_analysis']['peaks_number_in_non-promoter_regions']['mean'] = average(d[ef][eckey]['peak_analysis']['peaks_number_in_non-promoter_regions'])
+    ref['peak_analysis']['peaks_number_in_non-promoter_regions']['sd'] = sd(d[ef][eckey]['peak_analysis']['peaks_number_in_non-promoter_regions'])
     ref['enrichment'] = {}
     ref['enrichment']['enrichment_ratio_in_coding_promoter_regions'] = {}
-    ref['enrichment']['enrichment_ratio_in_coding_promoter_regions']['mean'] = average(d[ef]['ENCODE_PE_refernce']['enrichment']['enrichment_ratio_in_coding_promoter_regions'])
-    ref['enrichment']['enrichment_ratio_in_coding_promoter_regions']['sd'] = sd(d[ef]['ENCODE_PE_refernce']['enrichment']['enrichment_ratio_in_coding_promoter_regions'])
+    ref['enrichment']['enrichment_ratio_in_coding_promoter_regions']['mean'] = average(d[ef][eckey]['enrichment']['enrichment_ratio_in_coding_promoter_regions'])
+    ref['enrichment']['enrichment_ratio_in_coding_promoter_regions']['sd'] = sd(d[ef][eckey]['enrichment']['enrichment_ratio_in_coding_promoter_regions'])
     ref['enrichment']['subsampled_10M_enrichment_ratio'] = {}
-    ref['enrichment']['subsampled_10M_enrichment_ratio']['mean'] = average(d[ef]['ENCODE_PE_refernce']['enrichment']['subsampled_10M_enrichment_ratio'])
-    ref['enrichment']['subsampled_10M_enrichment_ratio']['sd'] = sd(d[ef]['ENCODE_PE_refernce']['enrichment']['subsampled_10M_enrichment_ratio'])
+    ref['enrichment']['subsampled_10M_enrichment_ratio']['mean'] = average(d[ef][eckey]['enrichment']['subsampled_10M_enrichment_ratio'])
+    ref['enrichment']['subsampled_10M_enrichment_ratio']['sd'] = sd(d[ef][eckey]['enrichment']['subsampled_10M_enrichment_ratio'])
     ref['enrichment']['percentage_of_background_RPKM_larger_than_0.3777'] = {}
-    ref['enrichment']['percentage_of_background_RPKM_larger_than_0.3777']['mean'] = average(d[ef]['ENCODE_PE_refernce']['enrichment']['percentage_of_background_RPKM_larger_than_0.3777'])
-    ref['enrichment']['percentage_of_background_RPKM_larger_than_0.3777']['sd'] = sd(d[ef]['ENCODE_PE_refernce']['enrichment']['percentage_of_background_RPKM_larger_than_0.3777'])
+    ref['enrichment']['percentage_of_background_RPKM_larger_than_0.3777']['mean'] = average(d[ef][eckey]['enrichment']['percentage_of_background_RPKM_larger_than_0.3777'])
+    ref['enrichment']['percentage_of_background_RPKM_larger_than_0.3777']['sd'] = sd(d[ef][eckey]['enrichment']['percentage_of_background_RPKM_larger_than_0.3777'])
     results['ref'] = ref
     return results
 
@@ -262,7 +277,8 @@ def rep():
 @app.route('/rep1', methods=['POST'])
 def rep1():
     fd = request.json
-    return jsonify(format_result(parse_json_list(fd['flist'])))
+    #print fd
+    return jsonify(format_result(parse_json_list(fd['flist'], fd['labels'])))
 
 def main():
     pass
