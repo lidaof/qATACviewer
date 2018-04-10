@@ -45,12 +45,15 @@ class App extends Component {
           enrich: 'enrichment_ratio_in_coding_promoter_regions'
         },
         chartHeight: 400,
-        chartWidth: 1000,
+        chartWidth: 1200,
         selectedOption: '',
         products: null,
         error: [],
         noDataFromAPI: false,
-        selected: [] // table selection ids
+        selected: [], // table selection ids
+        loading: true,
+        errorMsg: null,
+        loadingMsg: ''
       };
       this.handleClick = this.handleClick.bind(this);
       this.renderTooltip = this.renderTooltip.bind(this);
@@ -58,52 +61,30 @@ class App extends Component {
       this.handleRadioChange = this.handleRadioChange.bind(this);
       this.handleWidthChange = this.handleWidthChange.bind(this);
       this.handleHeightChange = this.handleHeightChange.bind(this);
+      this.handleChange = this.handleChange.bind(this);
+      this.renderError = this.renderError.bind(this);
+      this.renderLoading = this.renderLoading.bind(this);
+      this.renderLoading = this.renderReport.bind(this);
     }
 
   async handleClick() {
-    //let req = this.state.value.join();
-    //let response = await axios.get(`/report/${req}`);
-    //let response = await axios.post('/rep',{flist: this.state.value});
-    // this.setState({lables: []});
-    // this.state.products.forEach((ele) => {
-    //   if(this.state.value.includes(ele.file)){
-    //     this.state.labels.push(ele.name||`${ele.sample} ${ele.assay}`)
-    //   }
-    // });
-    let response = await axios.post('/rep1',{flist: this.state.value, labels: this.state.labels});
-    if (response.data.error){
-      if(response.data.error.length === this.state.value.length){
-        this.setState({noDataFromAPI: true});
+    this.setState({loadingMsg: 'Loading'});
+    try {
+      let response = await axios.post('/rep1',{flist: this.state.value, labels: this.state.labels});
+      if (response.data.error){
+        if(response.data.error.length === this.state.value.length){
+          this.setState({noDataFromAPI: true});
+        }else{
+          this.setState({noDataFromAPI: false});
+        }
+        let fvalue = [...this.state.value];
+        this.setState({value: _.without(fvalue, ...response.data.error), error: response.data.error});
+        
       }
-      let fvalue = [...this.state.value];
-      this.setState({value: _.without(fvalue, ...response.data.error), error: response.data.error});
-      
+      this.setState({data: response.data, loading: false, errorMsg: null, loadingMsg: ''});
+    }catch(e){
+      this.setState({errorMsg: e.response, loading: false, loadingMsg: 'Failed!'});
     }
-    this.setState({data: response.data});
-    
-    //file the encode standards
-    // let ref = {
-    //   mapping: {
-    //     total: {
-    //       good: this.state.data.ref.mapping.total.mean,
-    //       ok: this.state.data.ref.mapping.total.mean - this.state.ref.mapping.total.sd
-    //     },
-    //     mapped: {
-    //       good: this.state.data.ref.mapping.mapped.mean,
-    //       ok: this.state.data.ref.mapping.mapped.mean - this.state.ref.mapping.mapped.sd
-    //     },
-    //     nonredant: {
-    //       selected: false,
-    //       good: this.state.data.ref.mapping.nonredant.mean,
-    //       ok: this.state.data.ref.mapping.nonredant.mean - this.state.ref.mapping.nonredant.sd
-    //     },
-    //     useful: {
-    //       good: this.state.data.ref.mapping.useful.mean,
-    //       ok: this.state.data.ref.mapping.useful.mean - this.state.ref.mapping.useful.sd
-    //     }
-    //   }
-    // }
-    // this.setState({ref: ref});
     const frame = document.getElementById('frame');
     frame.contentWindow.drawBrowser(this.hubGenerator(this.state.products, this.state.value));
   }
@@ -184,13 +165,33 @@ class App extends Component {
   };
 
   handleChange = (selectedOption) => {
-    this.setState({ selectedOption: selectedOption, products: allProducts[selectedOption.value], value:[], labels:[], selected: [] });
-    // console.log(`Selected: ${selectedOption.label}`);
-    // console.log(allProducts[selectedOption.value]);
-    // console.log(this.state.selectedOption);
+    this.setState({ 
+      selectedOption: selectedOption, 
+      products: allProducts[selectedOption.value], 
+      value:[], 
+      labels:[], 
+      selected: [],
+      loading: true,
+      loadingMsg: '' 
+    });
   }
 
-   render() {
+  renderLoading() {
+    return <div>{this.state.loadingMsg}</div>;
+  }
+
+  renderError() {
+    return (
+      <div>
+        Something went wrong: {this.state.errorMsg.message}
+      </div>
+    );
+  }
+
+  renderReport() {
+    if(this.state.errorMsg) {
+      return this.renderError();
+    }
     if(this.state.noDataFromAPI){
       return <div className="lead alert alert-danger">Error! No report could be loaded from the selected datasets!</div>
     }
@@ -225,82 +226,10 @@ class App extends Component {
 
     }
     const range = [16, 225];
-    const selectRow = {
-      mode: 'checkbox',
-      clickToSelect: true,
-      selected: this.state.selected,
-      bgColor: '#00BFFF',
-      onSelect: (row, isSelect) => {
-        //console.log(row);
-        let newValue = [...this.state.value];
-        let newLables = [...this.state.labels];
-        let newSelected = [...this.state.selected];
-        if(isSelect){
-          if (!newValue.includes(row.file)){
-            newValue.push(row.file);
-            newLables.push(row.name||`${row.sample} ${row.assay}`);
-            newSelected.push(row.id);
-          }
-        }else{
-          if (newValue.includes(row.file)){
-            let index = newValue.indexOf(row.file);
-            if (index > -1) {
-              newValue.splice(index, 1);
-              newLables.splice(index, 1);
-            }
-          }
-          newSelected = newSelected.filter(x => x !== row.id);
-        }
-        this.setState({value: newValue, labels: newLables, selected: newSelected});
-      },
-      onSelectAll: (isSelect, results) => {
-        const ids = results.map(r => r.id);
-        if(isSelect){
-          let newValue = [], newLables = [];
-          for(let row of results){
-            newValue.push(row.file);
-            newLables.push(row.name||`${row.sample} ${row.assay}`)
-          }
-          this.setState({value: newValue, labels: newLables, selected: ids});
-        }else{
-          this.setState({value:[], labels: [], selected: []});
-        }
-      }
-    };
-    //dropdown data selection
-    // const { selectedOption } = this.state;
-    // const datValue = selectedOption && selectedOption.value;
-    // const products = allProducts[datValue];
+    
     return (
       <div>
-        {/* <button onClick={() => this.setState({selected: [0]})} >KILL THE SELECTION!!  KILL IT ALL!!!</button> */}
         <div>
-          <h2>Choose data source:</h2>
-          <Select
-            name="form-field-name"
-            value={this.state.selectedOption.value}
-            onChange={this.handleChange}
-            clearable={false}
-            options={allOptions}
-          />
-        </div>
-        <div>
-          {
-            this.state.products &&
-            <BootstrapTable ref='table'
-              keyField='id'
-              data={ this.state.products }
-              columns={ columns }
-              selectRow={ selectRow }
-              striped
-              hover
-              condensed
-            />
-          }
-          
-        </div>
-        <div>
-          <button type="button" className="btn btn-primary" onClick={this.handleClick}>Update</button>
           <p>Current selected: {this.state.labels.join()} </p>
         </div>
         <div>
@@ -610,6 +539,90 @@ class App extends Component {
       </div>
     );
   }
+
+  render(){
+    const { loading } = this.state;
+    const selectRow = {
+      mode: 'checkbox',
+      clickToSelect: true,
+      selected: this.state.selected,
+      bgColor: '#00BFFF',
+      onSelect: (row, isSelect) => {
+        //console.log(row);
+        let newValue = [...this.state.value];
+        let newLables = [...this.state.labels];
+        let newSelected = [...this.state.selected];
+        if(isSelect){
+          if (!newValue.includes(row.file)){
+            newValue.push(row.file);
+            newLables.push(row.name||`${row.sample} ${row.assay}`);
+            newSelected.push(row.id);
+          }
+        }else{
+          if (newValue.includes(row.file)){
+            let index = newValue.indexOf(row.file);
+            if (index > -1) {
+              newValue.splice(index, 1);
+              newLables.splice(index, 1);
+            }
+          }
+          newSelected = newSelected.filter(x => x !== row.id);
+        }
+        this.setState({value: newValue, labels: newLables, selected: newSelected});
+      },
+      onSelectAll: (isSelect, results) => {
+        const ids = results.map(r => r.id);
+        if(isSelect){
+          let newValue = [], newLables = [];
+          for(let row of results){
+            newValue.push(row.file);
+            newLables.push(row.name||`${row.sample} ${row.assay}`)
+          }
+          this.setState({value: newValue, labels: newLables, selected: ids});
+        }else{
+          this.setState({value:[], labels: [], selected: []});
+        }
+      }
+    };
+
+    return (
+      <div>
+        <div>
+          <h2>Choose data source:</h2>
+          <Select
+            name="form-field-name"
+            value={this.state.selectedOption.value}
+            onChange={this.handleChange}
+            clearable={false}
+            options={allOptions}
+          />
+        </div>
+        <div>
+          {
+            this.state.products &&
+            <BootstrapTable ref='table'
+              keyField='id'
+              data={ this.state.products }
+              columns={ columns }
+              selectRow={ selectRow }
+              striped
+              hover
+              condensed
+            />
+          }
+          
+        </div>
+        <div>
+          <button type="button" className="btn btn-primary" onClick={this.handleClick}>Update</button>
+        </div>
+
+        <div>
+          {loading ? this.renderLoading() : this.renderReport()}
+        </div>
+      </div>
+    );
+  }
+
 }
 
 export default App;

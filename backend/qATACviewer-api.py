@@ -129,11 +129,12 @@ def parse_json_list(flist, labels):
                         d['error'].append(f)
             except:
                 d['error'].append(f)
-        if len(d['error']) == 0: # means json loaded correctly
+        if content: # means json loaded correctly
             new_content = json.loads(json.dumps(content), object_hook=remove_spaces)
             d[label] = new_content
             #print content
             #print new_content
+    #print d
     return d
 
 def reformat_array(lst, key1, key2):
