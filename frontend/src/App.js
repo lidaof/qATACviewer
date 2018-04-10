@@ -52,7 +52,7 @@ class App extends Component {
         error: [],
         noDataFromAPI: false,
         selected: [], // table selection ids
-        loading: true,
+        loading: false,
         errorMsg: null,
         loadingMsg: ''
       };
@@ -65,11 +65,13 @@ class App extends Component {
       this.handleChange = this.handleChange.bind(this);
       this.renderError = this.renderError.bind(this);
       this.renderLoading = this.renderLoading.bind(this);
-      this.renderLoading = this.renderReport.bind(this);
+      this.renderReport = this.renderReport.bind(this);
+      this.renderSelection = this.renderSelection.bind(this);
     }
 
   async handleClick() {
     this.setState({loadingMsg: 'Loading'});
+    this.setState({loading: true});
     try {
       let response = await axios.post('/rep1',{flist: this.state.value, labels: this.state.labels});
       if (response.data.error){
@@ -88,6 +90,7 @@ class App extends Component {
     }
     const frame = document.getElementById('frame');
     frame.contentWindow.drawBrowser(this.hubGenerator(this.state.products, this.state.value));
+    //frame.contentWindow.parent.document.getElementById('root').style.display='block'
   }
 
   renderTooltip(props) {
@@ -172,18 +175,18 @@ class App extends Component {
       value:[], 
       labels:[], 
       selected: [],
-      loading: true,
+      loading: false,
       loadingMsg: '' 
     });
   }
 
   renderLoading() {
-    return <div>{this.state.loadingMsg}</div>;
+    return <div className="lead alert alert-info">{this.state.loadingMsg}</div>;
   }
 
   renderError() {
     return (
-      <div>
+      <div className="lead alert alert-info">
         Something went wrong: {this.state.errorMsg.message}
       </div>
     );
@@ -231,21 +234,7 @@ class App extends Component {
     
     return (
       <div>
-        <div>
-          <p>Current selected: {labels.join()} </p>
-        </div>
-        <div>
-        <form>
-        <label>
-          Chart width:
-          <input type="text" name="chartwidth" value={chartWidth} onChange = {this.handleWidthChange} />px
-        </label> <br/>
-        <label>
-          Chart height:
-          <input type="text" name="chartheight" value={chartHeight} onChange = {this.handleHeightChange} />px
-        </label>
-      </form>
-        </div>
+        
         <div>
           {error &&
             error.map((item)=> <div className="lead alert alert-danger">Report {item} is not loaded properly, please check your path and report format.</div>)
@@ -253,6 +242,21 @@ class App extends Component {
         </div>
         {data &&
           <div>
+            <div>
+                <p>Current selected: {labels.join()} </p>
+            </div>
+            <div>
+              <form>
+                <label>
+                  Chart width:
+                  <input type="text" name="chartwidth" value={chartWidth} onChange = {this.handleWidthChange} />px
+                </label> <br/>
+                <label>
+                  Chart height:
+                  <input type="text" name="chartheight" value={chartHeight} onChange = {this.handleHeightChange} />px
+                </label>
+              </form>
+            </div>
             <h1>Mapping</h1>
             <div className="row">
               <div className="lead col-md-2">Set ENCODE standards based on: </div>
@@ -562,14 +566,14 @@ class App extends Component {
               }
             </LineChart>
             </div>
+            <h2>Embded browser view</h2>
           </div>
         }
       </div>
     );
   }
 
-  render(){
-    const { loading } = this.state;
+  renderSelection() {
     const selectRow = {
       mode: 'checkbox',
       clickToSelect: true,
@@ -612,10 +616,30 @@ class App extends Component {
         }
       }
     };
+    return(
+      <div>
+        <div>
+            <BootstrapTable ref='table'
+              keyField='id'
+              data={ this.state.products }
+              columns={ columns }
+              selectRow={ selectRow }
+              striped
+              hover
+              condensed
+            />
+        </div>
+        <div>
+          <button type="button" className="btn btn-primary" onClick={this.handleClick}>Update</button>
+        </div>
+      </div>
+    );
+  }
 
+  render(){
+    const { loading, products } = this.state;
     return (
       <div>
-        {loading ? this.renderLoading() : null}
         <div>
           <h2>Choose data source:</h2>
           <Select
@@ -627,31 +651,14 @@ class App extends Component {
           />
         </div>
         <div>
-          {
-            this.state.products &&
-            <BootstrapTable ref='table'
-              keyField='id'
-              data={ this.state.products }
-              columns={ columns }
-              selectRow={ selectRow }
-              striped
-              hover
-              condensed
-            />
-          }
-          
+          {products ? this.renderSelection(): null }
         </div>
         <div>
-          <button type="button" className="btn btn-primary" onClick={this.handleClick}>Update</button>
-        </div>
-
-        <div>
-          { !loading ? this.renderReport() : null }
+          {loading ? this.renderLoading() : this.renderReport()}
         </div>
       </div>
     );
   }
-
 }
 
 export default App;

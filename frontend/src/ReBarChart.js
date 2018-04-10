@@ -34,7 +34,7 @@ class ReBarChart extends React.Component{
                   <Tooltip/>
                   <Legend />
                   {
-                      dataKeysAndFills.map((ele) => <Bar dataKey={ele.dataKey} fill={ele.fill} />)
+                      dataKeysAndFills.map((ele) => <Bar key={ele.dataKey} dataKey={ele.dataKey} fill={ele.fill} />)
                   }
                   { yRefGood ? <ReferenceLine y={yRefGood} label="Good" stroke="darkgreen" /> : '' }
                   { yRefOk ? <ReferenceLine y={yRefOk} label="Acceptable" stroke="red" /> : '' }
