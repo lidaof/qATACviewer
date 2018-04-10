@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import './App.css';
-import {BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ScatterChart, Scatter, ZAxis, ReferenceLine, LineChart, Line} from 'recharts';
+import {BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ScatterChart, Scatter, ZAxis, LineChart, Line} from 'recharts';
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import BootstrapTable from 'react-bootstrap-table-next';
 import _ from 'lodash';
@@ -9,6 +9,7 @@ import Select from 'react-select';
 import 'react-select/dist/react-select.css';
 
 import {allProducts, allOptions} from './data';
+import ReBarChart from './ReBarChart';
 
 const columns = [{
   dataField: 'id',
@@ -189,15 +190,16 @@ class App extends Component {
   }
 
   renderReport() {
-    if(this.state.errorMsg) {
+    const {errorMsg, noDataFromAPI, data, error, radioChecked, labels, chartHeight, chartWidth} = this.state;
+    if(errorMsg) {
       return this.renderError();
     }
-    if(this.state.noDataFromAPI){
+    if(noDataFromAPI){
       return <div className="lead alert alert-danger">Error! No report could be loaded from the selected datasets!</div>
     }
     let domain = [0,0.08];
-    if (this.state.data) {
-      domain = [0, _.max(_.map( _.map(this.state.data["autosome_distribution"], function(n) { return _.maxBy(n, 'value') } ), 'value' ))];
+    if (data) {
+      domain = [0, _.max(_.map( _.map(data["autosome_distribution"], function(n) { return _.maxBy(n, 'value') } ), 'value' ))];
     }
     let mapping_good = 0, mapping_ok=0; // mapping
     let after_good = 0, after_ok = 0; //after_alignment_PCR_duplicates_percentage
@@ -208,21 +210,21 @@ class App extends Component {
     let bk_domain = [0,0.5];
     let map_domain = [0,55000000];
     let after_domain = [0,0.3];
-    if(this.state.data && this.state.data.ref){
-      mapping_good = Math.round(this.state.data.ref.mapping[this.state.radioChecked.mapping].mean);
-      mapping_ok = Math.round(this.state.data.ref.mapping[this.state.radioChecked.mapping].mean - this.state.data.ref.mapping[this.state.radioChecked.mapping].sd);
-      after_good = this.state.data.ref['library_complexity']['after'].mean;
-      after_ok = this.state.data.ref['library_complexity']['after'].mean + this.state.data.ref['library_complexity']['after'].sd
-      peakpct_good = this.state.data.ref['peak_analysis']['reads_percentage_under_peaks'].mean;
-      peakpct_ok = this.state.data.ref['peak_analysis']['reads_percentage_under_peaks'].mean - this.state.data.ref['peak_analysis']['reads_percentage_under_peaks'].sd;
-      bk_good = this.state.data.ref['enrichment']['percentage_of_background_RPKM_larger_than_0.3777'].mean;
-      bk_ok = this.state.data.ref['enrichment']['percentage_of_background_RPKM_larger_than_0.3777'].mean + this.state.data.ref['enrichment']['percentage_of_background_RPKM_larger_than_0.3777'].sd;
-      enrich_good = this.state.data.ref.enrichment[this.state.radioChecked.enrich].mean;
-      enrich_ok = this.state.data.ref.enrichment[this.state.radioChecked.enrich].mean - this.state.data.ref.enrichment[this.state.radioChecked.enrich].sd;
-      peakpct_domain = [0, _.max(_.flatten([this.state.data['peak_analysis']['reads_percentage_under_peaks'],peakpct_good]))];
-      bk_domain = [0, _.max(_.flatten([this.state.data['enrichment']['percentage_of_background_RPKM_larger_than_0.3777'],bk_ok]))];
-      map_domain = [0, _.max(_.flatten([this.state.data['mapping_stats']['total_reads'], mapping_good]))];
-      after_domain = [0, _.max(_.flatten([this.state.data['library_complexity']['after_alignment_PCR_duplicates_percentage'], after_ok]))];
+    if(data && data.ref){
+      mapping_good = Math.round(data.ref.mapping[radioChecked.mapping].mean);
+      mapping_ok = Math.round(data.ref.mapping[radioChecked.mapping].mean - data.ref.mapping[radioChecked.mapping].sd);
+      after_good = data.ref['library_complexity']['after'].mean;
+      after_ok = data.ref['library_complexity']['after'].mean + data.ref['library_complexity']['after'].sd
+      peakpct_good = data.ref['peak_analysis']['reads_percentage_under_peaks'].mean;
+      peakpct_ok = data.ref['peak_analysis']['reads_percentage_under_peaks'].mean - data.ref['peak_analysis']['reads_percentage_under_peaks'].sd;
+      bk_good = data.ref['enrichment']['percentage_of_background_RPKM_larger_than_0.3777'].mean;
+      bk_ok = data.ref['enrichment']['percentage_of_background_RPKM_larger_than_0.3777'].mean + data.ref['enrichment']['percentage_of_background_RPKM_larger_than_0.3777'].sd;
+      enrich_good = data.ref.enrichment[radioChecked.enrich].mean;
+      enrich_ok = data.ref.enrichment[radioChecked.enrich].mean - data.ref.enrichment[radioChecked.enrich].sd;
+      peakpct_domain = [0, _.max(_.flatten([data['peak_analysis']['reads_percentage_under_peaks'],peakpct_good]))];
+      bk_domain = [0, _.max(_.flatten([data['enrichment']['percentage_of_background_RPKM_larger_than_0.3777'],bk_ok]))];
+      map_domain = [0, _.max(_.flatten([data['mapping_stats']['total_reads'], mapping_good]))];
+      after_domain = [0, _.max(_.flatten([data['library_complexity']['after_alignment_PCR_duplicates_percentage'], after_ok]))];
 
     }
     const range = [16, 225];
@@ -230,26 +232,26 @@ class App extends Component {
     return (
       <div>
         <div>
-          <p>Current selected: {this.state.labels.join()} </p>
+          <p>Current selected: {labels.join()} </p>
         </div>
         <div>
         <form>
         <label>
           Chart width:
-          <input type="text" name="chartwidth" value={this.state.chartWidth} onChange = {this.handleWidthChange} />px
+          <input type="text" name="chartwidth" value={chartWidth} onChange = {this.handleWidthChange} />px
         </label> <br/>
         <label>
           Chart height:
-          <input type="text" name="chartheight" value={this.state.chartHeight} onChange = {this.handleHeightChange} />px
+          <input type="text" name="chartheight" value={chartHeight} onChange = {this.handleHeightChange} />px
         </label>
       </form>
         </div>
         <div>
-          {this.state.error &&
-            this.state.error.map((item)=> <div className="lead alert alert-danger">Report {item} is not loaded properly, please check your path and report format.</div>)
+          {error &&
+            error.map((item)=> <div className="lead alert alert-danger">Report {item} is not loaded properly, please check your path and report format.</div>)
           }
         </div>
-        {this.state.data &&
+        {data &&
           <div>
             <h1>Mapping</h1>
             <div className="row">
@@ -257,72 +259,73 @@ class App extends Component {
             <div className="col-md-2">
             <label>
               Total reads: 
-              <input type="radio" name="mapping"  value="total" checked={this.state.radioChecked.mapping === 'total'} onChange={this.handleRadioChange} />
+              <input type="radio" name="mapping"  value="total" checked={radioChecked.mapping === 'total'} onChange={this.handleRadioChange} />
             </label>
             </div>
             <div className="col-md-2">
             <label>
               Mapped reads: 
-              <input type="radio" name="mapping" value="mapped" checked={this.state.radioChecked.mapping === 'mapped'} onChange={this.handleRadioChange} />
+              <input type="radio" name="mapping" value="mapped" checked={radioChecked.mapping === 'mapped'} onChange={this.handleRadioChange} />
             </label>
             </div>
             <div className="col-md-2">
             <label>
               Uniquely mapped reads: 
-              <input type="radio" name="mapping" value="unimap" checked={this.state.radioChecked.mapping === 'unimap'} onChange={this.handleRadioChange} />
+              <input type="radio" name="mapping" value="unimap" checked={radioChecked.mapping === 'unimap'} onChange={this.handleRadioChange} />
             </label>
             </div>
             <div className="col-md-2">
             <label>
             Non-redundant Mapped_reads: 
-              <input type="radio" name="mapping" value="nonredant" checked={this.state.radioChecked.mapping === 'nonredant'} onChange={this.handleRadioChange} />
+              <input type="radio" name="mapping" value="nonredant" checked={radioChecked.mapping === 'nonredant'} onChange={this.handleRadioChange} />
             </label>
             </div>
             <div className="col-md-2">
             <label>
               Useful reads: 
-              <input type="radio" name="mapping" value="useful" checked={this.state.radioChecked.mapping === 'useful'} onChange={this.handleRadioChange} />
+              <input type="radio" name="mapping" value="useful" checked={radioChecked.mapping === 'useful'} onChange={this.handleRadioChange} />
             </label>
             </div>
           </div>
           <div className="lead">Good: {mapping_good}, Acceptable: {mapping_ok}</div>
             <div>
-              <BarChart width={this.state.chartWidth} height={this.state.chartHeight} data={this.state.data['mapping_stats']}
-                            margin={{top: 30, right: 50, left: 30, bottom: 5}}>
-                  <XAxis dataKey="name"/>
-                  <YAxis domain={map_domain} />
-                  <CartesianGrid strokeDasharray="3 3"/>
-                  <Tooltip/>
-                  <Legend />
-                  <Bar dataKey="total_reads" fill="#a6cee3" />
-                  <Bar dataKey="mapped_reads" fill="#1f78b4" />
-                  <Bar dataKey="uniquely_mapped_reads" fill="#a8ddb5" />
-                  <Bar dataKey="non-redundant_mapped_reads" fill="#b2df8a" />
-                  <Bar dataKey="useful_reads" fill="#33a02c" />
-                  <ReferenceLine y={mapping_good} label="Good" stroke="darkgreen" />
-                  <ReferenceLine y={mapping_ok} label="Acceptable" stroke="red" />
-              </BarChart>
+              <ReBarChart 
+                data={data['mapping_stats']} 
+                width={chartWidth} 
+                height={chartHeight}
+                xDataKey="name"
+                yDomain={map_domain}
+                dataKeysAndFills={[
+                  {dataKey:'total_reads',fill:'#a6cee3'},
+                  {dataKey:'mapped_reads',fill:'#1f78b4'},
+                  {dataKey:'uniquely_mapped_reads',fill:'#a8ddb5'},
+                  {dataKey:'non-redundant_mapped_reads',fill:'#b2df8a'},
+                  {dataKey:'useful_reads',fill:'#33a02c'},
+                ]}
+                yRefGood={mapping_good} 
+                yRefOk={mapping_ok}
+              /> 
             </div>
             <h1>chrM rate</h1>
             <div>
-              <BarChart width={this.state.chartWidth} height={this.state.chartHeight} data={this.state.data['mapping_distribution']}
-                            margin={{top: 30, right: 50, left: 30, bottom: 5}}>
-                  <XAxis dataKey="name"/>
-                  <YAxis/>
-                  <CartesianGrid strokeDasharray="3 3"/>
-                  <Tooltip/>
-                  <Legend />
-                  <Bar dataKey="percentage_of_uniquely_mapped_reads_in_chrM" fill="#a6cee3" />
-                  <Bar dataKey="percentage_of_non-redundant_uniquely_mapped_reads_in_chrX" fill="#1f78b4" />
-                  <Bar dataKey="percentage_of_non-redundant_uniquely_mapped_reads_in_chrY" fill="#b2df8a" />
-              </BarChart>
+            <ReBarChart 
+                data={data['mapping_distribution']} 
+                width={chartWidth} 
+                height={chartHeight}
+                xDataKey="name"
+                dataKeysAndFills={[
+                  {dataKey:'percentage_of_uniquely_mapped_reads_in_chrM',fill:'#a6cee3'},
+                  {dataKey:'percentage_of_non-redundant_uniquely_mapped_reads_in_chrX',fill:'#1f78b4'},
+                  {dataKey:'percentage_of_non-redundant_uniquely_mapped_reads_in_chrY',fill:'#b2df8a'},
+                ]}
+              />
             </div>
           <h2>Autosome mapping distribution</h2>
             <div>     
             {
-              Object.entries(this.state.data['autosome_distribution']).map((entry, entryIdx) =>{
-              const fontSize = entryIdx === Object.entries(this.state.data['autosome_distribution']).length - 1 ? 14 : 0;
-              return <ScatterChart width={this.state.chartWidth} height={60} margin={{ top: 10, right: 0, bottom: 0, left: 100 }} key={entryIdx} >
+              Object.entries(data['autosome_distribution']).map((entry, entryIdx) =>{
+              const fontSize = entryIdx === Object.entries(data['autosome_distribution']).length - 1 ? 14 : 0;
+              return <ScatterChart width={chartWidth} height={60} margin={{ top: 10, right: 0, bottom: 0, left: 100 }} key={entryIdx} >
                 <XAxis type="category" dataKey="chromosome" interval={0} tick={{ fontSize: fontSize }} tickLine={{ transform: 'translate(0, -6)' }} />
                 <YAxis type="number" dataKey="index" name={entry[0]} height={10} width={80} tick={false} tickLine={false} axisLine={false} label={{ value: entry[0], position: 'insideRight' }} />
                 <ZAxis type="number" dataKey="value" domain={domain} range={range} />
@@ -335,28 +338,29 @@ class App extends Component {
           <h1>Library Complexity</h1>
           <div className="lead">Encode standards for after_alignment_PCR_duplicates_percentage: Good: {after_good}, Acceptable: {after_ok}</div>
             <div>
-              <BarChart width={this.state.chartWidth} height={this.state.chartHeight} data={this.state.data['library_complexity']}
-                            margin={{top: 30, right: 50, left: 30, bottom: 5}}>
-                  <XAxis dataKey="name"/>
-                  <YAxis domain={after_domain}/>
-                  <CartesianGrid strokeDasharray="3 3"/>
-                  <Tooltip/>
-                  <Legend />
-                  <Bar dataKey="before_alignment_library_duplicates_percentage" fill="#a6cee3" />
-                  <Bar dataKey="after_alignment_PCR_duplicates_percentage" fill="#1f78b4" />
-                  <ReferenceLine y={after_good} label="Good" stroke="darkgreen" />
-                  <ReferenceLine y={after_ok} label="Acceptable" stroke="red" />
-              </BarChart>
+            <ReBarChart 
+                data={data['library_complexity']} 
+                width={chartWidth} 
+                height={chartHeight}
+                xDataKey="name"
+                yDomain={after_domain}
+                dataKeysAndFills={[
+                  {dataKey:'before_alignment_library_duplicates_percentage',fill:'#a6cee3'},
+                  {dataKey:'after_alignment_PCR_duplicates_percentage',fill:'#1f78b4'},
+                ]}
+                yRefGood={after_good} 
+                yRefOk={after_ok}
+              />
             </div>
             <h1>Insert size distribution</h1>
-            <LineChart width={this.state.chartWidth} height={this.state.chartHeight} data={this.state.data['insert_distribution']}
+            <LineChart width={chartWidth} height={chartHeight} data={data['insert_distribution']}
               margin={{ top: 10, right: 30, left: 50, bottom: 0 }}>
               <XAxis dataKey="name" />
               <YAxis />
               <CartesianGrid strokeDasharray="3 3" />
               <Tooltip />
               {
-                _.without(Object.keys(this.state.data['insert_distribution'][0]), 'name').map(entry => {
+                _.without(Object.keys(data['insert_distribution'][0]), 'name').map(entry => {
                   return <Line type='monotone' dot={false} dataKey={entry} stroke={fileColors[entry]} fill={fileColors[entry]} key={entry} />
                 })
               }
@@ -367,36 +371,48 @@ class App extends Component {
             <div className="col-md-3">
             <label>
             enrichment_ratio_in_coding_promoter_regions: 
-              <input type="radio" name="enrich"  value="enrichment_ratio_in_coding_promoter_regions" checked={this.state.radioChecked.enrich === 'enrichment_ratio_in_coding_promoter_regions'} onChange={this.handleRadioChange} />
+              <input type="radio" name="enrich"  value="enrichment_ratio_in_coding_promoter_regions" checked={radioChecked.enrich === 'enrichment_ratio_in_coding_promoter_regions'} onChange={this.handleRadioChange} />
             </label>
             </div>
             <div className="col-md-3">
             <label>
             subsampled_10M_enrichment_ratio: 
-              <input type="radio" name="enrich" value="subsampled_10M_enrichment_ratio" checked={this.state.radioChecked.enrich === 'subsampled_10M_enrichment_ratio'} onChange={this.handleRadioChange} />
+              <input type="radio" name="enrich" value="subsampled_10M_enrichment_ratio" checked={radioChecked.enrich === 'subsampled_10M_enrichment_ratio'} onChange={this.handleRadioChange} />
             </label>
             </div>
             
           </div>
           <div className="lead">Good: {enrich_good}, Acceptable: {enrich_ok}</div>
             <div>
-              <BarChart width={this.state.chartWidth} height={this.state.chartHeight} data={this.state.data['enrichment']}
-                            margin={{top: 30, right: 50, left: 30, bottom: 5}}>
-                  <XAxis dataKey="name"/>
-                  <YAxis />
-                  <CartesianGrid strokeDasharray="3 3"/>
-                  <Tooltip/>
-                  <Legend />
-                  <Bar dataKey="enrichment_ratio_in_coding_promoter_regions" fill="#a6cee3" />
-                  <Bar dataKey="subsampled_10M_enrichment_ratio" fill="#666" />
-                  <ReferenceLine y={enrich_good} label="Good" stroke="darkgreen" />
-                  <ReferenceLine y={enrich_ok} label="Acceptable" stroke="red" />
-              </BarChart>
+            <ReBarChart 
+                data={data['enrichment']} 
+                width={chartWidth} 
+                height={chartHeight}
+                xDataKey="name"
+                dataKeysAndFills={[
+                  {dataKey:'enrichment_ratio_in_coding_promoter_regions',fill:'#a6cee3'},
+                  {dataKey:'subsampled_10M_enrichment_ratio',fill:'#1f78b4'},
+                ]}
+                yRefGood={enrich_good} 
+                yRefOk={enrich_ok}
+              />
             </div>
             <h1>Background</h1>
             <div className="lead">Encode standards for percentage_of_background_RPKM_larger_than_0.3777: Good: {bk_good}, Acceptable: {bk_ok}</div>
             <div>
-              <BarChart width={this.state.chartWidth} height={this.state.chartHeight} data={this.state.data['enrichment']}
+            <ReBarChart 
+                data={data['enrichment']} 
+                width={chartWidth} 
+                height={chartHeight}
+                xDataKey="name"
+                yDomain={bk_domain}
+                dataKeysAndFills={[
+                  {dataKey:'percentage_of_background_RPKM_larger_than_0.3777',fill:'#a6cee3'},
+                ]}
+                yRefGood={bk_good} 
+                yRefOk={bk_ok}
+              />
+              {/* <BarChart width={chartWidth} height={chartHeight} data={data['enrichment']}
                             margin={{top: 30, right: 50, left: 30, bottom: 5}}>
                   <XAxis dataKey="name"/>
                   <YAxis domain={bk_domain} />
@@ -406,12 +422,12 @@ class App extends Component {
                   <Bar dataKey="percentage_of_background_RPKM_larger_than_0.3777" fill="#1f78b4" />
                   <ReferenceLine y={bk_good} label="Good" stroke="darkgreen" />
                   <ReferenceLine y={bk_ok} label="Acceptable" stroke="red" />
-              </BarChart>
+              </BarChart> */}
             </div>
             <h1>Yield distribution</h1>
             <h2>expected distinction</h2>
             <div>
-            <LineChart width={this.state.chartWidth} height={this.state.chartHeight} data={this.state.data['yield_distro']}
+            <LineChart width={chartWidth} height={chartHeight} data={data['yield_distro']}
               margin={{ top: 5, right: 30, left: 50, bottom: 5 }}>
               <XAxis dataKey="name" />
               <YAxis />
@@ -419,7 +435,7 @@ class App extends Component {
               <Tooltip />
               <Legend />
               {
-                _.without(Object.keys(this.state.data['yield_distro'][0]), 'name').map(entry => {
+                _.without(Object.keys(data['yield_distro'][0]), 'name').map(entry => {
                   return <Line type="monotone" dataKey={entry} stroke={fileColors[entry]} activeDot={{ r: 8 }} key={entry} />
                 })
               }
@@ -427,7 +443,7 @@ class App extends Component {
             </div>
             <h2>lower 0.95 confidnece interval</h2>
             <div>
-            <LineChart width={this.state.chartWidth} height={this.state.chartHeight} data={this.state.data['yield_distro_lower']}
+            <LineChart width={chartWidth} height={chartHeight} data={data['yield_distro_lower']}
               margin={{ top: 5, right: 30, left: 50, bottom: 5 }}>
               <XAxis dataKey="name" />
               <YAxis />
@@ -435,7 +451,7 @@ class App extends Component {
               <Tooltip />
               <Legend />
               {
-                _.without(Object.keys(this.state.data['yield_distro_lower'][0]), 'name').map(entry => {
+                _.without(Object.keys(data['yield_distro_lower'][0]), 'name').map(entry => {
                   return <Line type="monotone" dataKey={entry} stroke={fileColors[entry]} activeDot={{ r: 8 }} key={entry} />
                 })
               }
@@ -443,7 +459,7 @@ class App extends Component {
             </div>
             <h2>upper 0.95 confidnece interval</h2>
             <div>
-            <LineChart width={this.state.chartWidth} height={this.state.chartHeight} data={this.state.data['yield_distro_upper']}
+            <LineChart width={chartWidth} height={chartHeight} data={data['yield_distro_upper']}
               margin={{ top: 5, right: 30, left: 50, bottom: 5 }}>
               <XAxis dataKey="name" />
               <YAxis />
@@ -451,7 +467,7 @@ class App extends Component {
               <Tooltip />
               <Legend />
               {
-                _.without(Object.keys(this.state.data['yield_distro_upper'][0]), 'name').map(entry => {
+                _.without(Object.keys(data['yield_distro_upper'][0]), 'name').map(entry => {
                   return <Line type="monotone" dataKey={entry} stroke={fileColors[entry]} activeDot={{ r: 8 }} key={entry} />
                 })
               }
@@ -460,7 +476,7 @@ class App extends Component {
             <h1>Peaks</h1>
             <h2>Peak numbers</h2>
             <div>
-              <BarChart width={this.state.chartWidth} height={this.state.chartHeight} data={this.state.data['peak_analysis']}
+              <BarChart width={chartWidth} height={chartHeight} data={data['peak_analysis']}
                             margin={{top: 30, right: 50, left: 30, bottom: 5}}>
                   <XAxis dataKey="name"/>
                   <YAxis yAxisId="left" orientation="left" stroke="#8884d8"/>
@@ -476,7 +492,19 @@ class App extends Component {
             <h2>Reads percentage under peaks</h2>
             <div className="lead">Encode standards for reads_percentage_under_peaks: Good: {peakpct_good}, Acceptable: {peakpct_ok}</div>
              <div>
-              <BarChart width={this.state.chartWidth} height={this.state.chartHeight} data={this.state.data['peak_analysis']}
+             <ReBarChart 
+                data={data['peak_analysis']} 
+                width={chartWidth} 
+                height={chartHeight}
+                xDataKey="name"
+                yDomain={peakpct_domain}
+                dataKeysAndFills={[
+                  {dataKey:'reads_percentage_under_peaks',fill:'#a6cee3'},
+                ]}
+                yRefGood={peakpct_good} 
+                yRefOk={peakpct_ok}
+              />
+              {/* <BarChart width={chartWidth} height={chartHeight} data={data['peak_analysis']}
                             margin={{top: 30, right: 50, left: 30, bottom: 5}}>
                   <XAxis dataKey="name"/>
                   <YAxis domain={peakpct_domain} />
@@ -486,17 +514,17 @@ class App extends Component {
                   <Bar dataKey="reads_percentage_under_peaks" fill="#82ca9d" />
                   <ReferenceLine y={peakpct_good} label="Good" stroke="darkgreen" />
                   <ReferenceLine y={peakpct_ok} label="Acceptable" stroke="red" />
-              </BarChart>
+              </BarChart> */}
             </div>
             <h2>Peak size distribution</h2>
-            <LineChart width={this.state.chartWidth} height={this.state.chartHeight} data={this.state.data['peak_distribution']}
+            <LineChart width={chartWidth} height={chartHeight} data={data['peak_distribution']}
               margin={{ top: 10, right: 30, left: 50, bottom: 0 }}>
               <XAxis dataKey="name" />
               <YAxis />
               <CartesianGrid strokeDasharray="3 3" />
               <Tooltip />
               {
-                _.without(Object.keys(this.state.data['peak_distribution'][0]), 'name').map(entry => {
+                _.without(Object.keys(data['peak_distribution'][0]), 'name').map(entry => {
                   return <Line type='monotone' dot={false} dataKey={entry} stroke={fileColors[entry]} fill={fileColors[entry]} key={entry} />
                 })
               }
@@ -504,7 +532,7 @@ class App extends Component {
             <h1>Saturation</h1>
             <h2>saturation by peaks number</h2>
             <div>
-            <LineChart width={this.state.chartWidth} height={this.state.chartHeight} data={this.state.data['saturation_peaks']}
+            <LineChart width={chartWidth} height={chartHeight} data={data['saturation_peaks']}
               margin={{ top: 5, right: 30, left: 50, bottom: 5 }}>
               <XAxis dataKey="name" />
               <YAxis />
@@ -512,7 +540,7 @@ class App extends Component {
               <Tooltip />
               <Legend />
               {
-                _.without(Object.keys(this.state.data['saturation_peaks'][0]), 'name').map(entry => {
+                _.without(Object.keys(data['saturation_peaks'][0]), 'name').map(entry => {
                   return <Line type="monotone" dataKey={entry} stroke={fileColors[entry]} activeDot={{ r: 8 }} key={entry} />
                 })
               }
@@ -520,7 +548,7 @@ class App extends Component {
             </div>
             <h2>saturation by percentage of peaks recaptured</h2>
             <div>
-            <LineChart width={this.state.chartWidth} height={this.state.chartHeight} data={this.state.data['saturation_peaks_pct']}
+            <LineChart width={chartWidth} height={chartHeight} data={data['saturation_peaks_pct']}
               margin={{ top: 5, right: 30, left: 50, bottom: 5 }}>
               <XAxis dataKey="name" />
               <YAxis />
@@ -528,7 +556,7 @@ class App extends Component {
               <Tooltip />
               <Legend />
               {
-                _.without(Object.keys(this.state.data['saturation_peaks_pct'][0]), 'name').map(entry => {
+                _.without(Object.keys(data['saturation_peaks_pct'][0]), 'name').map(entry => {
                   return <Line type="monotone" dataKey={entry} stroke={fileColors[entry]} activeDot={{ r: 8 }} key={entry} />
                 })
               }
@@ -587,6 +615,7 @@ class App extends Component {
 
     return (
       <div>
+        {loading ? this.renderLoading() : null}
         <div>
           <h2>Choose data source:</h2>
           <Select
@@ -617,7 +646,7 @@ class App extends Component {
         </div>
 
         <div>
-          {loading ? this.renderLoading() : this.renderReport()}
+          { !loading ? this.renderReport() : null }
         </div>
       </div>
     );
