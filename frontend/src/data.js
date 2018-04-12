@@ -12,7 +12,6 @@ const kateOldData = [
   {id:1, name:'K2-ITF', sample: 'K2-ITF', file:'TW985_K2-ITF_ATAC.R1.json', assay: 'ATAC-seq', url:'http://wangftp.wustl.edu/~dli/hub/kate/step3.2_Normalized_per_10M_TW985_K2-ITF_ATAC.R1.bigWig'},
   {id:2, name:'K3-Aza', sample: 'K3-Aza', file:'TW986_K3-Aza_ATAC.R1.json', assay: 'ATAC-seq', url:'http://wangftp.wustl.edu/~dli/hub/kate/step3.2_Normalized_per_10M_TW986_K3-Aza_ATAC.R1.bigWig'},
   {id:3, name:'K4-AzaITF', sample: 'K4-AzaITF', file:'TW987_K4-AzaITF_ATAC.R1.json', assay: 'ATAC-seq', url:'http://wangftp.wustl.edu/~dli/hub/kate/step3.2_Normalized_per_10M_TW987_K4-AzaITF_ATAC.R1.bigWig'},
-  {id:4, name:'A2780-mock', sample: 'A2780-mock', file:'WangT_A2780-mock-atac_N703_AGGCAGAAAT_S13_R1_001.json', assay: 'ATAC-seq', url:'http://wangftp.wustl.edu/~dli/hub/kate/step3.2_Normalized_per_10M_WangT_A2780-mock-atac_N703_AGGCAGAAAT_S13_R1_001.bigWig'}
 ];
   
 const kateNewData = [
@@ -28,7 +27,6 @@ const kateNewData = [
     {id:9, file:'https://htcf.wustl.edu/files/NeAv89X2/WangT_TykNu2-ITF_i7N702_i5N503_CGTACTAG_AGAGGATA_S7_R1_001.json', sample:'TykNu1-Mock', assay:'ATAC-seq',url:'https://htcf.wustl.edu/files/NeAv89X2/step3.2_Normalized_per_10M_WangT_TykNu2-ITF_i7N702_i5N503_CGTACTAG_AGAGGATA_S7_R1_001.bigWig'},
     {id:10, file:'https://htcf.wustl.edu/files/NeAv89X2/WangT_TykNu3-Aza_i7N702_i5N504_CGTACTAG_TCTACTCT_S8_R1_001.json', sample:'TykNu3-Aza', assay:'ATAC-seq',url:'https://htcf.wustl.edu/files/NeAv89X2/step3.2_Normalized_per_10M_WangT_TykNu3-Aza_i7N702_i5N504_CGTACTAG_TCTACTCT_S8_R1_001.bigWig'},
     {id:11, file:'https://htcf.wustl.edu/files/NeAv89X2/WangT_TykNu4-Aza-ITF_i7N702_i5N517_CGTACTAG_TCTTACGC_S9_R1_001.json', sample:'TykNu4-Aza-ITF', assay:'ATAC-seq',url:'https://htcf.wustl.edu/files/NeAv89X2/step3.2_Normalized_per_10M_WangT_TykNu4-Aza-ITF_i7N702_i5N517_CGTACTAG_TCTTACGC_S9_R1_001.bigWig'},  
-    {id:12, file:'https://target.wustl.edu/processed/fromHTCF/5aa236a64f037480c3c6dc30/5aa236a64f037480c3c6dc30.SE.json', sample:'test', assay:'ATAC-seq',url:'https://target.wustl.edu/processed/fromHTCF/5aa236a64f037480c3c6dc30/step3.2_Normalized_per_10M_5aa236a64f037480c3c6dc30.SE.bigWig'},
 ];
 
 
@@ -66,6 +64,6 @@ export const allOptions = [
     { value: 'baylorData', label: 'Baylor Data',  clearableValue: false },
     { value: 'upennData', label: 'Upenn Data',  clearableValue: false },
     { value: 'mutluData', label: 'Mutlu Data',  clearableValue: false },
-    { value: 'kateNewData', label: 'Kate New Date',  clearableValue: false  },
-    { value: 'kateOldData', label: 'Kate Old Date',  clearableValue: false  },
+    { value: 'kateNewData', label: 'Kate-ATAC1',  clearableValue: false  },
+    { value: 'kateOldData', label: 'Kate ATAC',  clearableValue: false  },
 ];

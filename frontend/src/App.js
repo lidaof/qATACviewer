@@ -2,26 +2,11 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import './App.css';
 import {BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ScatterChart, Scatter, ZAxis, LineChart, Line} from 'recharts';
-import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
-import BootstrapTable from 'react-bootstrap-table-next';
+
 import _ from 'lodash';
-import Select from 'react-select';
-import 'react-select/dist/react-select.css';
 
-import {allProducts, allOptions} from './data';
-import ReBarChart from './ReBarChart';
-
-const columns = [{
-  dataField: 'id',
-  text: 'ID'
-}, {
-  dataField: 'assay',
-  text: 'Assay'
-}, {
-  dataField: 'sample',
-  text: 'Sample'
-}];
-
+import ReBarChart from './components/ReBarChart';
+import DataSelection from './components/DataSelection';
 
 const fileColors = {
 'GM-AM-6S-GM-172_S1_L007_R1_001.json':'#b2182b',
@@ -32,13 +17,11 @@ const fileColors = {
 'GM-AM-6S-GM-177_S6_L007_R1_001.json':'#2166ac'
 };
 
-
-
 class App extends Component {
     constructor(props) {
       super(props);
       this.state = { 
-        value: [], 
+        values: [],
         labels: [],
         data: null,
         radioChecked: {
@@ -47,11 +30,9 @@ class App extends Component {
         },
         chartHeight: 400,
         chartWidth: 1200,
-        selectedOption: '',
         products: null,
         error: [],
         noDataFromAPI: false,
-        selected: [], // table selection ids
         loading: false,
         errorMsg: null,
         loadingMsg: ''
@@ -62,26 +43,24 @@ class App extends Component {
       this.handleRadioChange = this.handleRadioChange.bind(this);
       this.handleWidthChange = this.handleWidthChange.bind(this);
       this.handleHeightChange = this.handleHeightChange.bind(this);
-      this.handleChange = this.handleChange.bind(this);
       this.renderError = this.renderError.bind(this);
       this.renderLoading = this.renderLoading.bind(this);
       this.renderReport = this.renderReport.bind(this);
-      this.renderSelection = this.renderSelection.bind(this);
     }
 
   async handleClick() {
     this.setState({loadingMsg: 'Loading'});
     this.setState({loading: true});
     try {
-      let response = await axios.post('/rep1',{flist: this.state.value, labels: this.state.labels});
+      let response = await axios.post('/rep1',{flist: this.state.values, labels: this.state.labels});
       if (response.data.error){
-        if(response.data.error.length === this.state.value.length){
+        if(response.data.error.length === this.state.values.length){
           this.setState({noDataFromAPI: true});
         }else{
           this.setState({noDataFromAPI: false});
         }
-        let fvalue = [...this.state.value];
-        this.setState({value: _.without(fvalue, ...response.data.error), error: response.data.error});
+        let fvalues = [...this.state.values];
+        this.setState({values: _.without(fvalues, ...response.data.error), error: response.data.error});
         
       }
       this.setState({data: response.data, loading: false, errorMsg: null, loadingMsg: ''});
@@ -89,7 +68,7 @@ class App extends Component {
       this.setState({errorMsg: e.response, loading: false, loadingMsg: 'Failed!'});
     }
     const frame = document.getElementById('frame');
-    frame.contentWindow.drawBrowser(this.hubGenerator(this.state.products, this.state.value));
+    frame.contentWindow.drawBrowser(this.hubGenerator(this.state.products, this.state.values));
     //frame.contentWindow.parent.document.getElementById('root').style.display='block'
   }
 
@@ -102,7 +81,7 @@ class App extends Component {
       return (
         <div style={{ backgroundColor: '#fff', border: '1px solid #999', margin: 0, padding: 10 }}>
           <p>{data.chromosome}</p>
-          <p><span>value: </span>{data.value}</p>
+          <p><span>Value: </span>{data.value}</p>
         </div>
       );
     }
@@ -168,17 +147,7 @@ class App extends Component {
     this.setState({ chartHeight: Number.parseInt(event.target.value, 10) });
   };
 
-  handleChange = (selectedOption) => {
-    this.setState({ 
-      selectedOption: selectedOption, 
-      products: allProducts[selectedOption.value], 
-      value:[], 
-      labels:[], 
-      selected: [],
-      loading: false,
-      loadingMsg: '' 
-    });
-  }
+
 
   renderLoading() {
     return <div className="lead alert alert-info">{this.state.loadingMsg}</div>;
@@ -234,7 +203,6 @@ class App extends Component {
     
     return (
       <div>
-        
         <div>
           {error &&
             error.map((item)=> <div className="lead alert alert-danger">Report {item} is not loaded properly, please check your path and report format.</div>)
@@ -566,96 +534,68 @@ class App extends Component {
               }
             </LineChart>
             </div>
-            <h2>Embded browser view</h2>
+            <h2>Embedded browser view</h2>
           </div>
         }
       </div>
     );
   }
 
-  renderSelection() {
-    const selectRow = {
-      mode: 'checkbox',
-      clickToSelect: true,
-      selected: this.state.selected,
-      bgColor: '#00BFFF',
-      onSelect: (row, isSelect) => {
-        //console.log(row);
-        let newValue = [...this.state.value];
-        let newLables = [...this.state.labels];
-        let newSelected = [...this.state.selected];
-        if(isSelect){
-          if (!newValue.includes(row.file)){
-            newValue.push(row.file);
-            newLables.push(row.name||`${row.sample} ${row.assay}`);
-            newSelected.push(row.id);
-          }
-        }else{
-          if (newValue.includes(row.file)){
-            let index = newValue.indexOf(row.file);
-            if (index > -1) {
-              newValue.splice(index, 1);
-              newLables.splice(index, 1);
-            }
-          }
-          newSelected = newSelected.filter(x => x !== row.id);
-        }
-        this.setState({value: newValue, labels: newLables, selected: newSelected});
-      },
-      onSelectAll: (isSelect, results) => {
-        const ids = results.map(r => r.id);
-        if(isSelect){
-          let newValue = [], newLables = [];
-          for(let row of results){
-            newValue.push(row.file);
-            newLables.push(row.name||`${row.sample} ${row.assay}`)
-          }
-          this.setState({value: newValue, labels: newLables, selected: ids});
-        }else{
-          this.setState({value:[], labels: [], selected: []});
+  onNewSelection = (row, isSelect) => {
+    let newValues = [...this.state.values];
+    let newLables = [...this.state.labels];
+    if(isSelect){
+      if (!newValues.includes(row.file)){
+        newValues.push(row.file);
+        newLables.push(row.name||`${row.sample} ${row.assay}`);
+      }
+    }else{
+      if (newValues.includes(row.file)){
+        let index = newValues.indexOf(row.file);
+        if (index > -1) {
+          newValues.splice(index, 1);
+          newLables.splice(index, 1);
         }
       }
-    };
-    return(
-      <div>
-        <div>
-            <BootstrapTable ref='table'
-              keyField='id'
-              data={ this.state.products }
-              columns={ columns }
-              selectRow={ selectRow }
-              striped
-              hover
-              condensed
-            />
-        </div>
-        <div>
-          <button type="button" className="btn btn-primary" onClick={this.handleClick}>Update</button>
-        </div>
-      </div>
-    );
+    }
+    this.setState({values: newValues, labels: newLables});
+  }
+
+  onAllSelection = (isSelect, rows) => {
+        if(isSelect){
+          let newValues = [], newLables = [];
+          for(let row of rows){
+            newValues.push(row.file);
+            newLables.push(row.name||`${row.sample} ${row.assay}`)
+          }
+          this.setState({values: newValues, labels: newLables});
+        }else{
+          this.setState({values:[], labels: []});
+        }
+  }
+
+  handleChangeCallBack = (products) => {
+    this.setState({values: [], labels: [], products: products});
   }
 
   render(){
-    const { loading, products } = this.state;
+    const { loading} = this.state;
     return (
       <div>
-        <div>
-          <h2>Choose data source:</h2>
-          <Select
-            name="form-field-name"
-            value={this.state.selectedOption.value}
-            onChange={this.handleChange}
-            clearable={false}
-            options={allOptions}
+        <div style={{display: this.state.isHidden ? "none" : undefined}}>
+          <DataSelection 
+            onNewSelection={this.onNewSelection} 
+            onAllSelection={this.onAllSelection} 
+            onHandleChange={this.handleChangeCallBack}
+            onHandleClick={this.handleClick}
           />
+          <div>
+            {loading ? this.renderLoading() : this.renderReport()}
+          </div>
         </div>
-        <div>
-          {products ? this.renderSelection(): null }
-        </div>
-        <div>
-          {loading ? this.renderLoading() : this.renderReport()}
-        </div>
+        {this.state.data &&
+            <button type="button" className="btn btn-primary" onClick={() => this.setState({isHidden: !this.state.isHidden})}>Toggle full screen</button>
+          }
       </div>
     );
   }
