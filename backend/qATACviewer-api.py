@@ -1,7 +1,13 @@
-import sys,os,json,math,urllib2
+import sys,os,json,math
 from flask import Flask, request
 from flask import jsonify
 app = Flask(__name__)
+try:
+    # For Python 3.0 and later
+    from urllib.request import urlopen
+except ImportError:
+    # Fall back to Python 2's urllib2
+    from urllib2 import urlopen
 
 def parse_report(f):
     d = {}
@@ -117,7 +123,7 @@ def parse_json_list(flist, labels):
         content = ''
         if f.startswith('http'):
             try:
-                content = json.load(urllib2.urlopen(f))
+                content = json.load(urlopen(f))
             except:
                 d['error'].append(f)
         else:

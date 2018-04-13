@@ -163,6 +163,34 @@ class App extends Component {
     );
   }
 
+  increaseWidth = (e) => {
+    e.preventDefault();
+    let width = this.state.chartWidth;
+    width += 100;
+    this.setState({chartWidth: width});
+  }
+
+  decreaseWidth = (e) => {
+    e.preventDefault();
+    let width = this.state.chartWidth;
+    width -= 100;
+    this.setState({chartWidth: width});
+  }
+
+  increaseHeight = (e) => {
+    e.preventDefault();
+    let height = this.state.chartHeight;
+    height += 50;
+    this.setState({chartHeight: height});
+  }
+
+  decreaseHeight = (e) => {
+    e.preventDefault();
+    let height = this.state.chartHeight;
+    height -= 50;
+    this.setState({chartHeight: height});
+  }
+
   renderReport() {
     const {errorMsg, noDataFromAPI, data, error, radioChecked, chartHeight, chartWidth} = this.state;
     if(errorMsg) {
@@ -217,11 +245,12 @@ class App extends Component {
                 <label>
                   Chart width:
                   <input type="text" name="chartwidth" value={chartWidth} onChange = {this.handleWidthChange} />px
-                </label> <br/>
+                </label> <button onClick={this.increaseWidth}>+</button> <button onClick={this.decreaseWidth}>-</button> <br/>
+                
                 <label>
                   Chart height:
                   <input type="text" name="chartheight" value={chartHeight} onChange = {this.handleHeightChange} />px
-                </label>
+                </label> <button onClick={this.increaseHeight}>+</button> <button onClick={this.decreaseHeight}>-</button>
               </form>
             </div>
             <h1>Mapping</h1>
@@ -307,7 +336,7 @@ class App extends Component {
             } 
             </div>
           <h1>Library Complexity</h1>
-          <div className="lead">Encode standards for after_alignment_PCR_duplicates_percentage: Good: {after_good}, Acceptable: {after_ok}</div>
+          <div className="lead">Encode standards for PCR duplicates percentage after alignment: Good: {after_good}, Acceptable: {after_ok}</div>
             <div>
             <ReBarChart 
                 data={data['library_complexity']} 
@@ -341,13 +370,13 @@ class App extends Component {
               <div className="lead col-md-2">Set ENCODE standards based on: </div>
             <div className="col-md-3">
             <label>
-            enrichment_ratio_in_coding_promoter_regions: 
+            Enrichment ratio in coding promoter regions: 
               <input type="radio" name="enrich"  value="enrichment_ratio_in_coding_promoter_regions" checked={radioChecked.enrich === 'enrichment_ratio_in_coding_promoter_regions'} onChange={this.handleRadioChange} />
             </label>
             </div>
             <div className="col-md-3">
             <label>
-            subsampled_10M_enrichment_ratio: 
+            Subsampled 10M enrichment ratio: 
               <input type="radio" name="enrich" value="subsampled_10M_enrichment_ratio" checked={radioChecked.enrich === 'subsampled_10M_enrichment_ratio'} onChange={this.handleRadioChange} />
             </label>
             </div>
@@ -369,7 +398,7 @@ class App extends Component {
               />
             </div>
             <h1>Background</h1>
-            <div className="lead">Encode standards for percentage_of_background_RPKM_larger_than_0.3777: Good: {bk_good}, Acceptable: {bk_ok}</div>
+            <div className="lead">Encode standards for percentage of background RPKM larger than 0.3777: Good: {bk_good}, Acceptable: {bk_ok}</div>
             <div>
             <ReBarChart 
                 data={data['enrichment']} 
@@ -461,7 +490,7 @@ class App extends Component {
               </BarChart>
             </div>
             <h2>Reads percentage under peaks</h2>
-            <div className="lead">Encode standards for reads_percentage_under_peaks: Good: {peakpct_good}, Acceptable: {peakpct_ok}</div>
+            <div className="lead">Encode standards for reads percentage under peaks: Good: {peakpct_good}, Acceptable: {peakpct_ok}</div>
              <div>
              <ReBarChart 
                 data={data['peak_analysis']} 
