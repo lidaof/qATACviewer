@@ -59,8 +59,10 @@ class App extends Component {
         }else{
           this.setState({noDataFromAPI: false});
         }
-        let fvalues = [...this.state.values];
-        this.setState({values: _.without(fvalues, ...response.data.error), error: response.data.error});
+        //seems not a good idea to modify state.values here
+        //let fvalues = [...this.state.values];
+        //this.setState({values: _.without(fvalues, ...response.data.error), error: response.data.error});
+        this.setState({error: response.data.error});
         
       }
       this.setState({data: response.data, loading: false, errorMsg: null, loadingMsg: ''});
@@ -162,7 +164,7 @@ class App extends Component {
   }
 
   renderReport() {
-    const {errorMsg, noDataFromAPI, data, error, radioChecked, labels, chartHeight, chartWidth} = this.state;
+    const {errorMsg, noDataFromAPI, data, error, radioChecked, chartHeight, chartWidth} = this.state;
     if(errorMsg) {
       return this.renderError();
     }
@@ -205,14 +207,11 @@ class App extends Component {
       <div>
         <div>
           {error &&
-            error.map((item)=> <div className="lead alert alert-danger">Report {item} is not loaded properly, please check your path and report format.</div>)
+            error.map((item)=> <div className="alert alert-danger" key={item}>Report {item} is not loaded properly, please check your path and report format.</div>)
           }
         </div>
         {data &&
           <div>
-            <div>
-                <p>Current selected: {labels.join()} </p>
-            </div>
             <div>
               <form>
                 <label>
@@ -588,6 +587,7 @@ class App extends Component {
             onAllSelection={this.onAllSelection} 
             onHandleChange={this.handleChangeCallBack}
             onHandleClick={this.handleClick}
+            labels={this.state.labels}
           />
           <div>
             {loading ? this.renderLoading() : this.renderReport()}

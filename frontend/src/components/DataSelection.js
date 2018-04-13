@@ -37,7 +37,7 @@ class DataSelection extends React.Component {
         selected: this.state.selected.filter(x => x !== row.id)
       }));
     }
-    this.props.onNewSlection(row, isSelect);
+    this.props.onNewSelection(row, isSelect);
   }
 
   handleOnSelectAll = (isSelect, rows) => {
@@ -70,6 +70,7 @@ class DataSelection extends React.Component {
     const selectRow = {
       mode: 'checkbox',
       clickToSelect: true,
+      bgColor: '#00BFFF',
       selected: this.state.selected,
       onSelect: this.handleOnSelect,
       onSelectAll: this.handleOnSelectAll
@@ -99,6 +100,11 @@ class DataSelection extends React.Component {
             />
             }
         </div>
+        <div>
+            {this.props.labels.length > 0 &&
+              <p>Current selected: {this.props.labels.join()}</p>
+            }
+          </div>
         <div>
           <button style={{display: this.state.selectedValue ? undefined : "none"}} type="button" className="btn btn-primary" onClick={this.handleClick}>Update</button>
         </div>
