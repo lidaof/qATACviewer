@@ -4,8 +4,11 @@ import BootstrapTable from 'react-bootstrap-table-next';
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import Select from 'react-select';
 import 'react-select/dist/react-select.css';
+import axios from 'axios';
 
-import {allProducts, allOptions} from '../data';
+//import {allProducts, allOptions} from '../data';
+
+const DATA = "http://wangftp.wustl.edu/~dli/qATACviewer/data.json";
 
 const columns = [{
     dataField: 'id',
@@ -23,8 +26,43 @@ class DataSelection extends React.Component {
     super(props);
     this.state = { 
         selected: [], 
-        selectedValue: null
+        selectedValue: null,
+        loading: true,
+        error: null,
+        allProducts: null,
+        allOptions: null,
     };
+  }
+
+  componentDidMount(){
+    axios.get(DATA)
+      .then((response) => {
+        console.log(response);
+        this.setState({
+        allProducts: response.data.allProducts, 
+        allOptions: response.data.allOptions, 
+        loading: false,
+        error: null
+      })}
+    ).catch(err => {
+        // Something went wrong. Save the error in state and re-render.
+        this.setState({
+          loading: false,
+          error: err
+        });
+      });
+  }
+
+  renderLoading() {
+    return <div>Loading...</div>;
+  }
+
+  renderError() {
+    return (
+      <div>
+        Something went wrong: {this.state.error.message}
+      </div>
+    );
   }
 
   handleOnSelect = (row, isSelect) => {
@@ -59,14 +97,15 @@ class DataSelection extends React.Component {
       selected: [],
       selectedValue: selectedOption.value,
     });
-    this.props.onHandleChange(allProducts[selectedOption.value]);
+    this.props.onHandleChange(this.state.allProducts[selectedOption.value]);
   }
 
   handleClick = () => {
       this.props.onHandleClick();
   }
 
-  render() {
+  renderSelection() {
+    const {allOptions, allProducts} = this.state;
     const selectRow = {
       mode: 'checkbox',
       clickToSelect: true,
@@ -108,6 +147,16 @@ class DataSelection extends React.Component {
         <div>
           <button style={{display: this.state.selectedValue ? undefined : "none"}} type="button" className="btn btn-primary" onClick={this.handleClick}>Update</button>
         </div>
+      </div>
+    );
+  }
+
+  render(){
+    const { loading } = this.state;
+
+    return (
+      <div>
+        {loading ? this.renderLoading() : this.renderSelection()}
       </div>
     );
   }
