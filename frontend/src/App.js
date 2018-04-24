@@ -25,7 +25,7 @@ class App extends Component {
         labels: [],
         data: null,
         radioChecked: {
-          mapping: 'useful',
+          mapping: 'useful_single',
           enrich: 'enrichment_ratio_in_coding_promoter_regions'
         },
         chartHeight: 400,
@@ -286,6 +286,12 @@ class App extends Component {
               <input type="radio" name="mapping" value="useful" checked={radioChecked.mapping === 'useful'} onChange={this.handleRadioChange} />
             </label>
             </div>
+            <div className="col-md-2">
+            <label>
+              Useful single reads: 
+              <input type="radio" name="mapping" value="useful_single" checked={radioChecked.mapping === 'useful_single'} onChange={this.handleRadioChange} />
+            </label>
+            </div>
           </div>
           <div className="lead">Good: {mapping_good}, Acceptable: {mapping_ok}</div>
             <div>
@@ -301,6 +307,7 @@ class App extends Component {
                   {dataKey:'uniquely_mapped_reads',fill:'#a8ddb5'},
                   {dataKey:'non-redundant_mapped_reads',fill:'#b2df8a'},
                   {dataKey:'useful_reads',fill:'#33a02c'},
+                  {dataKey:'useful_single_ends',fill:'#984ea3'},
                 ]}
                 yRefGood={mapping_good} 
                 yRefOk={mapping_ok}

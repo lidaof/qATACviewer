@@ -89,7 +89,7 @@ def remove_spaces(obj):
             del obj[key]
     return obj
 
-section1 = ['total_reads','mapped_reads','uniquely_mapped_reads','non-redundant_mapped_reads','useful_reads']
+section1 = ['total_reads','mapped_reads','uniquely_mapped_reads','non-redundant_mapped_reads','useful_reads','useful_single_ends']
 section2 = ['percentage_of_uniquely_mapped_reads_in_chrM','percentage_of_non-redundant_uniquely_mapped_reads_in_chrX','percentage_of_non-redundant_uniquely_mapped_reads_in_chrY','Percentage_of_non-redundant_uniquely_mapped_reads_in_autosome']
 section3 = ['before_alignment_library_duplicates_percentage','after_alignment_PCR_duplicates_percentage']
 section4 = ['enrichment_ratio_in_coding_promoter_regions', 'subsampled_10M_enrichment_ratio', 'percentage_of_background_RPKM_larger_than_0.3777']
@@ -238,14 +238,20 @@ def format_result(d):
     ref['mapping']['useful'] = {}
     ref['mapping']['useful']['mean'] = average(d[ef][eckey]['mapping_stats']['useful_reads'])
     ref['mapping']['useful']['sd'] = sd(d[ef][eckey]['mapping_stats']['useful_reads'])
+    ref['mapping']['useful_single'] = {}
+    ref['mapping']['useful_single']['mean'] = 40000000
+    ref['mapping']['useful_single']['sd'] = 15000000
     ref['library_complexity'] = {}
     ref['library_complexity']['after'] = {}
     ref['library_complexity']['after']['mean'] = average(d[ef][eckey]['library_complexity']['after_alignment_PCR_duplicates_percentage'])
     ref['library_complexity']['after']['sd'] = sd(d[ef][eckey]['library_complexity']['after_alignment_PCR_duplicates_percentage'])
     ref['peak_analysis'] = {}
     ref['peak_analysis']['reads_percentage_under_peaks'] = {}
-    ref['peak_analysis']['reads_percentage_under_peaks']['mean'] = average(d[ef][eckey]['peak_analysis']['reads_percentage_under_peaks'])
-    ref['peak_analysis']['reads_percentage_under_peaks']['sd'] = sd(d[ef][eckey]['peak_analysis']['reads_percentage_under_peaks'])
+    #ref['peak_analysis']['reads_percentage_under_peaks']['mean'] = average(d[ef][eckey]['peak_analysis']['reads_percentage_under_peaks'])
+    #ref['peak_analysis']['reads_percentage_under_peaks']['sd'] = sd(d[ef][eckey]['peak_analysis']['reads_percentage_under_peaks'])
+    ref['peak_analysis']['reads_percentage_under_peaks']['mean'] = 0.2
+    ref['peak_analysis']['reads_percentage_under_peaks']['sd'] = 0.08
+
     ref['peak_analysis']['reads_number_under_peaks'] = {}
     ref['peak_analysis']['reads_number_under_peaks']['mean'] = average(d[ef][eckey]['peak_analysis']['reads_number_under_peaks'])
     ref['peak_analysis']['reads_number_under_peaks']['sd'] = sd(d[ef][eckey]['peak_analysis']['reads_number_under_peaks'])
@@ -257,14 +263,23 @@ def format_result(d):
     ref['peak_analysis']['peaks_number_in_non-promoter_regions']['sd'] = sd(d[ef][eckey]['peak_analysis']['peaks_number_in_non-promoter_regions'])
     ref['enrichment'] = {}
     ref['enrichment']['enrichment_ratio_in_coding_promoter_regions'] = {}
-    ref['enrichment']['enrichment_ratio_in_coding_promoter_regions']['mean'] = average(d[ef][eckey]['enrichment']['enrichment_ratio_in_coding_promoter_regions'])
-    ref['enrichment']['enrichment_ratio_in_coding_promoter_regions']['sd'] = sd(d[ef][eckey]['enrichment']['enrichment_ratio_in_coding_promoter_regions'])
+    #ref['enrichment']['enrichment_ratio_in_coding_promoter_regions']['mean'] = average(d[ef][eckey]['enrichment']['enrichment_ratio_in_coding_promoter_regions'])
+    #ref['enrichment']['enrichment_ratio_in_coding_promoter_regions']['sd'] = sd(d[ef][eckey]['enrichment']['enrichment_ratio_in_coding_promoter_regions'])
+    ref['enrichment']['enrichment_ratio_in_coding_promoter_regions']['mean'] = 11
+    ref['enrichment']['enrichment_ratio_in_coding_promoter_regions']['sd'] = 4
+
     ref['enrichment']['subsampled_10M_enrichment_ratio'] = {}
-    ref['enrichment']['subsampled_10M_enrichment_ratio']['mean'] = average(d[ef][eckey]['enrichment']['subsampled_10M_enrichment_ratio'])
-    ref['enrichment']['subsampled_10M_enrichment_ratio']['sd'] = sd(d[ef][eckey]['enrichment']['subsampled_10M_enrichment_ratio'])
+    #ref['enrichment']['subsampled_10M_enrichment_ratio']['mean'] = average(d[ef][eckey]['enrichment']['subsampled_10M_enrichment_ratio'])
+    #ref['enrichment']['subsampled_10M_enrichment_ratio']['sd'] = sd(d[ef][eckey]['enrichment']['subsampled_10M_enrichment_ratio'])
+    ref['enrichment']['subsampled_10M_enrichment_ratio']['mean'] = 18
+    ref['enrichment']['subsampled_10M_enrichment_ratio']['sd'] = 3
+
     ref['enrichment']['percentage_of_background_RPKM_larger_than_0.3777'] = {}
-    ref['enrichment']['percentage_of_background_RPKM_larger_than_0.3777']['mean'] = average(d[ef][eckey]['enrichment']['percentage_of_background_RPKM_larger_than_0.3777'])
-    ref['enrichment']['percentage_of_background_RPKM_larger_than_0.3777']['sd'] = sd(d[ef][eckey]['enrichment']['percentage_of_background_RPKM_larger_than_0.3777'])
+    #ref['enrichment']['percentage_of_background_RPKM_larger_than_0.3777']['mean'] = average(d[ef][eckey]['enrichment']['percentage_of_background_RPKM_larger_than_0.3777'])
+    #ref['enrichment']['percentage_of_background_RPKM_larger_than_0.3777']['sd'] = sd(d[ef][eckey]['enrichment']['percentage_of_background_RPKM_larger_than_0.3777'])
+    ref['enrichment']['percentage_of_background_RPKM_larger_than_0.3777']['mean'] = 0.1
+    ref['enrichment']['percentage_of_background_RPKM_larger_than_0.3777']['sd'] = 0.1
+
     results['ref'] = ref
     return results
 

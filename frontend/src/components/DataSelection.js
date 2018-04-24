@@ -37,7 +37,7 @@ class DataSelection extends React.Component {
   componentDidMount(){
     axios.get(DATA)
       .then((response) => {
-        console.log(response);
+        //console.log(response);
         this.setState({
         allProducts: response.data.allProducts, 
         allOptions: response.data.allOptions, 
