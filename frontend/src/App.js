@@ -7,6 +7,7 @@ import _ from 'lodash';
 
 import ReBarChart from './components/ReBarChart';
 import DataSelection from './components/DataSelection';
+import ScoreTable from './components/ScoreTable';
 
 const fileColors = {
 'GM-AM-6S-GM-172_S1_L007_R1_001.json':'#b2182b',
@@ -25,8 +26,8 @@ class App extends Component {
         labels: [],
         data: null,
         radioChecked: {
-          mapping: 'useful_single',
-          enrich: 'enrichment_ratio_in_coding_promoter_regions'
+          //mapping: 'useful_single',
+          enrich: 'subsampled_10M_enrichment_ratio'
         },
         chartHeight: 400,
         chartWidth: 1200,
@@ -204,21 +205,24 @@ class App extends Component {
       domain = [0, _.max(_.map( _.map(data["autosome_distribution"], function(n) { return _.maxBy(n, 'value') } ), 'value' ))];
     }
     let mapping_good = 0, mapping_ok=0; // mapping
-    let after_good = 0, after_ok = 0; //after_alignment_PCR_duplicates_percentage
+    //let after_good = 0, after_ok = 0; //after_alignment_PCR_duplicates_percentage
     let peakpct_good = 0, peakpct_ok = 0; //reads_percentage_under_peaks
     let bk_good = 0, bk_ok = 0; //percentage_of_background_RPKM_larger_than_0.3777
     let enrich_good = 0, enrich_ok = 0; // enrichment
     let peakpct_domain = [0,0.5];
     let bk_domain = [0,0.5];
     let map_domain = [0,55000000];
-    let after_domain = [0,0.3];
+    //let after_domain = [0,0.3];
+    let enrich_domain = [0,18];
     if(data && data.ref){
-      mapping_good = Math.round(data.ref.mapping[radioChecked.mapping].mean);
-      mapping_ok = Math.round(data.ref.mapping[radioChecked.mapping].mean - data.ref.mapping[radioChecked.mapping].sd);
-      after_good = data.ref['library_complexity']['after'].mean;
-      after_ok = data.ref['library_complexity']['after'].mean + data.ref['library_complexity']['after'].sd
+      // mapping_good = Math.round(data.ref.mapping[radioChecked.mapping].mean);
+      // mapping_ok = Math.round(data.ref.mapping[radioChecked.mapping].mean - data.ref.mapping[radioChecked.mapping].sd);
+      mapping_good = Math.round(data.ref.mapping['useful_single'].mean);
+      mapping_ok = Math.round(data.ref.mapping['useful_single'].mean - data.ref.mapping['useful_single'].sd);
+      // after_good = data.ref['library_complexity']['after'].mean;
+      // after_ok = data.ref['library_complexity']['after'].mean + data.ref['library_complexity']['after'].sd
       peakpct_good = data.ref['peak_analysis']['reads_percentage_under_peaks'].mean;
-      peakpct_ok = data.ref['peak_analysis']['reads_percentage_under_peaks'].mean - data.ref['peak_analysis']['reads_percentage_under_peaks'].sd;
+      peakpct_ok = parseFloat((data.ref['peak_analysis']['reads_percentage_under_peaks'].mean - data.ref['peak_analysis']['reads_percentage_under_peaks'].sd).toFixed(2));
       bk_good = data.ref['enrichment']['percentage_of_background_RPKM_larger_than_0.3777'].mean;
       bk_ok = data.ref['enrichment']['percentage_of_background_RPKM_larger_than_0.3777'].mean + data.ref['enrichment']['percentage_of_background_RPKM_larger_than_0.3777'].sd;
       enrich_good = data.ref.enrichment[radioChecked.enrich].mean;
@@ -226,7 +230,8 @@ class App extends Component {
       peakpct_domain = [0, _.max(_.flatten([data['peak_analysis']['reads_percentage_under_peaks'],peakpct_good]))];
       bk_domain = [0, _.max(_.flatten([data['enrichment']['percentage_of_background_RPKM_larger_than_0.3777'],bk_ok]))];
       map_domain = [0, _.max(_.flatten([data['mapping_stats']['total_reads'], mapping_good]))];
-      after_domain = [0, _.max(_.flatten([data['library_complexity']['after_alignment_PCR_duplicates_percentage'], after_ok]))];
+      //after_domain = [0, _.max(_.flatten([data['library_complexity']['after_alignment_PCR_duplicates_percentage'], after_ok]))];
+      enrich_domain = [0, _.max(_.flatten([data['enrichment']['subsampled_10M_enrichment_ratio'], enrich_good]))];
 
     }
     const range = [16, 225];
@@ -253,9 +258,14 @@ class App extends Component {
                 </label> <button onClick={this.increaseHeight}>+</button> <button onClick={this.decreaseHeight}>-</button>
               </form>
             </div>
+            <h1>Quality overview</h1>
+            <div>
+              <p>Data with score >= 5 passed quality standards, marked with green, otherwise marked with yellow.</p>
+              <ScoreTable data={data['scores']} />
+            </div>
             <h1>Mapping</h1>
-            <div className="row">
-              <div className="lead col-md-2">Set ENCODE standards based on: </div>
+            {/* <div className="row">
+              <div className="lead col-md-2">Set standards based on: </div>
             <div className="col-md-2">
             <label>
               Total reads: 
@@ -292,8 +302,8 @@ class App extends Component {
               <input type="radio" name="mapping" value="useful_single" checked={radioChecked.mapping === 'useful_single'} onChange={this.handleRadioChange} />
             </label>
             </div>
-          </div>
-          <div className="lead">Good: {mapping_good}, Acceptable: {mapping_ok}</div>
+          </div> */}
+          <div className="lead">Standards based on useful single ends, Good: {mapping_good}, Acceptable: {mapping_ok}</div>
             <div>
               <ReBarChart 
                 data={data['mapping_stats']} 
@@ -343,20 +353,20 @@ class App extends Component {
             } 
             </div>
           <h1>Library Complexity</h1>
-          <div className="lead">Encode standards for PCR duplicates percentage after alignment: Good: {after_good}, Acceptable: {after_ok}</div>
+          {/* <div className="lead">Standards for PCR duplicates percentage after alignment, Good: {after_good}, Acceptable: {after_ok}</div> */}
             <div>
             <ReBarChart 
                 data={data['library_complexity']} 
                 width={chartWidth} 
                 height={chartHeight}
                 xDataKey="name"
-                yDomain={after_domain}
+                //yDomain={after_domain}
                 dataKeysAndFills={[
                   {dataKey:'before_alignment_library_duplicates_percentage',fill:'#a6cee3'},
                   {dataKey:'after_alignment_PCR_duplicates_percentage',fill:'#1f78b4'},
                 ]}
-                yRefGood={after_good} 
-                yRefOk={after_ok}
+                // yRefGood={after_good} 
+                // yRefOk={after_ok}
               />
             </div>
             <h1>Insert size distribution</h1>
@@ -374,16 +384,16 @@ class App extends Component {
             </LineChart>
             <h1>Enrichment</h1>
             <div className="row">
-              <div className="lead col-md-2">Set ENCODE standards based on: </div>
+              <div className="lead col-md-2">Set standards based on: </div>
             <div className="col-md-3">
             <label>
-            Enrichment ratio in coding promoter regions: 
+            Enrichment ratio in coding promoter regions: &nbsp; &nbsp; 
               <input type="radio" name="enrich"  value="enrichment_ratio_in_coding_promoter_regions" checked={radioChecked.enrich === 'enrichment_ratio_in_coding_promoter_regions'} onChange={this.handleRadioChange} />
             </label>
             </div>
             <div className="col-md-3">
             <label>
-            Subsampled 10M enrichment ratio: 
+            Subsampled 10M enrichment ratio:  &nbsp; &nbsp; 
               <input type="radio" name="enrich" value="subsampled_10M_enrichment_ratio" checked={radioChecked.enrich === 'subsampled_10M_enrichment_ratio'} onChange={this.handleRadioChange} />
             </label>
             </div>
@@ -396,6 +406,7 @@ class App extends Component {
                 width={chartWidth} 
                 height={chartHeight}
                 xDataKey="name"
+                yDomain={enrich_domain}
                 dataKeysAndFills={[
                   {dataKey:'enrichment_ratio_in_coding_promoter_regions',fill:'#a6cee3'},
                   {dataKey:'subsampled_10M_enrichment_ratio',fill:'#1f78b4'},
@@ -405,7 +416,7 @@ class App extends Component {
               />
             </div>
             <h1>Background</h1>
-            <div className="lead">Encode standards for percentage of background RPKM larger than 0.3777: Good: {bk_good}, Acceptable: {bk_ok}</div>
+            <div className="lead">Standards for background, Good: {bk_good}, Acceptable: {bk_ok}</div>
             <div>
             <ReBarChart 
                 data={data['enrichment']} 
@@ -497,7 +508,7 @@ class App extends Component {
               </BarChart>
             </div>
             <h2>Reads percentage under peaks</h2>
-            <div className="lead">Encode standards for reads percentage under peaks: Good: {peakpct_good}, Acceptable: {peakpct_ok}</div>
+            <div className="lead">Standards for reads percentage under peaks, Good: {peakpct_good}, Acceptable: {peakpct_ok}</div>
              <div>
              <ReBarChart 
                 data={data['peak_analysis']} 

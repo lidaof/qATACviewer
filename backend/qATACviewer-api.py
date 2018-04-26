@@ -38,6 +38,47 @@ def sd(values):
     var = [(i - ave) ** 2 for i in values]
     return float(format(math.sqrt(average(var)), '.3f'))
 
+def cal_score(d):
+    # d is the sample info hash
+    score = 0
+    single = d['mapping_stats']['useful_single_ends']
+    enrp = d['enrichment']['enrichment_ratio_in_coding_promoter_regions']
+    enrs = d['enrichment']['subsampled_10M_enrichment_ratio']
+    bk = d['enrichment']['percentage_of_background_RPKM_larger_than_0.3777']
+    rup = d['peak_analysis']['reads_percentage_under_peaks']
+    if single >= 40000000:
+        score += 2
+    elif single >= 25000000 and single < 40000000:
+        score += 1
+    else:
+        score -= 1
+    if enrp >= 11:
+        score += 2
+    elif enrp >= 7 and enrp < 11:
+        score += 1
+    else:
+        score -= 1
+    if enrs >= 18:
+        score += 2
+    elif enrs >= 15 and enrs < 18:
+        score += 1
+    else:
+        score -= 1
+    if rup >= 0.2:
+        score += 2
+    elif rup >= 0.12 and rup < 0.2:
+        score += 1
+    else:
+        score -= 1
+    if bk <= 0.1:
+        score += 2
+    elif bk > 0.1 and bk <= 0.2:
+        score += 1
+    else:
+        score -= 1
+    return score
+    
+
 def format_text_report(flist):
     d = {}
     flis = flist.split(',')
@@ -177,7 +218,7 @@ def format_result(d):
     ef = '' # encode f, make sure encode ref came from correct json
     for h in headers:
         results[h] = []
-        for f in d:
+        for f in sorted(d.keys()):
             if f == 'error': 
                 #results['error'].extend(d[f])
                 continue
@@ -215,36 +256,49 @@ def format_result(d):
     # saturation
     results['saturation_peaks'] = reformat_array(results['saturation'],'sequence_depth','peaks_number')
     results['saturation_peaks_pct'] = reformat_array(results['saturation'],'sequence_depth','percentage_of_peaks_recaptured')
+    
+    #scores
+    results['scores'] = [] # save score for each sample, array of {file/label: score}
+    c = 0
+    for f in sorted(d.keys()):
+        if f == 'error': 
+            continue
+        dt = {}
+        dt['id'] = c
+        dt['sample'] = f
+        dt['score'] = cal_score(d[f]['Sample_QC_info'])
+        results['scores'].append(dt)
+        c += 1
     # encode ref standard
-    if not ef: return results # encode ref cannot be read
+    #if not ef: return results # encode ref cannot be read
     ref = {}
     #refernce...what's the f...
-    eckey = 'ENCODE_PE_reference'
-    if eckey not in d[ef]: # deal with key typo
-        eckey = 'ENCODE_PE_refernce'
+    # eckey = 'ENCODE_PE_reference'
+    # if eckey not in d[ef]: # deal with key typo
+    #     eckey = 'ENCODE_PE_refernce'
     ref['mapping'] = {}
-    ref['mapping']['total'] = {}
-    ref['mapping']['total']['mean'] = average(d[ef][eckey]['mapping_stats']['total_reads'])
-    ref['mapping']['total']['sd'] = sd(d[ef][eckey]['mapping_stats']['total_reads'])
-    ref['mapping']['mapped'] = {}
-    ref['mapping']['mapped']['mean'] = average(d[ef][eckey]['mapping_stats']['mapped_reads'])
-    ref['mapping']['mapped']['sd'] = sd(d[ef][eckey]['mapping_stats']['mapped_reads'])
-    ref['mapping']['unimap'] = {}
-    ref['mapping']['unimap']['mean'] = average(d[ef][eckey]['mapping_stats']['uniquely_mapped_reads'])
-    ref['mapping']['unimap']['sd'] = sd(d[ef][eckey]['mapping_stats']['uniquely_mapped_reads'])
-    ref['mapping']['nonredant'] = {}
-    ref['mapping']['nonredant']['mean'] = average(d[ef][eckey]['mapping_stats']['non-redundant_mapped_reads'])
-    ref['mapping']['nonredant']['sd'] = sd(d[ef][eckey]['mapping_stats']['non-redundant_mapped_reads'])
-    ref['mapping']['useful'] = {}
-    ref['mapping']['useful']['mean'] = average(d[ef][eckey]['mapping_stats']['useful_reads'])
-    ref['mapping']['useful']['sd'] = sd(d[ef][eckey]['mapping_stats']['useful_reads'])
+    # ref['mapping']['total'] = {}
+    # ref['mapping']['total']['mean'] = average(d[ef][eckey]['mapping_stats']['total_reads'])
+    # ref['mapping']['total']['sd'] = sd(d[ef][eckey]['mapping_stats']['total_reads'])
+    # ref['mapping']['mapped'] = {}
+    # ref['mapping']['mapped']['mean'] = average(d[ef][eckey]['mapping_stats']['mapped_reads'])
+    # ref['mapping']['mapped']['sd'] = sd(d[ef][eckey]['mapping_stats']['mapped_reads'])
+    # ref['mapping']['unimap'] = {}
+    # ref['mapping']['unimap']['mean'] = average(d[ef][eckey]['mapping_stats']['uniquely_mapped_reads'])
+    # ref['mapping']['unimap']['sd'] = sd(d[ef][eckey]['mapping_stats']['uniquely_mapped_reads'])
+    # ref['mapping']['nonredant'] = {}
+    # ref['mapping']['nonredant']['mean'] = average(d[ef][eckey]['mapping_stats']['non-redundant_mapped_reads'])
+    # ref['mapping']['nonredant']['sd'] = sd(d[ef][eckey]['mapping_stats']['non-redundant_mapped_reads'])
+    # ref['mapping']['useful'] = {}
+    # ref['mapping']['useful']['mean'] = average(d[ef][eckey]['mapping_stats']['useful_reads'])
+    # ref['mapping']['useful']['sd'] = sd(d[ef][eckey]['mapping_stats']['useful_reads'])
     ref['mapping']['useful_single'] = {}
     ref['mapping']['useful_single']['mean'] = 40000000
     ref['mapping']['useful_single']['sd'] = 15000000
-    ref['library_complexity'] = {}
-    ref['library_complexity']['after'] = {}
-    ref['library_complexity']['after']['mean'] = average(d[ef][eckey]['library_complexity']['after_alignment_PCR_duplicates_percentage'])
-    ref['library_complexity']['after']['sd'] = sd(d[ef][eckey]['library_complexity']['after_alignment_PCR_duplicates_percentage'])
+    # ref['library_complexity'] = {}
+    # ref['library_complexity']['after'] = {}
+    # ref['library_complexity']['after']['mean'] = average(d[ef][eckey]['library_complexity']['after_alignment_PCR_duplicates_percentage'])
+    # ref['library_complexity']['after']['sd'] = sd(d[ef][eckey]['library_complexity']['after_alignment_PCR_duplicates_percentage'])
     ref['peak_analysis'] = {}
     ref['peak_analysis']['reads_percentage_under_peaks'] = {}
     #ref['peak_analysis']['reads_percentage_under_peaks']['mean'] = average(d[ef][eckey]['peak_analysis']['reads_percentage_under_peaks'])
@@ -252,15 +306,15 @@ def format_result(d):
     ref['peak_analysis']['reads_percentage_under_peaks']['mean'] = 0.2
     ref['peak_analysis']['reads_percentage_under_peaks']['sd'] = 0.08
 
-    ref['peak_analysis']['reads_number_under_peaks'] = {}
-    ref['peak_analysis']['reads_number_under_peaks']['mean'] = average(d[ef][eckey]['peak_analysis']['reads_number_under_peaks'])
-    ref['peak_analysis']['reads_number_under_peaks']['sd'] = sd(d[ef][eckey]['peak_analysis']['reads_number_under_peaks'])
-    ref['peak_analysis']['peaks_number_in_promoter_regions'] = {}
-    ref['peak_analysis']['peaks_number_in_promoter_regions']['mean'] = average(d[ef][eckey]['peak_analysis']['peaks_number_in_promoter_regions'])
-    ref['peak_analysis']['peaks_number_in_promoter_regions']['sd'] = sd(d[ef][eckey]['peak_analysis']['peaks_number_in_promoter_regions'])
-    ref['peak_analysis']['peaks_number_in_non-promoter_regions'] = {}
-    ref['peak_analysis']['peaks_number_in_non-promoter_regions']['mean'] = average(d[ef][eckey]['peak_analysis']['peaks_number_in_non-promoter_regions'])
-    ref['peak_analysis']['peaks_number_in_non-promoter_regions']['sd'] = sd(d[ef][eckey]['peak_analysis']['peaks_number_in_non-promoter_regions'])
+    # ref['peak_analysis']['reads_number_under_peaks'] = {}
+    # ref['peak_analysis']['reads_number_under_peaks']['mean'] = average(d[ef][eckey]['peak_analysis']['reads_number_under_peaks'])
+    # ref['peak_analysis']['reads_number_under_peaks']['sd'] = sd(d[ef][eckey]['peak_analysis']['reads_number_under_peaks'])
+    # ref['peak_analysis']['peaks_number_in_promoter_regions'] = {}
+    # ref['peak_analysis']['peaks_number_in_promoter_regions']['mean'] = average(d[ef][eckey]['peak_analysis']['peaks_number_in_promoter_regions'])
+    # ref['peak_analysis']['peaks_number_in_promoter_regions']['sd'] = sd(d[ef][eckey]['peak_analysis']['peaks_number_in_promoter_regions'])
+    # ref['peak_analysis']['peaks_number_in_non-promoter_regions'] = {}
+    # ref['peak_analysis']['peaks_number_in_non-promoter_regions']['mean'] = average(d[ef][eckey]['peak_analysis']['peaks_number_in_non-promoter_regions'])
+    # ref['peak_analysis']['peaks_number_in_non-promoter_regions']['sd'] = sd(d[ef][eckey]['peak_analysis']['peaks_number_in_non-promoter_regions'])
     ref['enrichment'] = {}
     ref['enrichment']['enrichment_ratio_in_coding_promoter_regions'] = {}
     #ref['enrichment']['enrichment_ratio_in_coding_promoter_regions']['mean'] = average(d[ef][eckey]['enrichment']['enrichment_ratio_in_coding_promoter_regions'])
