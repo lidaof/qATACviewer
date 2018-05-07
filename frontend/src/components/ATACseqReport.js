@@ -17,7 +17,15 @@ class ATACseqReport extends React.Component{
     
     constructor(props){
         super(props);
+        this.state = {
+          radioChecked: {
+            //mapping: 'useful_single',
+            enrich: 'subsampled_10M_enrichment_ratio'
+          },
+        };
         this.renderTooltip = this.renderTooltip.bind(this);
+        this.handleRadioChange = this.handleRadioChange.bind(this);
+
 
     }
 
@@ -38,8 +46,15 @@ class ATACseqReport extends React.Component{
         return null;
     }
 
+    handleRadioChange(e) {
+      const checked = {...this.state.radioChecked};
+      const {name, value} = e.target;
+      checked[name] = value;
+      this.setState({radioChecked: checked});
+    }
+
     render() {
-        const {errorMsg, noDataFromAPI, data, error, radioChecked, chartHeight, chartWidth} = this.props;
+        const {errorMsg, noDataFromAPI, data, error, chartHeight, chartWidth} = this.props;
         if(errorMsg) {
           return this.renderError();
         }
@@ -75,8 +90,8 @@ class ATACseqReport extends React.Component{
           peakpct_ok = parseFloat((dataATAC.ref['peak_analysis']['reads_percentage_under_peaks'].mean - dataATAC.ref['peak_analysis']['reads_percentage_under_peaks'].sd).toFixed(2));
           bk_good = dataATAC.ref['enrichment']['percentage_of_background_RPKM_larger_than_0.3777'].mean;
           bk_ok = dataATAC.ref['enrichment']['percentage_of_background_RPKM_larger_than_0.3777'].mean + dataATAC.ref['enrichment']['percentage_of_background_RPKM_larger_than_0.3777'].sd;
-          enrich_good = dataATAC.ref.enrichment[radioChecked.enrich].mean;
-          enrich_ok = dataATAC.ref.enrichment[radioChecked.enrich].mean - dataATAC.ref.enrichment[radioChecked.enrich].sd;
+          enrich_good = dataATAC.ref.enrichment[this.state.radioChecked.enrich].mean;
+          enrich_ok = dataATAC.ref.enrichment[this.state.radioChecked.enrich].mean - dataATAC.ref.enrichment[this.state.radioChecked.enrich].sd;
           peakpct_domain = [0, _.max(_.flatten([dataATAC['peak_analysis']['reads_percentage_under_peaks'],peakpct_good]))];
           bk_domain = [0, _.max(_.flatten([dataATAC['enrichment']['percentage_of_background_RPKM_larger_than_0.3777'],bk_ok]))];
           map_domain = [0, _.max(_.flatten([dataATAC['mapping_stats']['total_reads'], mapping_good]))];
@@ -238,13 +253,13 @@ class ATACseqReport extends React.Component{
                 <div className="col-md-3">
                 <label>
                 Enrichment ratio in coding promoter regions: &nbsp; &nbsp; 
-                  <input type="radio" name="enrich"  value="enrichment_ratio_in_coding_promoter_regions" checked={radioChecked.enrich === 'enrichment_ratio_in_coding_promoter_regions'} onChange={this.props.handleRadioChange} />
+                  <input type="radio" name="enrich"  value="enrichment_ratio_in_coding_promoter_regions" checked={this.state.radioChecked.enrich === 'enrichment_ratio_in_coding_promoter_regions'} onChange={this.handleRadioChange} />
                 </label>
                 </div>
                 <div className="col-md-3">
                 <label>
                 Subsampled 10M enrichment ratio:  &nbsp; &nbsp; 
-                  <input type="radio" name="enrich" value="subsampled_10M_enrichment_ratio" checked={radioChecked.enrich === 'subsampled_10M_enrichment_ratio'} onChange={this.props.handleRadioChange} />
+                  <input type="radio" name="enrich" value="subsampled_10M_enrichment_ratio" checked={this.state.radioChecked.enrich === 'subsampled_10M_enrichment_ratio'} onChange={this.handleRadioChange} />
                 </label>
                 </div>
                 
