@@ -1,0 +1,60 @@
+{
+  "data_information": {
+      "file_name": "5aa8000ebba1a552124cc0ea.PE.R1",
+      "genome": "mm10",
+      "read_type": "Paired-end data",
+      "pipe_version": "v1.2b",
+      "Docker_image_id": "haven't",
+      "bash_script_MD5": "0aa208c9198030a4f61226a5d7b5e11c",
+      "running_time": "Thu_May__3_22:23:24_UTC_2018"
+  },
+  "pre_alignment_stats": {
+      "program1": "cutadapt",
+      "program1_version": "1.16",
+      "written_reads_by_cutadapt": 42741080,
+      "program2": "FastQC",
+      "program2_version": "0.11.5"
+  },
+  "mapping_stats": {
+      "alignment_program": "STAR",
+      "alignment_program_version": "2.5.4b",
+      "alignment_program_parameters": "--outWigType bedGraph --outWigNorm RPM --outSAMtype BAM SortedByCoordinate",
+      "reads_aligned_0_time": 2472498,
+      "reads_aligned_exactly_1_time": 34962901,
+      "reads_aligned_greater_than_1_time": 0.818
+  },
+  "library_complexity": {
+      "before_alignment_library_duplicates_percentage": 0.9023,
+      "after_alignment_PCR_duplicates_percentage": 0
+  },
+  "feature_counting": {
+      "software": "featureCounts",
+      "version": "1.5.1",
+      "count_parameter": "-p -O -g <gene_name>/<gene_type>",
+      "rate_of_reads_with_gene_feature": 5305681,
+      "area_under_curve_of_gene_body_coverage": 0.6745,
+      "expressed_genes_with_cpm_larger_than_1": 59.2681,
+      "gene_type_fragment_count": {"protein_coding": 31288975, "rRNA": 1377966, "lincRNA": 1074710, "antisense_RNA": 449122, "miRNA": 140736, "Mt_rRNA": 115308, "processed_transcript": 104726, "TEC": 41187, "processed_pseudogene": 33043, "transcribed_unprocessed_pseudogene": 20489, "bidirectional_promoter_lncRNA": 20455, "Mt_tRNA": 16109, "unprocessed_pseudogene": 12287, "transcribed_processed_pseudogene": 4224, "polymorphic_pseudogene": 3835, "misc_RNA": 1741, "snoRNA": 1722, "sense_intronic": 1104, "IG_C_gene": 1055, "transcribed_unitary_pseudogene": 885, "pseudogene": 722, "sense_overlapping": 589, "ribozyme": 566, "snRNA": 375, "3prime_overlapping_ncRNA": 112, "scaRNA": 81, "TR_C_gene": 62, "IG_V_gene": 54, "IG_J_gene": 22, "TR_V_gene": 8, "IG_V_pseudogene": 6, "TR_J_gene": 6, "IG_C_pseudogene": 0, "IG_D_gene": 0, "IG_D_pseudogene": 0, "IG_LV_gene": 0, "IG_pseudogene": 0, "macro_lncRNA": 0, "scRNA": 0, "sRNA": 0, "TR_D_gene": 0, "TR_J_pseudogene": 0, "TR_V_pseudogene": 0, "unitary_pseudogene": 0}
+  },
+  "yield_distribution": {
+      "total_reads": [0,1e+06,2e+06,3e+06,4e+06,5e+06,6e+06,7e+06,8e+06,9e+06,1e+07,1.1e+07,1.2e+07,1.3e+07,1.4e+07,1.5e+07,1.6e+07,1.7e+07,1.8e+07,1.9e+07,2e+07,2.1e+07,2.2e+07,2.3e+07,2.4e+07,2.5e+07,2.6e+07,2.7e+07,2.8e+07,2.9e+07,3e+07,3.1e+07,3.2e+07,3.3e+07,3.4e+07,3.5e+07,3.6e+07,3.7e+07,3.8e+07,3.9e+07,4e+07,4.1e+07,4.2e+07,4.3e+07,4.4e+07,4.5e+07,4.6e+07,4.7e+07,4.8e+07,4.9e+07,5e+07,5.1e+07,5.2e+07,5.3e+07,5.4e+07,5.5e+07,5.6e+07,5.7e+07,5.8e+07,5.9e+07,6e+07,6.1e+07,6.2e+07,6.3e+07,6.4e+07,6.5e+07,6.6e+07,6.7e+07,6.8e+07,6.9e+07,7e+07,7.1e+07,7.2e+07,7.3e+07,7.4e+07,7.5e+07,7.6e+07,7.7e+07,7.8e+07,7.9e+07,8e+07,8.1e+07,8.2e+07,8.3e+07,8.4e+07,8.5e+07,8.6e+07,8.7e+07,8.8e+07,8.9e+07,9e+07,9.1e+07,9.2e+07,9.3e+07,9.4e+07,9.5e+07,9.6e+07,9.7e+07,9.8e+07,9.9e+07,1e+08],
+      "expected_distinction": [0,374715,621909,824307,998583,1152548,1290810,1416392,1531435,1637547,1735966,1827675,1913471,1994019,2069877,2141507,2209321,2273668,2334846,2393132,2448756,2501931,2552842,2601658,2648528,2693592,2736968,2778771,2819099,2858047,2895701,2932137,2967427,3001636,3034827,3067054,3098369,3128821,3158455,3187314,3215432,3242848,3269597,3295707.6,3321213.1,3346139.2,3370512.1,3394356,3417694.1,3440547.8,3462937.7,3484882.8,3506401.4,3527510.6,3548226.1,3568564.1,3588538.7,3608163.6,3627451.9,3646416,3665067.7,3683418.2,3701478,3719257.4,3736765.9,3754012.8,3771006.9,3787756.4,3804269.4,3820553.5,3836616,3852463.9,3868103.7,3883542,3898784.9,3913838,3928707.2,3943397.8,3957914.9,3972263.4,3986448.3,4000474,4014344.9,4028065.2,4041639.1,4055070.5,4068363,4081520.3,4094546,4107443.4,4120215.7,4132866,4145397.5,4157812.9,4170115.2,4182306.9,4194390.9,4206369.5,4218245.2,4230020.5,4241697.6]
+  },
+  "gene_body_covergae": {
+      "percentile": [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100],
+      "coverage": [75821,109808,132531,149753,160251,173323,191957,211425,219130,227933,236697,246815,257000,274470,285892,292078,301972,305324,307934,319977,325432,338524,353003,358670,365918,370674,381282,383300,386557,390470,402161,409313,416184,417223,445553,459794,461153,479156,489206,493803,491323,512659,507214,509797,523441,532907,556429,560350,561718,568014,577856,590826,600203,603312,602256,615681,612209,624966,631922,641452,657787,660731,657994,654226,668652,670863,660584,678091,690544,696594,716135,721975,729597,745396,744333,746508,753179,765033,786384,794242,814942,815741,819523,833803,841146,836493,820019,823322,830165,828540,832835,822196,824739,790813,738530,688335,608178,507851,388832,244633]
+  },
+  "RseQC_report": {
+      "GC_content": {"GC_in_0-25": 513864, "GC_in_25-50": 31816032, "GC_in_50-75": 37018424, "GC_in_75-100": 577482},
+      "reads_distribution": {"CDS_Exons": 8600617, "5'UTR_Exons": 252382, "3'UTR_Exons": 4669217, "Introns": 539270, "TSS_up_1kb": 119114, "TSS_up_5kb": 437205, "TSS_up_10kb": 884377, "TES_down_1kb": 322737, "TES_down_5kb": 1849075, "TES_down_10kb": 3135957},
+      "splice_junction": {"annotated": 11790927, "complete_novel": 38300, "partial_novel": 41677},
+      "splice_events": {"annotated": 73512, "complete_novel": 5969, "partial_novel": 6265}
+  },
+  "saturation": {
+      "sequence_depth": [10,20,30,40,50,60,70,80,90,100],
+      "cpm_from_1_to_10": [1879,2650,3315,3898,4524,4917,5410,5756,6003,6054],
+      "cpm_from_10_to_50": [2714,3470,3856,4064,4167,4204,4215,4217,4217,4217],
+      "cpm_greater_than_50": [1852,1935,1945,1946,1946,1946,1946,1946,1946,1946],
+      "total genes": [6445,8055,9116,9908,10637,11067,11571,11919,12166,12217]
+  }
+} 

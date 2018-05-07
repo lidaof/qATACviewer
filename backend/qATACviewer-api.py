@@ -152,7 +152,7 @@ headers = {
     'saturation': section9
 }
 
-def parse_json_list(flist, labels):
+def parse_json_list(flist, labels, assays):
     d = {} # key: filename, value: parsed json content, put key error if there is something wrong loading json content, value would a list of file or URLs failed loading json
     d['error'] = []
     for fi,f in enumerate(flist):
@@ -161,6 +161,7 @@ def parse_json_list(flist, labels):
         #label = f.split('/')[-1].split('_')[0]
         #label = f.split('/')[-1]
         label = labels[fi]
+        assay = assays[fi]
         content = ''
         if f.startswith('http'):
             try:
@@ -178,7 +179,7 @@ def parse_json_list(flist, labels):
                 d['error'].append(f)
         if content: # means json loaded correctly
             new_content = json.loads(json.dumps(content), object_hook=remove_spaces)
-            d[label] = new_content
+            d[label] = [new_content, assay]
             #print content
             #print new_content
     #print d
@@ -212,16 +213,40 @@ def reformat_array(lst, key1, key2):
         results.append(tmp)
     return results
 
+
 def format_result(d):
+    dd = {} # key: assay: value: {label: content}
+    for k in d:
+        #k is label
+        if k == 'error': continue
+        content, assay = d[k]
+        if assay not in dd:
+            dd[assay] = {}
+        if k not in dd[assay]: 
+            dd[assay][k] = content
+        else:
+            raise ValueError('dup label {}'.format(k))
     results = {}
     results['error'] = d['error']
-    ef = '' # encode f, make sure encode ref came from correct json
+    for k in dd:
+        if 'atac' in k.lower():
+            results['atac'] = format_result_atac(dd[k])
+        elif 'rna' in k.lower():
+            pass
+        else:
+            raise ValueError('not supported assay type {}'.format(k))
+    return results
+
+def format_result_atac(d):
+    results = {}
+    #results['error'] = d['error']
+    #ef = '' # encode f, make sure encode ref came from correct json
     for h in headers:
         results[h] = []
         for f in sorted(d.keys()):
-            if f == 'error': 
+            #if f == 'error': 
                 #results['error'].extend(d[f])
-                continue
+                #continue
             tmp = {}
             tmp['name'] = f
             for k in headers[h]:
@@ -354,7 +379,7 @@ def rep():
 def rep1():
     fd = request.json
     #print fd
-    return jsonify(format_result(parse_json_list(fd['flist'], fd['labels'])))
+    return jsonify(format_result(parse_json_list(fd['flist'], fd['labels'], fd['assays'])))
 
 def main():
     pass
