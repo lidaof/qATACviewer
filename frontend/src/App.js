@@ -15,10 +15,6 @@ class App extends Component {
         labels: [],
         assays: [],
         data: null,
-        radioChecked: {
-          //mapping: 'useful_single',
-          enrich: 'subsampled_10M_enrichment_ratio'
-        },
         chartHeight: 400,
         chartWidth: 1200,
         products: null,
@@ -30,7 +26,6 @@ class App extends Component {
       };
       this.handleClick = this.handleClick.bind(this);
       this.hubGenerator = this.hubGenerator.bind(this);
-      this.handleRadioChange = this.handleRadioChange.bind(this);
       this.handleWidthChange = this.handleWidthChange.bind(this);
       this.handleHeightChange = this.handleHeightChange.bind(this);
       this.renderError = this.renderError.bind(this);
@@ -105,13 +100,6 @@ class App extends Component {
    */
   sortChromosome(a, b){
     return Number.parseInt(a.chromosome.replace('chr',''), 10) - Number.parseInt(b.chromosome.replace('chr',''), 10);
-  }
-
-  handleRadioChange(e) {
-    const checked = {...this.state.radioChecked};
-    const {name, value} = e.target;
-    checked[name] = value;
-    this.setState({radioChecked: checked});
   }
 
   handleWidthChange = (event) => {
@@ -223,7 +211,6 @@ class App extends Component {
                                                              noDataFromAPI={this.state.noDataFromAPI}
                                                              data={this.state.data}
                                                              error={this.state.error} 
-                                                             radioChecked={this.state.radioChecked} 
                                                              chartHeight={this.state.chartHeight} 
                                                              chartWidth={this.state.chartWidth}
                                                              increaseWidth={this.increaseWidth}
@@ -232,7 +219,6 @@ class App extends Component {
                                                              decreaseHeight={this.decreaseHeight}
                                                              handleHeightChange={this.handleHeightChange}
                                                              handleWidthChange={this.handleWidthChange}
-                                                             handleRadioChange={this.handleRadioChange}
                                                              />
             }
           </div>
