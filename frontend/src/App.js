@@ -67,14 +67,21 @@ class App extends Component {
     let assays = [];
     products.forEach(product => {
       if(filterlist.includes(product.file)){
-        content.push({
-          type:'bigWig',
-          mode:'show',
-          url: product.url,
-          height:40,
-          name: product.name || `${product.assay} of ${product.sample}`, //use name should
-          metadata: [product.sample, product.assay]
-        });
+        let trackObj = {};
+        if(product.url.endsWith('.gz')){
+          trackObj['type'] = 'bedGraph';
+          trackObj['colorpositive'] = '#000099';
+          trackObj['colornegative'] = '#804000';
+        }else{
+          trackObj['type'] = 'bigWig';
+        }
+        trackObj['mode'] = 'show';
+        trackObj['url'] = product.url;
+        trackObj['height'] = 40;
+        trackObj['name'] = product.name || `${product.assay} of ${product.sample}`; //use name should
+        trackObj['metadata'] = [product.sample, product.assay];
+        trackObj['qtc'] = {'smooth': 7};
+        content.push(trackObj);
         samples.push(product.sample);
         assays.push(product.assay);
       }
@@ -192,6 +199,10 @@ class App extends Component {
 
   handleChangeCallBack = (products) => {
     this.setState({values: [], labels: [], assays: [], products: products});
+  }
+
+  renderReport = () => {
+    return;
   }
 
   render(){

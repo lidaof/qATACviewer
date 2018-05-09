@@ -54,7 +54,7 @@ class ATACseqReport extends React.Component{
     }
 
     render() {
-        const {errorMsg, noDataFromAPI, data, error, chartHeight, chartWidth} = this.props;
+        const {errorMsg, noDataFromAPI, data, error, chartHeight, chartWidth, handleWidthChange, handleHeightChange, increaseHeight, decreaseHeight, increaseWidth, decreaseWidth} = this.props;
         if(errorMsg) {
           return this.renderError();
         }
@@ -114,13 +114,13 @@ class ATACseqReport extends React.Component{
                   <form>
                     <label>
                       Chart width:
-                      <input type="text" name="chartwidth" value={chartWidth} onChange = {this.handleWidthChange} />px
-                    </label> <button onClick={this.increaseWidth}>+</button> <button onClick={this.decreaseWidth}>-</button> <br/>
+                      <input type="text" name="chartwidth" value={chartWidth} onChange = {handleWidthChange} />px
+                    </label> <button onClick={increaseWidth}>+</button> <button onClick={decreaseWidth}>-</button> <br/>
                     
                     <label>
                       Chart height:
-                      <input type="text" name="chartheight" value={chartHeight} onChange = {this.handleHeightChange} />px
-                    </label> <button onClick={this.increaseHeight}>+</button> <button onClick={this.decreaseHeight}>-</button>
+                      <input type="text" name="chartheight" value={chartHeight} onChange = {handleHeightChange} />px
+                    </label> <button onClick={increaseHeight}>+</button> <button onClick={decreaseHeight}>-</button>
                   </form>
                 </div>
                 <h1>Quality overview</h1>

@@ -152,6 +152,24 @@ headers = {
     'saturation': section9
 }
 
+rna_section1 = ['reads_aligned_exactly_1_time','reads_aligned_0_time','reads_aligned_greater_than_1_time']
+rna_section2 = ['before_alignment_library_duplicates_percentage','after_alignment_PCR_duplicates_percentage']
+rna_section3 = ['rate_of_reads_with_gene_feature','area_under_curve_of_gene_body_coverage','expressed_genes_with_cpm_larger_than_1','gene_type_fragment_count']
+rna_section4 = ['total_reads','expected_distinction']
+rna_section5 = ['percentile','coverage']
+rna_section6 = ['GC_content','reads_distribution','splice_junction','splice_events']
+rna_section7 = ['sequence_depth','cpm_from_1_to_10','cpm_from_10_to_50','cpm_greater_than_50','total_genes']
+
+rna_headers = {
+    'mapping_stats': rna_section1,
+    'library_complexity': rna_section2,
+    'feature_counting': rna_section3,
+    'yield_distribution': rna_section4,
+    'gene_body_covergae': rna_section5,
+    'RseQC_report': rna_section6,
+    'saturation': rna_section7,
+}
+
 def parse_json_list(flist, labels, assays):
     d = {} # key: filename, value: parsed json content, put key error if there is something wrong loading json content, value would a list of file or URLs failed loading json
     d['error'] = []
@@ -232,10 +250,23 @@ def format_result(d):
         if 'atac' in k.lower():
             results['atac'] = format_result_atac(dd[k])
         elif 'rna' in k.lower():
-            pass
+            results['rna'] = format_result_rna(dd[k])
         else:
             raise ValueError('not supported assay type {}'.format(k))
     return results
+
+def format_result_rna(d):
+    results = {}
+    for h in rna_headers:
+        results[h] = []
+        for f in sorted(d.keys()):
+            tmp = {}
+            tmp['name'] = f
+            for k in rna_headers[h]:
+                tmp[k] = d[f][h][k]
+            results[h].append(tmp)
+    return results
+                
 
 def format_result_atac(d):
     results = {}
