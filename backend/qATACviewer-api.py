@@ -265,6 +265,16 @@ def format_result_rna(d):
             for k in rna_headers[h]:
                 tmp[k] = d[f][h][k]
             results[h].append(tmp)
+    #yield
+    results['yield_distro'] = reformat_array(results['yield_distribution'], 'total_reads', 'expected_distinction')
+    #genebody
+    results['genebody'] = reformat_array(results['gene_body_covergae'],'percentile','coverage')
+    # saturation
+    results['saturation_cpm_from_1_to_10'] = reformat_array(results['saturation'],'sequence_depth','cpm_from_1_to_10')
+    results['saturation_cpm_from_10_to_50'] = reformat_array(results['saturation'],'sequence_depth','cpm_from_10_to_50')
+    results['saturation_cpm_greater_than_50'] = reformat_array(results['saturation'],'sequence_depth','cpm_greater_than_50')
+    results['saturation_total_genes'] = reformat_array(results['saturation'],'sequence_depth','total_genes')
+
     return results
                 
 

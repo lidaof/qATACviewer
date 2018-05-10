@@ -4,7 +4,7 @@ import './App.css';
 import _ from 'lodash';
 import DataSelection from './components/DataSelection';
 import ATACseqReport from './components/ATACseqReport';
-
+import RNAseqReport from './components/RNAseqReport';
 
 
 class App extends Component {
@@ -202,7 +202,36 @@ class App extends Component {
   }
 
   renderReport = () => {
-    return;
+    return (
+      <div>
+        {this.state.data && this.state.data.atac ? <ATACseqReport errorMsg={this.state.errorMsg} 
+                                                             noDataFromAPI={this.state.noDataFromAPI}
+                                                             data={this.state.data}
+                                                             error={this.state.error} 
+                                                             chartHeight={this.state.chartHeight} 
+                                                             chartWidth={this.state.chartWidth}
+                                                             increaseWidth={this.increaseWidth}
+                                                             decreaseWidth={this.decreaseWidth}
+                                                             increaseHeight={this.increaseHeight}
+                                                             decreaseHeight={this.decreaseHeight}
+                                                             handleHeightChange={this.handleHeightChange}
+                                                             handleWidthChange={this.handleWidthChange}
+                                                             /> : null }
+        {this.state.data && this.state.data.rna ? <RNAseqReport errorMsg={this.state.errorMsg} 
+                                                             noDataFromAPI={this.state.noDataFromAPI}
+                                                             data={this.state.data}
+                                                             error={this.state.error} 
+                                                             chartHeight={this.state.chartHeight} 
+                                                             chartWidth={this.state.chartWidth}
+                                                             increaseWidth={this.increaseWidth}
+                                                             decreaseWidth={this.decreaseWidth}
+                                                             increaseHeight={this.increaseHeight}
+                                                             decreaseHeight={this.decreaseHeight}
+                                                             handleHeightChange={this.handleHeightChange}
+                                                             handleWidthChange={this.handleWidthChange}
+                                                             /> : null}
+      </div>
+    );
   }
 
   render(){
@@ -218,19 +247,7 @@ class App extends Component {
             labels={this.state.labels}
           />
           <div>
-            {loading ? this.renderLoading() : <ATACseqReport errorMsg={this.state.errorMsg} 
-                                                             noDataFromAPI={this.state.noDataFromAPI}
-                                                             data={this.state.data}
-                                                             error={this.state.error} 
-                                                             chartHeight={this.state.chartHeight} 
-                                                             chartWidth={this.state.chartWidth}
-                                                             increaseWidth={this.increaseWidth}
-                                                             decreaseWidth={this.decreaseWidth}
-                                                             increaseHeight={this.increaseHeight}
-                                                             decreaseHeight={this.decreaseHeight}
-                                                             handleHeightChange={this.handleHeightChange}
-                                                             handleWidthChange={this.handleWidthChange}
-                                                             />
+            {loading ? this.renderLoading() : this.renderReport()
             }
           </div>
         </div>
