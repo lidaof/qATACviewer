@@ -203,6 +203,25 @@ def parse_json_list(flist, labels, assays):
     #print d
     return d
 
+def reformat_dict(lst, key):
+    results = []
+    results_keys = {} #key: category, like regions, value: {sample: count}
+    for ele in lst:
+        for k in ele[key]:
+            if k not in results_keys:
+                results_keys[k] = {ele['name']: ele[key][k]}
+            else:
+                results_keys[k][ele['name']] = ele[key][k]
+    for k in sorted(results_keys.keys()):
+        tmp = {'name': k}
+        for j in lst:
+            if j['name'] in results_keys[k]:
+                tmp[j['name']] = results_keys[k][j['name']]
+            else:
+                tmp[j['name']] = 0
+        results.append(tmp)
+    return results
+
 def reformat_array(lst, key1, key2):
     '''
     reformat the array for used by recharts directly, lst is the data, key1 is x-axis, and key2 is y-axis
@@ -274,7 +293,11 @@ def format_result_rna(d):
     results['saturation_cpm_from_10_to_50'] = reformat_array(results['saturation'],'sequence_depth','cpm_from_10_to_50')
     results['saturation_cpm_greater_than_50'] = reformat_array(results['saturation'],'sequence_depth','cpm_greater_than_50')
     results['saturation_total_genes'] = reformat_array(results['saturation'],'sequence_depth','total_genes')
-
+    results['gene_type'] = reformat_dict(results['feature_counting'], 'gene_type_fragment_count')
+    results['gc_content'] = reformat_dict(results['RseQC_report'], 'GC_content')
+    results['reads_distribution'] = reformat_dict(results['RseQC_report'], 'reads_distribution')
+    results['splice_junction'] = reformat_dict(results['RseQC_report'], 'splice_junction')
+    results['splice_events'] = reformat_dict(results['RseQC_report'], 'splice_events')
     return results
                 
 

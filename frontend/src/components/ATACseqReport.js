@@ -3,15 +3,8 @@ import ReBarChart from './ReBarChart';
 import ScoreTable from './ScoreTable';
 import {BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ScatterChart, Scatter, ZAxis, LineChart, Line} from 'recharts';
 import _ from 'lodash';
+import { COLORS } from '../utils';
 
-const fileColors = {
-    'GM-AM-6S-GM-172_S1_L007_R1_001.json':'#b2182b',
-    'GM-AM-6S-GM-173_S2_L007_R1_001.json':'#ef8a62',
-    'GM-AM-6S-GM-174_S3_L007_R1_001.json':'#fddbc7',
-    'GM-AM-6S-GM-175_S4_L007_R1_001.json':'#d1e5f0',
-    'GM-AM-6S-GM-176_S5_L007_R1_001.json':'#67a9cf',
-    'GM-AM-6S-GM-177_S6_L007_R1_001.json':'#2166ac'
-    };
 
 class ATACseqReport extends React.Component{
     
@@ -242,8 +235,8 @@ class ATACseqReport extends React.Component{
                   <CartesianGrid strokeDasharray="3 3" />
                   <Tooltip />
                   {
-                    _.without(Object.keys(dataATAC['insert_distribution'][0]), 'name').map(entry => {
-                      return <Line type='monotone' dot={false} dataKey={entry} stroke={fileColors[entry]} fill={fileColors[entry]} key={entry} />
+                    _.without(Object.keys(dataATAC['insert_distribution'][0]), 'name').map((entry,idx) => {
+                      return <Line type='monotone' dot={false} dataKey={entry} stroke={COLORS[idx]} fill={COLORS[idx]} key={entry} />
                     })
                   }
                 </LineChart>
@@ -318,8 +311,8 @@ class ATACseqReport extends React.Component{
                   <Tooltip />
                   <Legend />
                   {
-                    _.without(Object.keys(dataATAC['yield_distro'][0]), 'name').map(entry => {
-                      return <Line type="monotone" dataKey={entry} stroke={fileColors[entry]} activeDot={{ r: 8 }} key={entry} />
+                    _.without(Object.keys(dataATAC['yield_distro'][0]), 'name').map((entry,idx) => {
+                      return <Line type="monotone" dataKey={entry} stroke={COLORS[idx]} activeDot={{ r: 8 }} key={entry} />
                     })
                   }
                 </LineChart>
@@ -334,8 +327,8 @@ class ATACseqReport extends React.Component{
                   <Tooltip />
                   <Legend />
                   {
-                    _.without(Object.keys(dataATAC['yield_distro_lower'][0]), 'name').map(entry => {
-                      return <Line type="monotone" dataKey={entry} stroke={fileColors[entry]} activeDot={{ r: 8 }} key={entry} />
+                    _.without(Object.keys(dataATAC['yield_distro_lower'][0]), 'name').map((entry,idx) => {
+                      return <Line type="monotone" dataKey={entry} stroke={COLORS[idx]} activeDot={{ r: 8 }} key={entry} />
                     })
                   }
                 </LineChart>
@@ -350,8 +343,8 @@ class ATACseqReport extends React.Component{
                   <Tooltip />
                   <Legend />
                   {
-                    _.without(Object.keys(dataATAC['yield_distro_upper'][0]), 'name').map(entry => {
-                      return <Line type="monotone" dataKey={entry} stroke={fileColors[entry]} activeDot={{ r: 8 }} key={entry} />
+                    _.without(Object.keys(dataATAC['yield_distro_upper'][0]), 'name').map((entry,idx) => {
+                      return <Line type="monotone" dataKey={entry} stroke={COLORS[idx]} activeDot={{ r: 8 }} key={entry} />
                     })
                   }
                 </LineChart>
@@ -407,8 +400,8 @@ class ATACseqReport extends React.Component{
                   <CartesianGrid strokeDasharray="3 3" />
                   <Tooltip />
                   {
-                    _.without(Object.keys(dataATAC['peak_distribution'][0]), 'name').map(entry => {
-                      return <Line type='monotone' dot={false} dataKey={entry} stroke={fileColors[entry]} fill={fileColors[entry]} key={entry} />
+                    _.without(Object.keys(dataATAC['peak_distribution'][0]), 'name').map((entry,idx) => {
+                      return <Line type='monotone' dot={false} dataKey={entry} stroke={COLORS[idx]} fill={COLORS[idx]} key={entry} />
                     })
                   }
                 </LineChart>
@@ -423,8 +416,8 @@ class ATACseqReport extends React.Component{
                   <Tooltip />
                   <Legend />
                   {
-                    _.without(Object.keys(dataATAC['saturation_peaks'][0]), 'name').map(entry => {
-                      return <Line type="monotone" dataKey={entry} stroke={fileColors[entry]} activeDot={{ r: 8 }} key={entry} />
+                    _.without(Object.keys(dataATAC['saturation_peaks'][0]), 'name').map((entry,idx) => {
+                      return <Line type="monotone" dataKey={entry} stroke={COLORS[idx]} activeDot={{ r: 8 }} key={entry} />
                     })
                   }
                 </LineChart>
@@ -439,8 +432,8 @@ class ATACseqReport extends React.Component{
                   <Tooltip />
                   <Legend />
                   {
-                    _.without(Object.keys(dataATAC['saturation_peaks_pct'][0]), 'name').map(entry => {
-                      return <Line type="monotone" dataKey={entry} stroke={fileColors[entry]} activeDot={{ r: 8 }} key={entry} />
+                    _.without(Object.keys(dataATAC['saturation_peaks_pct'][0]), 'name').map((entry,idx) => {
+                      return <Line type="monotone" dataKey={entry} stroke={COLORS[idx]} activeDot={{ r: 8 }} key={entry} />
                     })
                   }
                 </LineChart>
