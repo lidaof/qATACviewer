@@ -1,5 +1,5 @@
 import React from 'react';
-import {BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ScatterChart, Scatter, ZAxis, LineChart, Line} from 'recharts';
+import {BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, LineChart, Line} from 'recharts';
 import _ from 'lodash';
 import { COLORS } from '../utils';
 

@@ -31,6 +31,7 @@ class DataSelection extends React.Component {
         error: null,
         allProducts: null,
         allOptions: null,
+        selectedGenome: 'mm10'
     };
   }
 
@@ -104,6 +105,11 @@ class DataSelection extends React.Component {
       this.props.onHandleClick();
   }
 
+  handleGenomeChange = (selectedOption) => {
+    this.setState({selectedGenome: selectedOption.value})
+    this.props.changeGenome(selectedOption.value);
+  }
+  
   renderSelection() {
     const {allOptions, allProducts} = this.state;
     const selectRow = {
@@ -139,6 +145,17 @@ class DataSelection extends React.Component {
             />
             }
         </div>
+        <h2>Choose genome assembly:</h2>
+          <Select
+          name="genome-field-name"
+          value={this.state.selectedGenome}
+          onChange={this.handleGenomeChange}
+          options={[
+            { value: 'mm10', label: 'Mouse mm10' },
+            { value: 'hg19', label: 'Human hg19' },
+            { value: 'rn6', label: 'Rat rn6' },
+          ]}
+        />
         <div>
             {this.props.labels.length > 0 &&
               <p>Current selected: {this.props.labels.join()}</p>

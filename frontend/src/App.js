@@ -22,7 +22,8 @@ class App extends Component {
         noDataFromAPI: false,
         loading: false,
         errorMsg: null,
-        loadingMsg: ''
+        loadingMsg: '',
+        genome: 'mm10'
       };
       this.handleClick = this.handleClick.bind(this);
       this.hubGenerator = this.hubGenerator.bind(this);
@@ -54,14 +55,17 @@ class App extends Component {
       this.setState({errorMsg: e.response, loading: false, loadingMsg: 'Failed!'});
     }
     const frame = document.getElementById('frame');
-    frame.contentWindow.drawBrowser(this.hubGenerator(this.state.products, this.state.values));
+    frame.contentWindow.drawBrowser(this.hubGenerator(this.state.genome, this.state.products, this.state.values));
     //frame.contentWindow.parent.document.getElementById('root').style.display='block'
   }
 
+  changeGenome = (genome) => {
+    this.setState({genome});
+  }
 
-  hubGenerator(products, filterlist){
+  hubGenerator(genome, products, filterlist){
     let hub = {};
-    hub.genome='mm10';
+    hub.genome=genome;
     let content = [];
     let samples = [];
     let assays = [];
@@ -245,6 +249,7 @@ class App extends Component {
             onHandleChange={this.handleChangeCallBack}
             onHandleClick={this.handleClick}
             labels={this.state.labels}
+            changeGenome={this.changeGenome}
           />
           <div>
             {loading ? this.renderLoading() : this.renderReport()
