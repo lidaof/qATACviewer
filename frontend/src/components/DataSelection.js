@@ -8,7 +8,7 @@ import axios from 'axios';
 
 //import {allProducts, allOptions} from '../data';
 
-const DATA = "http://wangftp.wustl.edu/~dli/qATACviewer/data.json";
+const DATA = "https://wangftp.wustl.edu/~dli/qATACviewer/data.json";
 
 const columns = [{
     dataField: 'id',
