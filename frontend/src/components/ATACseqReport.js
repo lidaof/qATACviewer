@@ -13,7 +13,7 @@ class ATACseqReport extends React.Component{
         this.state = {
           radioChecked: {
             //mapping: 'useful_single',
-            enrich: 'subsampled_10M_enrichment_ratio'
+            enrich: 'subsampled_10M_enrichment_score'
           },
         };
         this.renderTooltip = this.renderTooltip.bind(this);
@@ -47,9 +47,9 @@ class ATACseqReport extends React.Component{
     }
 
     render() {
-        const {errorMsg, noDataFromAPI, data, error, chartHeight, chartWidth, handleWidthChange, handleHeightChange, increaseHeight, decreaseHeight, increaseWidth, decreaseWidth} = this.props;
+        const {errorMsg, renderError, noDataFromAPI, data, error, chartHeight, chartWidth, handleWidthChange, handleHeightChange, increaseHeight, decreaseHeight, increaseWidth, decreaseWidth} = this.props;
         if(errorMsg) {
-          return this.renderError();
+          return renderError();
         }
         if(noDataFromAPI){
           return <div className="lead alert alert-danger">Error! No report could be loaded from the selected datasets!</div>
@@ -89,7 +89,7 @@ class ATACseqReport extends React.Component{
           bk_domain = [0, _.max(_.flatten([dataATAC['enrichment']['percentage_of_background_RPKM_larger_than_0.3777'],bk_ok]))];
           map_domain = [0, _.max(_.flatten([dataATAC['mapping_stats']['total_reads'], mapping_good]))];
           //after_domain = [0, _.max(_.flatten([dataATAC['library_complexity']['after_alignment_PCR_duplicates_percentage'], after_ok]))];
-          enrich_domain = [0, _.max(_.flatten([dataATAC['enrichment']['subsampled_10M_enrichment_ratio'], enrich_good]))];
+          enrich_domain = [0, _.max(_.flatten([dataATAC['enrichment']['subsampled_10M_enrichment_score'], enrich_good]))];
     
         }
         const range = [16, 225];
@@ -246,13 +246,13 @@ class ATACseqReport extends React.Component{
                 <div className="col-md-3">
                 <label>
                 Enrichment ratio in coding promoter regions: &nbsp; &nbsp; 
-                  <input type="radio" name="enrich"  value="enrichment_ratio_in_coding_promoter_regions" checked={this.state.radioChecked.enrich === 'enrichment_ratio_in_coding_promoter_regions'} onChange={this.handleRadioChange} />
+                  <input type="radio" name="enrich"  value="enrichment_score_in_coding_promoter_regions" checked={this.state.radioChecked.enrich === 'enrichment_score_in_coding_promoter_regions'} onChange={this.handleRadioChange} />
                 </label>
                 </div>
                 <div className="col-md-3">
                 <label>
                 Subsampled 10M enrichment ratio:  &nbsp; &nbsp; 
-                  <input type="radio" name="enrich" value="subsampled_10M_enrichment_ratio" checked={this.state.radioChecked.enrich === 'subsampled_10M_enrichment_ratio'} onChange={this.handleRadioChange} />
+                  <input type="radio" name="enrich" value="subsampled_10M_enrichment_score" checked={this.state.radioChecked.enrich === 'subsampled_10M_enrichment_score'} onChange={this.handleRadioChange} />
                 </label>
                 </div>
                 
@@ -266,8 +266,8 @@ class ATACseqReport extends React.Component{
                     xDataKey="name"
                     yDomain={enrich_domain}
                     dataKeysAndFills={[
-                      {dataKey:'enrichment_ratio_in_coding_promoter_regions',fill:'#a6cee3'},
-                      {dataKey:'subsampled_10M_enrichment_ratio',fill:'#1f78b4'},
+                      {dataKey:'enrichment_score_in_coding_promoter_regions',fill:'#a6cee3'},
+                      {dataKey:'subsampled_10M_enrichment_score',fill:'#1f78b4'},
                     ]}
                     yRefGood={enrich_good} 
                     yRefOk={enrich_ok}

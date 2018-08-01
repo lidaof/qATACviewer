@@ -42,8 +42,8 @@ def cal_score(d):
     # d is the sample info hash
     score = 0
     single = d['mapping_stats']['useful_single_ends']
-    enrp = d['enrichment']['enrichment_ratio_in_coding_promoter_regions']
-    enrs = d['enrichment']['subsampled_10M_enrichment_ratio']
+    enrp = d['enrichment']['enrichment_score_in_coding_promoter_regions']
+    enrs = d['enrichment']['subsampled_10M_enrichment_score']
     bk = d['enrichment']['percentage_of_background_RPKM_larger_than_0.3777']
     rup = d['peak_analysis']['reads_percentage_under_peaks']
     if single >= 40000000:
@@ -130,15 +130,15 @@ def remove_spaces(obj):
             del obj[key]
     return obj
 
-section1 = ['total_reads','mapped_reads','uniquely_mapped_reads','non-redundant_mapped_reads','useful_reads','useful_single_ends']
+section1 = ['total_reads','mapped_reads','uniquely_mapped_reads','non-redundant_mapped_reads','useful_single_ends']
 section2 = ['percentage_of_uniquely_mapped_reads_in_chrM','percentage_of_non-redundant_uniquely_mapped_reads_in_chrX','percentage_of_non-redundant_uniquely_mapped_reads_in_chrY','Percentage_of_non-redundant_uniquely_mapped_reads_in_autosome']
 section3 = ['before_alignment_library_duplicates_percentage','after_alignment_PCR_duplicates_percentage']
-section4 = ['enrichment_ratio_in_coding_promoter_regions', 'subsampled_10M_enrichment_ratio', 'percentage_of_background_RPKM_larger_than_0.3777']
+section4 = ['enrichment_score_in_coding_promoter_regions', 'subsampled_10M_enrichment_score', 'percentage_of_background_RPKM_larger_than_0.3777']
 section5 = ['reads_number_under_peaks', 'peaks_number_in_promoter_regions','peaks_number_in_non-promoter_regions', 'reads_percentage_under_peaks']
-section6 = ['insertion_size',['density','frequency']]
-section7 = ['peak_length',['density','frequency']]
+section6 = ['insertion_size','density']
+section7 = ['peak_length','density']
 section8 = ['total_reads','expected_distinction','lower_0.95_confidnece_interval','upper_0.95_confidnece_interval']
-section9 = ['sequence_depth','peaks_number','percentage_of_peaks_recaptured']
+section9 = ['sequence_depth','peaks_number','percentage_of_peak_region_recaptured']
 
 headers = {
     'mapping_stats':section1,
@@ -314,7 +314,7 @@ def format_result_atac(d):
             tmp = {}
             tmp['name'] = f
             for k in headers[h]:
-                if isinstance(k, list): #some reports return frequency and some returns density....
+                if isinstance(k, list): #some reports return frequency and some returns density....or has the ability to deal with key changes, add all possible keys for this paramter
                     for kk in k:
                         if kk in d[f]['Sample_QC_info'][h]:
                             tmp[kk] = d[f]['Sample_QC_info'][h][kk]
@@ -344,7 +344,7 @@ def format_result_atac(d):
     results['yield_distro_upper'] = reformat_array(results['yield_distribution'], 'total_reads', 'upper_0.95_confidnece_interval')
     # saturation
     results['saturation_peaks'] = reformat_array(results['saturation'],'sequence_depth','peaks_number')
-    results['saturation_peaks_pct'] = reformat_array(results['saturation'],'sequence_depth','percentage_of_peaks_recaptured')
+    results['saturation_peaks_pct'] = reformat_array(results['saturation'],'sequence_depth','percentage_of_peak_region_recaptured')
     
     #scores
     results['scores'] = [] # save score for each sample, array of {file/label: score}
@@ -405,17 +405,17 @@ def format_result_atac(d):
     # ref['peak_analysis']['peaks_number_in_non-promoter_regions']['mean'] = average(d[ef][eckey]['peak_analysis']['peaks_number_in_non-promoter_regions'])
     # ref['peak_analysis']['peaks_number_in_non-promoter_regions']['sd'] = sd(d[ef][eckey]['peak_analysis']['peaks_number_in_non-promoter_regions'])
     ref['enrichment'] = {}
-    ref['enrichment']['enrichment_ratio_in_coding_promoter_regions'] = {}
-    #ref['enrichment']['enrichment_ratio_in_coding_promoter_regions']['mean'] = average(d[ef][eckey]['enrichment']['enrichment_ratio_in_coding_promoter_regions'])
-    #ref['enrichment']['enrichment_ratio_in_coding_promoter_regions']['sd'] = sd(d[ef][eckey]['enrichment']['enrichment_ratio_in_coding_promoter_regions'])
-    ref['enrichment']['enrichment_ratio_in_coding_promoter_regions']['mean'] = 11
-    ref['enrichment']['enrichment_ratio_in_coding_promoter_regions']['sd'] = 4
+    ref['enrichment']['enrichment_score_in_coding_promoter_regions'] = {}
+    #ref['enrichment']['enrichment_score_in_coding_promoter_regions']['mean'] = average(d[ef][eckey]['enrichment']['enrichment_score_in_coding_promoter_regions'])
+    #ref['enrichment']['enrichment_score_in_coding_promoter_regions']['sd'] = sd(d[ef][eckey]['enrichment']['enrichment_score_in_coding_promoter_regions'])
+    ref['enrichment']['enrichment_score_in_coding_promoter_regions']['mean'] = 11
+    ref['enrichment']['enrichment_score_in_coding_promoter_regions']['sd'] = 4
 
-    ref['enrichment']['subsampled_10M_enrichment_ratio'] = {}
-    #ref['enrichment']['subsampled_10M_enrichment_ratio']['mean'] = average(d[ef][eckey]['enrichment']['subsampled_10M_enrichment_ratio'])
-    #ref['enrichment']['subsampled_10M_enrichment_ratio']['sd'] = sd(d[ef][eckey]['enrichment']['subsampled_10M_enrichment_ratio'])
-    ref['enrichment']['subsampled_10M_enrichment_ratio']['mean'] = 18
-    ref['enrichment']['subsampled_10M_enrichment_ratio']['sd'] = 3
+    ref['enrichment']['subsampled_10M_enrichment_score'] = {}
+    #ref['enrichment']['subsampled_10M_enrichment_score']['mean'] = average(d[ef][eckey]['enrichment']['subsampled_10M_enrichment_score'])
+    #ref['enrichment']['subsampled_10M_enrichment_score']['sd'] = sd(d[ef][eckey]['enrichment']['subsampled_10M_enrichment_score'])
+    ref['enrichment']['subsampled_10M_enrichment_score']['mean'] = 18
+    ref['enrichment']['subsampled_10M_enrichment_score']['sd'] = 3
 
     ref['enrichment']['percentage_of_background_RPKM_larger_than_0.3777'] = {}
     #ref['enrichment']['percentage_of_background_RPKM_larger_than_0.3777']['mean'] = average(d[ef][eckey]['enrichment']['percentage_of_background_RPKM_larger_than_0.3777'])

@@ -206,36 +206,49 @@ class App extends Component {
   }
 
   renderReport = () => {
-    return (
-      <div>
-        {this.state.data && this.state.data.atac ? <ATACseqReport errorMsg={this.state.errorMsg} 
-                                                             noDataFromAPI={this.state.noDataFromAPI}
-                                                             data={this.state.data}
-                                                             error={this.state.error} 
-                                                             chartHeight={this.state.chartHeight} 
-                                                             chartWidth={this.state.chartWidth}
-                                                             increaseWidth={this.increaseWidth}
-                                                             decreaseWidth={this.decreaseWidth}
-                                                             increaseHeight={this.increaseHeight}
-                                                             decreaseHeight={this.decreaseHeight}
-                                                             handleHeightChange={this.handleHeightChange}
-                                                             handleWidthChange={this.handleWidthChange}
-                                                             /> : null }
-        {this.state.data && this.state.data.rna ? <RNAseqReport errorMsg={this.state.errorMsg} 
-                                                             noDataFromAPI={this.state.noDataFromAPI}
-                                                             data={this.state.data}
-                                                             error={this.state.error} 
-                                                             chartHeight={this.state.chartHeight} 
-                                                             chartWidth={this.state.chartWidth}
-                                                             increaseWidth={this.increaseWidth}
-                                                             decreaseWidth={this.decreaseWidth}
-                                                             increaseHeight={this.increaseHeight}
-                                                             decreaseHeight={this.decreaseHeight}
-                                                             handleHeightChange={this.handleHeightChange}
-                                                             handleWidthChange={this.handleWidthChange}
-                                                             /> : null}
-      </div>
-    );
+    const {errorMsg, noDataFromAPI, data, error, chartHeight, chartWidth} = this.state;
+    const {increaseWidth, decreaseWidth, increaseHeight, decreaseHeight, handleHeightChange, handleWidthChange, renderError} = this;
+    const propsToPass = {
+      errorMsg, noDataFromAPI, data, error, chartHeight, chartWidth,
+      increaseWidth, decreaseWidth, increaseHeight, decreaseHeight, handleHeightChange, handleWidthChange, renderError
+    };
+    return <div>
+      {this.state.data && this.state.data.atac && <ATACseqReport {...propsToPass} />}
+      {this.state.data && this.state.data.rna && <RNAseqReport {...propsToPass} />}
+    </div>
+
+    // return (
+    //   <div>
+    //     {this.state.data && this.state.data.atac ? <ATACseqReport errorMsg={this.state.errorMsg} 
+    //                                                          noDataFromAPI={this.state.noDataFromAPI}
+    //                                                          data={this.state.data}
+    //                                                          error={this.state.error} 
+    //                                                          chartHeight={this.state.chartHeight} 
+    //                                                          chartWidth={this.state.chartWidth}
+    //                                                          increaseWidth={this.increaseWidth}
+    //                                                          decreaseWidth={this.decreaseWidth}
+    //                                                          increaseHeight={this.increaseHeight}
+    //                                                          decreaseHeight={this.decreaseHeight}
+    //                                                          handleHeightChange={this.handleHeightChange}
+    //                                                          handleWidthChange={this.handleWidthChange}
+    //                                                          renderError = {this.renderError}
+    //                                                          /> : null }
+    //     {this.state.data && this.state.data.rna ? <RNAseqReport errorMsg={this.state.errorMsg} 
+    //                                                          noDataFromAPI={this.state.noDataFromAPI}
+    //                                                          data={this.state.data}
+    //                                                          error={this.state.error} 
+    //                                                          chartHeight={this.state.chartHeight} 
+    //                                                          chartWidth={this.state.chartWidth}
+    //                                                          increaseWidth={this.increaseWidth}
+    //                                                          decreaseWidth={this.decreaseWidth}
+    //                                                          increaseHeight={this.increaseHeight}
+    //                                                          decreaseHeight={this.decreaseHeight}
+    //                                                          handleHeightChange={this.handleHeightChange}
+    //                                                          handleWidthChange={this.handleWidthChange}
+    //                                                          renderError = {this.renderError}
+    //                                                          /> : null}
+    //   </div>
+    // );
   }
 
   render(){
