@@ -153,6 +153,7 @@ class DataSelection extends React.Component {
           options={[
             { value: 'mm10', label: 'Mouse mm10' },
             { value: 'hg19', label: 'Human hg19' },
+            { value: 'hg38', label: 'Human hg38' },
             { value: 'rn6', label: 'Rat rn6' },
           ]}
         />
