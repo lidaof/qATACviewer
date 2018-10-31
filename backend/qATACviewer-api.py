@@ -153,12 +153,12 @@ headers = {
 }
 
 rna_section1 = ['reads_aligned_exactly_1_time','reads_aligned_0_time','reads_aligned_greater_than_1_time']
-rna_section2 = ['before_alignment_library_duplicates_percentage','after_alignment_PCR_duplicates_percentage']
-rna_section3 = ['rate_of_reads_with_gene_feature','area_under_curve_of_gene_body_coverage','expressed_genes_with_cpm_larger_than_1','gene_type_fragment_count']
+rna_section2 = ['before_alignment_library_duplicates_ratio_by_FastQC_v0.11.5','after_alignment_duplicates_ratio_by_Picard_v1.3.2']
+rna_section3 = ['ratio_of_uniquely_mapped_fragments_with_gene_feature','detected_genes_with_cpm_larger_than_1','gene_type_fragment_count']
 rna_section4 = ['total_reads','expected_distinction']
 rna_section5 = ['percentile','coverage']
 rna_section6 = ['GC_content','reads_distribution','splice_junction','splice_events']
-rna_section7 = ['sequence_depth','cpm_from_1_to_10','cpm_from_10_to_50','cpm_greater_than_50','total_genes']
+rna_section7 = ['gene_count_subsampling','cpm_from_1_to_10','cpm_from_10_to_50','cpm_greater_than_50','total_genes']
 
 rna_headers = {
     'mapping_stats': rna_section1,
@@ -289,10 +289,10 @@ def format_result_rna(d):
     #genebody
     results['genebody'] = reformat_array(results['gene_body_covergae'],'percentile','coverage')
     # saturation
-    results['saturation_cpm_from_1_to_10'] = reformat_array(results['saturation'],'sequence_depth','cpm_from_1_to_10')
-    results['saturation_cpm_from_10_to_50'] = reformat_array(results['saturation'],'sequence_depth','cpm_from_10_to_50')
-    results['saturation_cpm_greater_than_50'] = reformat_array(results['saturation'],'sequence_depth','cpm_greater_than_50')
-    results['saturation_total_genes'] = reformat_array(results['saturation'],'sequence_depth','total_genes')
+    results['saturation_cpm_from_1_to_10'] = reformat_array(results['saturation'],'gene_count_subsampling','cpm_from_1_to_10')
+    results['saturation_cpm_from_10_to_50'] = reformat_array(results['saturation'],'gene_count_subsampling','cpm_from_10_to_50')
+    results['saturation_cpm_greater_than_50'] = reformat_array(results['saturation'],'gene_count_subsampling','cpm_greater_than_50')
+    results['saturation_total_genes'] = reformat_array(results['saturation'],'gene_count_subsampling','total_genes')
     results['gene_type'] = reformat_dict(results['feature_counting'], 'gene_type_fragment_count')
     results['gc_content'] = reformat_dict(results['RseQC_report'], 'GC_content')
     results['reads_distribution'] = reformat_dict(results['RseQC_report'], 'reads_distribution')

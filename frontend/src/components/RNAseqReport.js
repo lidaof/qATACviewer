@@ -63,8 +63,8 @@ class RNAseqReport extends React.Component {
                 <YAxis/>
                 <Tooltip/>
                 <Legend />
-                <Bar dataKey="before_alignment_library_duplicates_percentage" fill="#8884d8" />
-                <Bar dataKey="after_alignment_PCR_duplicates_percentage" fill="#82ca9d" />
+                <Bar dataKey="before_alignment_library_duplicates_ratio_by_FastQC_v0.11.5" fill="#8884d8" />
+                <Bar dataKey="after_alignment_duplicates_ratio_by_Picard_v1.3.2" fill="#82ca9d" />
                 </BarChart>
                     </div>  
                 
