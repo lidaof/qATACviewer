@@ -1,6 +1,6 @@
 import React from 'react';
 import ReBarChart from './ReBarChart';
-import ScoreTable from './ScoreTable';
+// import ScoreTable from './ScoreTable';
 import {BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ScatterChart, Scatter, ZAxis, LineChart, Line} from 'recharts';
 import _ from 'lodash';
 import { COLORS } from '../utils';
@@ -116,11 +116,11 @@ class ATACseqReport extends React.Component{
                     </label> <button onClick={increaseHeight}>+</button> <button onClick={decreaseHeight}>-</button>
                   </form>
                 </div>
-                <h1>Quality overview</h1>
-                <div>
+                {/* <h1>Quality overview</h1> */}
+                {/* <div>
                   <p>Data with score >= 5 passed quality standards, marked with green, otherwise marked with yellow.</p>
                   <ScoreTable data={dataATAC['scores']} />
-                </div>
+                </div> */}
                 <h1>Mapping</h1>
                 {/* <div className="row">
                   <div className="lead col-md-2">Set standards based on: </div>
@@ -438,7 +438,7 @@ class ATACseqReport extends React.Component{
                   }
                 </LineChart>
                 </div>
-                <h2>Embedded browser view</h2>
+                {/* <h2>Embedded browser view</h2> */}
               </div>
             }
           </div>
