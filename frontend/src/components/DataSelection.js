@@ -4,11 +4,11 @@ import BootstrapTable from 'react-bootstrap-table-next';
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import Select from 'react-select';
 import 'react-select/dist/react-select.css';
-import axios from 'axios';
+// import axios from 'axios';
 
-//import {allProducts, allOptions} from '../data';
+import {allProducts, allOptions} from '../data.json';
 
-const DATA = "https://wangftp.wustl.edu/~dli/qATACviewer/data.json";
+// const DATA = "https://wangftp.wustl.edu/~dli/qATACviewer/data.json";
 
 const columns = [{
     dataField: 'id',
@@ -27,32 +27,32 @@ class DataSelection extends React.Component {
     this.state = { 
         selected: [], 
         selectedValue: null,
-        loading: true,
-        error: null,
-        allProducts: null,
-        allOptions: null,
+        // loading: true,
+        // error: null,
+        // allProducts: null,
+        // allOptions: null,
         selectedGenome: 'mm10'
     };
   }
 
-  componentDidMount(){
-    axios.get(DATA)
-      .then((response) => {
-        //console.log(response);
-        this.setState({
-        allProducts: response.data.allProducts, 
-        allOptions: response.data.allOptions, 
-        loading: false,
-        error: null
-      })}
-    ).catch(err => {
-        // Something went wrong. Save the error in state and re-render.
-        this.setState({
-          loading: false,
-          error: err
-        });
-      });
-  }
+  // componentDidMount(){
+  //   axios.get(DATA)
+  //     .then((response) => {
+  //       //console.log(response);
+  //       this.setState({
+  //       allProducts: response.data.allProducts, 
+  //       allOptions: response.data.allOptions, 
+  //       loading: false,
+  //       error: null
+  //     })}
+  //   ).catch(err => {
+  //       // Something went wrong. Save the error in state and re-render.
+  //       this.setState({
+  //         loading: false,
+  //         error: err
+  //       });
+  //     });
+  // }
 
   renderLoading() {
     return <div>Loading...</div>;
@@ -98,7 +98,7 @@ class DataSelection extends React.Component {
       selected: [],
       selectedValue: selectedOption.value,
     });
-    this.props.onHandleChange(this.state.allProducts[selectedOption.value]);
+    this.props.onHandleChange(allProducts[selectedOption.value]);
   }
 
   handleClick = () => {
@@ -111,7 +111,7 @@ class DataSelection extends React.Component {
   }
   
   renderSelection() {
-    const {allOptions, allProducts} = this.state;
+    // const {allOptions, allProducts} = this.state;
     const selectRow = {
       mode: 'checkbox',
       clickToSelect: true,
