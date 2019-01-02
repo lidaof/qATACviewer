@@ -54,8 +54,8 @@ class App extends Component {
     }catch(e){
       this.setState({errorMsg: e.response, loading: false, loadingMsg: 'Failed!'});
     }
-    const frame = document.getElementById('frame');
-    frame.contentWindow.drawBrowser(this.hubGenerator(this.state.genome, this.state.products, this.state.values));
+    // const frame = document.getElementById('frame');
+    // frame.contentWindow.drawBrowser(this.hubGenerator(this.state.genome, this.state.products, this.state.values));
     //frame.contentWindow.parent.document.getElementById('root').style.display='block'
   }
 
