@@ -123,12 +123,11 @@ def format_text_report(flist):
     return results
 
 def remove_spaces(obj):
+    newObj = {}
     for key in obj.keys():
         new_key = key.replace(" ","_")
-        if new_key != key:
-            obj[new_key] = obj[key]
-            del obj[key]
-    return obj
+        newObj[new_key] = obj[key]
+    return newObj
 
 section1 = ['total_reads','mapped_reads','uniquely_mapped_reads','non-redundant_mapped_reads','useful_single_ends']
 section2 = ['percentage_of_uniquely_mapped_reads_in_chrM','percentage_of_non-redundant_uniquely_mapped_reads_in_chrX','percentage_of_non-redundant_uniquely_mapped_reads_in_chrY','Percentage_of_non-redundant_uniquely_mapped_reads_in_autosome']
