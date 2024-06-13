@@ -253,6 +253,7 @@ class App extends Component {
 
   render(){
     const { loading} = this.state;
+
     return (
       <div>
         <div style={{display: this.state.isHidden ? "none" : undefined}}>
