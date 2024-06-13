@@ -29,8 +29,8 @@ class DataSelection extends React.Component {
         selectedValue: null,
         loading: true,
         error: null,
-        allProducts: null,
-        allOptions: null,
+        allProducts: this.props,
+        allOptions: this.props,
         selectedGenome: 'mm10'
     };
   }

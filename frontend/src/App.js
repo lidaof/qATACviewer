@@ -5,6 +5,7 @@ import _ from 'lodash';
 import DataSelection from './components/DataSelection';
 import ATACseqReport from './components/ATACseqReport';
 import RNAseqReport from './components/RNAseqReport';
+import JsonFileUpload from './components/FileUpload';
 
 
 class App extends Component {
@@ -23,7 +24,11 @@ class App extends Component {
         loading: false,
         errorMsg: null,
         loadingMsg: '',
-        genome: 'mm10'
+        genome: 'mm10',
+
+        //for the file reading - changed for uploading files
+        allProducts: {}, 
+        allOptions: []
       };
       this.handleClick = this.handleClick.bind(this);
       this.hubGenerator = this.hubGenerator.bind(this);
@@ -251,10 +256,26 @@ class App extends Component {
     // );
   }
 
+  updateProducts = (key, value) => {
+    this.setState(prevState => ({
+      allProducts: {
+        ...prevState.allProducts, 
+        [key]: value
+      }
+    }));
+  };
+
+  updateOptions = (options) => {
+    this.setState(prevState => ({
+      allOptions: [...prevState.allOptions, options]
+    }))
+  }
+
   render(){
     const { loading} = this.state;
     return (
       <div>
+        <JsonFileUpload allOptions={this.state.allOptions} allProducts={this.state.allProducts} updateOptions={this.updateOptions} updateProducts={this.updateProducts}/>
         <div style={{display: this.state.isHidden ? "none" : undefined}}>
           <DataSelection 
             onNewSelection={this.onNewSelection} 
@@ -263,6 +284,8 @@ class App extends Component {
             onHandleClick={this.handleClick}
             labels={this.state.labels}
             changeGenome={this.changeGenome}
+            allOptions={this.state.allOptions}
+            allProducts={this.state.allProducts}
           />
           <div>
             {loading ? this.renderLoading() : this.renderReport()
