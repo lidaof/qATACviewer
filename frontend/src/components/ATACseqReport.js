@@ -118,7 +118,7 @@ class ATACseqReport extends React.Component{
                 </div>
                 <h1>Quality overview</h1>
                 <div>
-                  <p>Data with score >= 5 passed quality standards, marked with green, otherwise marked with yellow.</p>
+                  <p>Data with score &gt;= 5 passed quality standards, marked with green, otherwise marked with yellow.</p>
                   <ScoreTable data={dataATAC['scores']} />
                 </div>
                 <h1>Mapping</h1>
