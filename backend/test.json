@@ -1,0 +1,37 @@
+[
+    {
+        "sample": "100-2581_ATAC",
+        "url": "https://wangftp.wustl.edu/~mmoore/qATAC/MM_HNSC1/100-2581_ATAC/step3.2_normalized_per_10M_100-2581_ATAC_R1.bigWig",
+        "assay": "ATAC-seq",
+        "file": "https://wangftp.wustl.edu/~mmoore/qATAC/MM_HNSC1/100-2581_ATAC/QC_100-2581_ATAC_R1.json",
+        "id": 1
+    },
+    {
+        "sample": "100-2582_ATAC",
+        "url": "https://wangftp.wustl.edu/~mmoore/qATAC/MM_HNSC1/100-2582_ATAC/step3.2_normalized_per_10M_100-2582_ATAC_R1.bigWig",
+        "assay": "ATAC-seq",
+        "file": "https://wangftp.wustl.edu/~mmoore/qATAC/MM_HNSC1/100-2582_ATAC/QC_100-2582_ATAC_R1.json",
+        "id": 2
+    },
+    {
+        "sample": "100-2583_ATAC",
+        "url": "https://wangftp.wustl.edu/~mmoore/qATAC/MM_HNSC1/100-2583_ATAC/step3.2_normalized_per_10M_100-2583_ATAC_R1.bigWig",
+        "assay": "ATAC-seq",
+        "file": "https://wangftp.wustl.edu/~mmoore/qATAC/MM_HNSC1/100-2583_ATAC/QC_100-2583_ATAC_R1.json",
+        "id": 3
+    },
+    {
+        "sample": "100-2584_ATAC",
+        "url": "https://wangftp.wustl.edu/~mmoore/qATAC/MM_HNSC1/100-2584_ATAC/step3.2_normalized_per_10M_100-2584_ATAC_R1.bigWig",
+        "assay": "ATAC-seq",
+        "file": "https://wangftp.wustl.edu/~mmoore/qATAC/MM_HNSC1/100-2584_ATAC/QC_100-2584_ATAC_R1.json",
+        "id": 4
+    },
+    {
+        "sample": "100-2606_ATAC",
+        "url": "https://wangftp.wustl.edu/~mmoore/qATAC/MM_HNSC1/100-2606_ATAC/step3.2_normalized_per_10M_100-2606_ATAC_R1.bigWig",
+        "assay": "ATAC-seq",
+        "file": "https://wangftp.wustl.edu/~mmoore/qATAC/MM_HNSC1/100-2606_ATAC/QC_100-2606_ATAC_R1.json",
+        "id": 5
+    }
+]
