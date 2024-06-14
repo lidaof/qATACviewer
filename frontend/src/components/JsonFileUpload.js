@@ -36,7 +36,7 @@ class JsonFileUpload extends React.Component {
 
         return (
             <div>
-                <h2>Or Upload a JSON File</h2>
+                <h2>Or Upload a JSON File: </h2>
                 <input type="file" onChange={this.onFileChange} accept=".json" />
                 {error && <p style={{ color: 'red' }}>{error}</p>}
             </div>

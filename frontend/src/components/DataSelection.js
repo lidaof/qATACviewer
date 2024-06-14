@@ -130,12 +130,9 @@ class DataSelection extends React.Component {
     this.props.onAllSelection(isSelect, rows);
   }
 
-  handleChange = (selectedOption, savedOptions) => {
+  handleChange = (selectedOption) => {
     //saved options are an array of previously selected products
     console.log("handling change")
-    if (this.state.isUploaded) {
-      this.props.onHandleChange(this.state.selectedUploads);
-    }
     this.setState({ 
       selectedValue: selectedOption.value,
     });
