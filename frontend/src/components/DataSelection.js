@@ -135,7 +135,11 @@ class DataSelection extends React.Component {
     console.log("handling change")
     this.setState({ 
       selectedValue: selectedOption.value,
+      selected: []
     });
+    if (!this.state.isUploaded) {
+      this.props.onHandleChange(this.state.allProducts[selectedOption.value]);
+    }
   }
 
   handleClick = () => {
