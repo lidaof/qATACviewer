@@ -166,7 +166,7 @@ class DataSelection extends React.Component {
             }
           </div>
         <div>
-          <button style={{display: this.state.selectedValue || this.state.uploadsSelected ? undefined : "none"}} type="button" className="btn btn-primary" onClick={this.handleClick}>Update</button>
+          <button style={{display: this.state.selectedValue ? undefined : "none"}} type="button" className="btn btn-primary" onClick={this.handleClick}>Update</button>
         </div>
       </div>
     );

@@ -6,6 +6,7 @@ import DataSelection from './components/DataSelection';
 import ATACseqReport from './components/ATACseqReport';
 import RNAseqReport from './components/RNAseqReport';
 import DataSelectionUpload from './components/DataSelectionUpload';
+import NavBar from './components/NavBar';
 
 class App extends Component {
     constructor(props) {
@@ -272,11 +273,21 @@ class App extends Component {
     // );
   }
 
+  uploadState = (upload, change) => {
+    this.setState({
+      upload : change
+    })
+  }
+
   render(){
     const { loading} = this.state;
 
     return (
       <div>
+        <NavBar 
+          uploadState={this.uploadState}
+          upload={this.upload}
+        />
         <div>
           {!this.state.upload &&
             <DataSelection 
