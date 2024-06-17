@@ -3,7 +3,7 @@ import React from 'react';
 class UrlFetcher extends React.Component {
     componentDidMount() {
         const queryParams = new URLSearchParams(window.location.search); 
-        const dataSourceUrl = queryParams.get('dataSrouce');
+        const dataSourceUrl = queryParams.get('dataSource');
 
         if (dataSourceUrl) {
             fetch(dataSourceUrl)
