@@ -5,7 +5,7 @@ import _ from 'lodash';
 import DataSelection from './components/DataSelection';
 import ATACseqReport from './components/ATACseqReport';
 import RNAseqReport from './components/RNAseqReport';
-
+import DataSelectionUpload from './components/DataSelectionUpload';
 
 class App extends Component {
     constructor(props) {
@@ -24,12 +24,7 @@ class App extends Component {
         errorMsg: null,
         loadingMsg: '',
         genome: 'mm10', 
-        dataValues: [], 
-        dataLabels: [], 
-        dataAssays: [], 
-        uValues: [], 
-        uLabels: [], 
-        uAssays: [],
+        upload: false
       };
       this.handleClick = this.handleClick.bind(this);
       this.hubGenerator = this.hubGenerator.bind(this);
@@ -127,8 +122,6 @@ class App extends Component {
     this.setState({ chartHeight: Number.parseInt(event.target.value, 10) });
   };
 
-
-
   renderLoading() {
     return <div className="lead alert alert-info">{this.state.loadingMsg}</div>;
   }
@@ -206,7 +199,6 @@ class App extends Component {
           }
           this.setState({dataValues: newValues, dataLabels: newLabels, dataAssays: newAssays});
           this.setState({values: newValues.slice(), labels: newLabels.slice(), assays: newAssays.slice()});
-          console.log(this.state.dataValues)
         }else{
           for (let values in this.state.dataValues) {
             let index = newValues.indexOf(values)
@@ -214,8 +206,6 @@ class App extends Component {
             newLabels.splice(index, 1);
             newAssays.splice(index, 1);
           }
-          console.log(isSelect)
-          console.log(this.state.dataValues)
           this.setState({dataValues:[], dataLabels: [], dataAssays: []});
           this.setState({values: newValues.slice(), labels: newLabels.slice(), assays: newAssays.slice()});
           //Same as below
@@ -231,35 +221,6 @@ class App extends Component {
           // console.log(this.state.uValues)
         }
   }
-
-  onAllUploadsSelection = (isSelect, rows) => {
-    let newValues = this.state.values.slice();
-    let newLabels = this.state.labels.slice();
-    let newAssays = this.state.assays.slice();
-
-    //let newValues = this.state.values, newLabels = this.state.labels, newAssays = this.state.assays;
-    if(isSelect){
-      for(let row of rows){
-        newValues.push(row.file);
-        newLabels.push(row.name||`${row.sample} ${row.assay}`);
-        newAssays.push(row.assay);
-      }
-      this.setState({uValues: newValues.slice(), uLabels: newLabels.slice(), uAssays: newAssays.slice()});
-      this.setState({values: newValues.slice(), labels: newLabels.slice(), assays: newAssays.slice()});
-      console.log(this.state.uValues)
-    }else{
-      //Use the splice method and loop for all values in uValues and splice each index within values
-      for (let values in this.state.uValues) {
-        let index = newValues.indexOf(values)
-        newValues.splice(index, 1);
-        newLabels.splice(index, 1);
-        newAssays.splice(index, 1)
-      }
-      console.log(this.state.uValues)
-      this.setState({uValues:[], uLabels: [], uAssays: []});
-      this.setState({values: newValues.slice(), labels: newLabels.slice(), assays: newAssays.slice()});
-    }
-}
 
   handleChangeCallBack = (products) => {
     this.setState({values: [], labels: [], assays: [], products: products});
@@ -316,8 +277,9 @@ class App extends Component {
 
     return (
       <div>
-        <div style={{display: this.state.isHidden ? "none" : undefined}}>
-          <DataSelection 
+        <div>
+          {!this.state.upload &&
+            <DataSelection 
             onNewSelection={this.onNewSelection} 
             onAllSelection={this.onAllSelection} 
             onAllUploadsSelection={this.onAllUploadsSelection}
@@ -326,6 +288,18 @@ class App extends Component {
             labels={this.state.labels}
             changeGenome={this.changeGenome}
           />
+          }
+          {this.state.upload &&
+            <DataSelectionUpload
+            onNewSelection={this.onNewSelection} 
+            onAllSelection={this.onAllSelection} 
+            onAllUploadsSelection={this.onAllUploadsSelection}
+            onHandleChange={this.handleChangeCallBack}
+            onHandleClick={this.handleClick}
+            labels={this.state.labels}
+            changeGenome={this.changeGenome}
+            />
+            }
           <div>
             {loading ? this.renderLoading() : this.renderReport()
             }

@@ -1,11 +1,9 @@
-
 import React from 'react';
 import BootstrapTable from 'react-bootstrap-table-next';
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import Select from 'react-select';
 import 'react-select/dist/react-select.css';
 import axios from 'axios';
-import JsonFileUpload from './JsonFileUpload';
 
 //import {allProducts, allOptions} from '../data';
 
@@ -33,10 +31,6 @@ class DataSelection extends React.Component {
         allProducts: null,
         allOptions: null,
         selectedGenome: 'mm10', 
-        uploadedArray: [], 
-        isUploaded: false,
-        selectedUploads: [],
-        uploadsSelected: false
     };
   }
 
@@ -84,21 +78,6 @@ class DataSelection extends React.Component {
     this.props.onNewSelection(row, isSelect);
   }
 
-  handleOnSelectUploads = (row, isSelect) => {
-    if (isSelect) {
-      this.setState(() => ({
-        selectedUploads: [...this.state.selectedUploads, row.id],
-        uploadsSelected: true
-      }));
-    } else {
-      this.setState(() => ({
-        selectedUploads: this.state.selectedUploads.filter(x => x !== row.id)
-      }));
-    }
-    this.props.onHandleChange(this.state.selectedUploads);
-    this.props.onNewSelection(row, isSelect);
-  }
-
   handleOnSelectAll = (isSelect, rows) => {
     const ids = rows.map(r => r.id);
     if (isSelect) {
@@ -113,33 +92,14 @@ class DataSelection extends React.Component {
     this.props.onAllSelection(isSelect, rows);
   }
 
-  handleOnSelectAllUploads = (isSelect, rows) => {
-    const ids = rows.map(r => r.id);
-    if (isSelect) {
-      this.setState(() => ({
-        selectedUploads: ids,
-        uploadsSelected: true
-      }));
-    } else {
-      this.setState(() => ({
-        selectedUploads: [],
-        uploadsSelected: false
-      }));
-    }
-    this.props.onHandleChange(this.state.selectedUploads);
-    this.props.onAllUploadsSelection(isSelect, rows);
-  }
 
   handleChange = (selectedOption) => {
     //saved options are an array of previously selected products
-    console.log("handling change")
     this.setState({ 
       selectedValue: selectedOption.value,
       selected: []
     });
-    if (!this.state.isUploaded) {
-      this.props.onHandleChange(this.state.allProducts[selectedOption.value]);
-    }
+    this.props.onHandleChange(this.state.allProducts[selectedOption.value]);
   }
 
   handleClick = () => {
@@ -150,19 +110,10 @@ class DataSelection extends React.Component {
     this.setState({selectedGenome: selectedOption.value})
     this.props.changeGenome(selectedOption.value);
   }
-
-  handleFileUpload = (fileContent) => {
-    this.setState({ uploadedArray: fileContent });
-  };
-
-  uploaded = () => {
-    this.setState({ isUploaded: true});
-  };
   
   renderSelection() {
 
     const {allOptions, allProducts} = this.state;
-    const { uploadedArray } = this.state;
     const selectRow = {
       mode: 'checkbox',
       clickToSelect: true,
@@ -171,14 +122,7 @@ class DataSelection extends React.Component {
       onSelect: this.handleOnSelect,
       onSelectAll: this.handleOnSelectAll
     };
-    const selectRow2 = {
-      mode: 'checkbox',
-      clickToSelect: true,
-      bgColor: '#00BFFF',
-      selected: this.state.selectedUploads,
-      onSelect: this.handleOnSelectUploads,
-      onSelectAll: this.handleOnSelectAllUploads
-    };
+
     return (
       <div>
         <div>
@@ -203,19 +147,6 @@ class DataSelection extends React.Component {
               condensed
             />
             }
-        </div>
-        <div>
-            <JsonFileUpload onFileUpload={this.handleFileUpload} uploaded={this.uploaded}/>
-            {this.state.isUploaded &&
-            <BootstrapTable 
-              keyField='id'
-              data={ uploadedArray }
-              columns= { columns }
-              selectRow={ selectRow2 }
-              striped
-              hover
-              condensed
-            />}
         </div>
         <h2>Choose genome assembly:</h2>
           <Select
