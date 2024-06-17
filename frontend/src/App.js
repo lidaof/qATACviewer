@@ -23,7 +23,13 @@ class App extends Component {
         loading: false,
         errorMsg: null,
         loadingMsg: '',
-        genome: 'mm10'
+        genome: 'mm10', 
+        dataValues: [], 
+        dataLabels: [], 
+        dataAssays: [], 
+        uValues: [], 
+        uLabels: [], 
+        uAssays: [],
       };
       this.handleClick = this.handleClick.bind(this);
       this.hubGenerator = this.hubGenerator.bind(this);
@@ -188,18 +194,72 @@ class App extends Component {
   }
 
   onAllSelection = (isSelect, rows) => {
+    let newValues = this.state.values.slice();
+    let newLabels = this.state.labels.slice();
+    let newAssays = this.state.assays.slice();
+    //let newValues = this.state.values, newLabels = this.state.labels, newAssays = this.state.assays;
         if(isSelect){
-          let newValues = [], newLables = [], newAssays = [];
           for(let row of rows){
             newValues.push(row.file);
-            newLables.push(row.name||`${row.sample} ${row.assay}`);
+            newLabels.push(row.name||`${row.sample} ${row.assay}`);
             newAssays.push(row.assay);
           }
-          this.setState({values: newValues, labels: newLables, assays: newAssays});
+          this.setState({dataValues: newValues, dataLabels: newLabels, dataAssays: newAssays});
+          this.setState({values: newValues.slice(), labels: newLabels.slice(), assays: newAssays.slice()});
+          console.log(this.state.dataValues)
         }else{
-          this.setState({values:[], labels: [], assays: []});
+          for (let values in this.state.dataValues) {
+            let index = newValues.indexOf(values)
+            newValues.splice(index, 1);
+            newLabels.splice(index, 1);
+            newAssays.splice(index, 1);
+          }
+          console.log(isSelect)
+          console.log(this.state.dataValues)
+          this.setState({dataValues:[], dataLabels: [], dataAssays: []});
+          this.setState({values: newValues.slice(), labels: newLabels.slice(), assays: newAssays.slice()});
+          //Same as below
+          // console.log("hitting else statement")
+          // this.setState({dataValues:[], dataLabels: [], dataAssays: []});
+          // console.log(this.state.values)
+          // console.log(this.state.uValues)
+          // this.setState({
+          //   values: [...this.state.uValues], 
+          //   labels: [...this.state.uLabels],
+          //   assays: [...this.state.uAssays], 
+          // })
+          // console.log(this.state.uValues)
         }
   }
+
+  onAllUploadsSelection = (isSelect, rows) => {
+    let newValues = this.state.values.slice();
+    let newLabels = this.state.labels.slice();
+    let newAssays = this.state.assays.slice();
+
+    //let newValues = this.state.values, newLabels = this.state.labels, newAssays = this.state.assays;
+    if(isSelect){
+      for(let row of rows){
+        newValues.push(row.file);
+        newLabels.push(row.name||`${row.sample} ${row.assay}`);
+        newAssays.push(row.assay);
+      }
+      this.setState({uValues: newValues.slice(), uLabels: newLabels.slice(), uAssays: newAssays.slice()});
+      this.setState({values: newValues.slice(), labels: newLabels.slice(), assays: newAssays.slice()});
+      console.log(this.state.uValues)
+    }else{
+      //Use the splice method and loop for all values in uValues and splice each index within values
+      for (let values in this.state.uValues) {
+        let index = newValues.indexOf(values)
+        newValues.splice(index, 1);
+        newLabels.splice(index, 1);
+        newAssays.splice(index, 1)
+      }
+      console.log(this.state.uValues)
+      this.setState({uValues:[], uLabels: [], uAssays: []});
+      this.setState({values: newValues.slice(), labels: newLabels.slice(), assays: newAssays.slice()});
+    }
+}
 
   handleChangeCallBack = (products) => {
     this.setState({values: [], labels: [], assays: [], products: products});
@@ -260,6 +320,7 @@ class App extends Component {
           <DataSelection 
             onNewSelection={this.onNewSelection} 
             onAllSelection={this.onAllSelection} 
+            onAllUploadsSelection={this.onAllUploadsSelection}
             onHandleChange={this.handleChangeCallBack}
             onHandleClick={this.handleClick}
             labels={this.state.labels}

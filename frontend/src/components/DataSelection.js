@@ -127,7 +127,7 @@ class DataSelection extends React.Component {
       }));
     }
     this.props.onHandleChange(this.state.selectedUploads);
-    this.props.onAllSelection(isSelect, rows);
+    this.props.onAllUploadsSelection(isSelect, rows);
   }
 
   handleChange = (selectedOption) => {
