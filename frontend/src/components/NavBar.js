@@ -8,8 +8,8 @@ class NavBar extends React.Component {
     return (
       <div>
         <nav className="navbar">
-          <button onClick={() => this.props.uploadState(this.props.upload, false)}>Existing Data</button>
-          <button onClick={() => this.props.uploadState(this.props.upload, true)}>Upload Data</button>
+          <button onClick={() => this.props.changeOption(2)}>Existing Data</button>
+          <button onClick={() => this.props.changeOption(3)}>Upload Data</button>
         </nav>
       </div>
     )

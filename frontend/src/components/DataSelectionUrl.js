@@ -3,7 +3,7 @@ import BootstrapTable from 'react-bootstrap-table-next';
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import Select from 'react-select';
 import 'react-select/dist/react-select.css';
-import JsonFileUpload from './JsonFileUpload';
+import UrlFetcher from './UrlFetcher';
 
 const columns = [{
     dataField: 'id', 
@@ -16,17 +16,16 @@ const columns = [{
     text: 'Sample'
 }]
 
-class DataSelectionUpload extends React.Component {
+class DataSelectionUrl extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             selected: [], 
             error: null, 
             selectedGenome: 'mm10', 
-            uploadedArray: [], 
-            selectedUploads: [], 
-            isUploaded: false, 
-        };
+            urlArray: [],
+            selectedOptions: [], 
+        }
     }
 
     renderError() {
@@ -47,7 +46,7 @@ class DataSelectionUpload extends React.Component {
                 selected: this.state.selected.filter(x => x !== row.id)
             }));
         }
-        this.props.onHandleChange(this.state.selectedUploads); // check if this is necessary
+        this.props.onHandleChange(this.state.selectedUploads);
         this.props.onNewSelection(row, isSelect);
     }
 
@@ -55,7 +54,7 @@ class DataSelectionUpload extends React.Component {
         const ids = rows.map(r => r.id);
         if (isSelect) {
             this.setState(() => ({
-                selected: ids, 
+                selected: ids,
             }));
         } else {
             this.setState(() => ({
@@ -69,22 +68,26 @@ class DataSelectionUpload extends React.Component {
         this.props.onHandleClick();
     }
 
+    handleError = (error) => {
+        this.setState({ error })
+    };
+
     handleGenomeChange = (selectedOption) => {
         this.setState({selectedGenome: selectedOption.value})
         this.props.changeGenome(selectedOption.value);
     }
 
-    handleFileUpload = (fileContent) => {
-        this.setState({ uploadedArray: fileContent });
+    handleUrlFetch = (data) => {
+        this.setState({ data });
     }
 
-    uploaded = () => {
-        this.props.onHandleChange(this.state.uploadedArray)
-        this.setState({ isUploaded: true })
+    setUrl = () => {
+        this.setState({ hasUrl: true })
+        this.props.onHandleChange(this.state.urlArray)
     }
 
     renderSelection() {
-        const { uploadedArray } = this.state;
+        const { urlArray } = this.state;
         const selectRow = {
             mode: 'checkbox',
             clickToSelect: true,
@@ -92,22 +95,21 @@ class DataSelectionUpload extends React.Component {
             selected: this.state.selected,
             onSelect: this.handleOnSelect,
             onSelectAll: this.handleOnSelectAll
-        };
+        }
 
         return (
             <div>
                 <div>
-                    <JsonFileUpload onFileUpload={this.handleFileUpload} uploaded={this.uploaded}/>
-                    {this.state.isUploaded && 
+                    <UrlFetcher onUrlFetch={this.handleUrlFetch} onError={this.handleError} setUrl={this.setUrl}/> 
                     <BootstrapTable
                         keyField='id'
-                        data={ uploadedArray }
+                        data={ urlArray }
                         columns={ columns }
                         selectRow={ selectRow }
                         striped
                         hover
                         condensed
-                    />}
+                    />
                 </div>
                 <h2>Choose genome assembly:</h2>
                         <Select
@@ -127,18 +129,18 @@ class DataSelectionUpload extends React.Component {
                 <div>
                     <button style={{display: this.state.isUploaded ? undefined : "none"}} type="button" className="btn btn-primary" onClick={this.handleClick}>Update</button>
                 </div>
-            </div>
+            </div>   
         )
     }
 
     render() {
-
         return (
             <div>
                 {this.renderSelection()}
             </div>
         )
     }
+
 }
 
-export default DataSelectionUpload;
+export default DataSelectionUrl;

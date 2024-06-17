@@ -6,10 +6,11 @@ class UrlFetcher extends React.Component {
         const dataSourceUrl = queryParams.get('dataSrouce');
 
         if (dataSourceUrl) {
-            fetch(dataSrouceUrl)
+            fetch(dataSourceUrl)
                 .then(response => response.json())
                 .then(data => {
                     this.props.onDataFetch(data);
+                    this.props.setUrl();
                 })
                 .catch(error => {
                     this.props.onError('Error fetching the JSON file');

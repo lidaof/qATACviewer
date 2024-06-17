@@ -7,6 +7,7 @@ import ATACseqReport from './components/ATACseqReport';
 import RNAseqReport from './components/RNAseqReport';
 import DataSelectionUpload from './components/DataSelectionUpload';
 import NavBar from './components/NavBar';
+import DataSelectionUrl from './components/DataSelectionUrl';
 
 class App extends Component {
     constructor(props) {
@@ -25,7 +26,9 @@ class App extends Component {
         errorMsg: null,
         loadingMsg: '',
         genome: 'mm10', 
-        upload: false
+        upload: false,
+        existing: true, 
+        url: false, 
       };
       this.handleClick = this.handleClick.bind(this);
       this.hubGenerator = this.hubGenerator.bind(this);
@@ -273,27 +276,65 @@ class App extends Component {
     // );
   }
 
-  uploadState = (upload, change) => {
-    this.setState({
-      upload : change
-    })
+  handleDataFetch = (data) => {
+    this.setState({ data });
+  }
+
+  handleError = (error) => {
+    this.setState({ error });
+  }
+
+  changeOption = (option) => {
+    // if (option === 1) {
+    //   this.setState({
+    //     url : true, 
+    //     existing : false, 
+    //     upload : false
+    //   })
+    // }
+    if (option === 2) {
+      this.setState({
+        url : false, 
+        existing : true, 
+        upload : false, 
+      })
+    }
+
+    if (option === 3) {
+      this.setState({
+        url : false, 
+        existing : false, 
+        upload : true
+      })
+    }
   }
 
   render(){
     const { loading} = this.state;
+    const queryParams = new URLSearchParams(window.location.search);
+    const dataSourceUrl = queryParams.get('dataSource');
 
     return (
       <div>
         <NavBar 
-          uploadState={this.uploadState}
-          upload={this.upload}
+          changeOption={this.changeOption}
         />
         <div>
-          {!this.state.upload &&
+          {dataSourceUrl && this.setState({url : true})}
+          {this.state.url && 
+            <DataSelectionUrl 
+            onNewSelection={this.onNewSelection} 
+            onAllSelection={this.onAllSelection} 
+            onHandleChange={this.handleChangeCallBack}
+            onHandleClick={this.handleClick}
+            labels={this.state.labels}
+            changeGenome={this.changeGenome}
+          />
+          }
+          {this.state.existing &&
             <DataSelection 
             onNewSelection={this.onNewSelection} 
             onAllSelection={this.onAllSelection} 
-            onAllUploadsSelection={this.onAllUploadsSelection}
             onHandleChange={this.handleChangeCallBack}
             onHandleClick={this.handleClick}
             labels={this.state.labels}
@@ -304,7 +345,6 @@ class App extends Component {
             <DataSelectionUpload
             onNewSelection={this.onNewSelection} 
             onAllSelection={this.onAllSelection} 
-            onAllUploadsSelection={this.onAllUploadsSelection}
             onHandleChange={this.handleChangeCallBack}
             onHandleClick={this.handleClick}
             labels={this.state.labels}
