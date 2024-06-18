@@ -29,6 +29,7 @@ class App extends Component {
         upload: false,
         existing: true, 
         url: false, 
+        path: false, 
       };
       this.handleClick = this.handleClick.bind(this);
       this.hubGenerator = this.hubGenerator.bind(this);
@@ -285,13 +286,13 @@ class App extends Component {
   }
 
   changeOption = (option) => {
-    // if (option === 1) {
-    //   this.setState({
-    //     url : true, 
-    //     existing : false, 
-    //     upload : false
-    //   })
-    // }
+    if (option === 1) {
+      this.setState({
+        url : true, 
+        existing : false, 
+        upload : false
+      })
+    }
     if (option === 2) {
       this.setState({
         url : false, 
@@ -318,9 +319,11 @@ class App extends Component {
       <div>
         <NavBar 
           changeOption={this.changeOption}
+          path={this.state.path}
         />
         <div>
           {dataSourceUrl && this.setState({url : true})}
+          {dataSourceUrl && this.setState({path : true})}
           {this.state.url && 
             <DataSelectionUrl 
             onNewSelection={this.onNewSelection} 
